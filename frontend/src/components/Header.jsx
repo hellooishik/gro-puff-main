@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useContext, useState } from 'react';
 import AuthContext from '../context/AuthContext';
 import CartContext from '../context/CartContext';
@@ -8,6 +8,8 @@ const Header = () => {
     const { user, logout } = useContext(AuthContext);
     const { cartItems } = useContext(CartContext);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [keyword, setKeyword] = useState('');
+    const navigate = useNavigate();
 
     const totalQty = cartItems.reduce((acc, item) => acc + item.qty, 0);
 
@@ -16,20 +18,30 @@ const Header = () => {
             <div className="container mx-auto px-4 py-3 flex justify-between items-center">
                 {/* Logo */}
                 <Link to="/" className="text-3xl font-extrabold tracking-tighter text-[#00ADEF] mr-8">
-                    gopuff
+                    FreshPro
                 </Link>
 
                 {/* Search Bar - Hidden on mobile, visible on md */}
-                <div className="hidden md:flex flex-1 max-w-2xl relative">
+                {/* Search Bar - Hidden on mobile, visible on md */}
+                <form onSubmit={(e) => {
+                    e.preventDefault();
+                    if (keyword.trim()) {
+                        navigate(`/?keyword=${keyword}`);
+                    } else {
+                        navigate('/');
+                    }
+                }} className="hidden md:flex flex-1 max-w-2xl relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </div>
                     <input
                         type="text"
+                        name="keyword"
+                        onChange={(e) => setKeyword(e.target.value)}
                         placeholder="Search for chips, drinks, ice cream..."
                         className="w-full pl-10 pr-4 py-2.5 rounded-full bg-gray-100 text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#00ADEF] focus:bg-white transition-colors"
                     />
-                </div>
+                </form>
 
                 {/* Nav Icons */}
                 <nav className="flex items-center space-x-4 md:space-x-6 ml-4">

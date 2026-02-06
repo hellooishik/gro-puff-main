@@ -16,11 +16,9 @@ const CartPage = () => {
 
     const checkoutHandler = () => {
         if (!user) {
-            navigate('/login');
+            navigate('/login?redirect=checkout');
         } else {
-            // Here we would create an order in backend or go to checkout page
-            alert('Checkout functionality coming soon! (Order creation logic implemented in backend)');
-            // Example: logic to call createOrder would go here or in accessible Checkout component
+            navigate('/checkout');
         }
     };
 

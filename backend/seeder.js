@@ -7,7 +7,9 @@ const User = require('./models/userModel');
 const Product = require('./models/productModel');
 const connectDB = require('./config/db');
 
-dotenv.config();
+const path = require('path');
+dotenv.config({ path: path.resolve(__dirname, '.env') });
+// the set wi
 
 connectDB();
 
@@ -22,6 +24,7 @@ const importData = async () => {
             const createdUser = await User.create(user);
             createdUsers.push(createdUser);
         }
+        // the root.adminUser will be set of the final
 
         const adminUser = createdUsers[0]._id;
 

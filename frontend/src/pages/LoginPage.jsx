@@ -1,5 +1,5 @@
 import { useState, useContext, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
 
 const Login = () => {
@@ -9,18 +9,20 @@ const Login = () => {
 
     const { login, user } = useContext(AuthContext);
     const navigate = useNavigate();
+    const location = useLocation();
+    const redirect = new URLSearchParams(location.search).get('redirect') || '/';
 
     useEffect(() => {
-        if (user) {
-            navigate('/');
+        if (user && user.token) {
+            navigate(redirect);
         }
-    }, [user, navigate]);
+    }, [user, navigate, redirect]);
 
     const submitHandler = async (e) => {
         e.preventDefault();
         try {
             await login(email, password);
-            navigate('/');
+            navigate(redirect);
         } catch (err) {
             setError(err);
         }

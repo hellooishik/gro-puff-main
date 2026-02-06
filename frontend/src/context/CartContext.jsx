@@ -6,7 +6,7 @@ const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
     const [cartItems, setCartItems] = useState([]);
-    const { user } = useContext(AuthContext);
+    const { user, logout } = useContext(AuthContext);
 
     useEffect(() => {
         if (user) {
@@ -27,6 +27,9 @@ export const CartProvider = ({ children }) => {
             setCartItems(data);
         } catch (error) {
             console.error(error);
+            if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+                logout();
+            }
         }
     };
 
@@ -47,8 +50,15 @@ export const CartProvider = ({ children }) => {
                 config
             );
             setCartItems(data);
+            alert('Item added to bag!');
         } catch (error) {
             console.error(error);
+            if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+                logout();
+                alert('Session expired. Please login again.');
+            } else {
+                alert('Failed to add to cart. Please try again.');
+            }
         }
     };
 
@@ -67,6 +77,9 @@ export const CartProvider = ({ children }) => {
             setCartItems(data);
         } catch (error) {
             console.error(error);
+            if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+                logout();
+            }
         }
     };
 

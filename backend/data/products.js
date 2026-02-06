@@ -1,7 +1,7 @@
 const products = [
     {
         name: 'Airpods Wireless Bluetooth Headphones',
-        image: '/images/airpods.jpg',
+        image: 'https://cdn.dummyjson.com/product-images/laptops/apple-macbook-pro-14-inch-space-grey/1.webp',
         description:
             'Bluetooth technology lets you connect it with compatible devices wirelessly High-quality AAC audio offers immersive listening experience Built-in microphone allows you to take calls while working',
         brand: 'Apple',
@@ -13,7 +13,7 @@ const products = [
     },
     {
         name: 'iPhone 13 Pro 256GB Memory',
-        image: '/images/phone.jpg',
+        image: 'https://cdn.dummyjson.com/product-images/laptops/apple-macbook-pro-14-inch-space-grey/2.webp',
         description:
             'Introducing the iPhone 13 Pro. A transformative triple-camera system that adds tons of capability without complexity. An unprecedented leap in battery life',
         brand: 'Apple',
@@ -25,7 +25,7 @@ const products = [
     },
     {
         name: 'Cannon EOS 80D DSLR Camera',
-        image: '/images/camera.jpg',
+        image: 'https://cdn.dummyjson.com/product-images/laptops/huawei-matebook-x-pro/1.webp',
         description:
             'Characterized by versatile imaging specs, the Canon EOS 80D further clarifies itself using a pair of robust focusing systems and an intuitive design',
         brand: 'Cannon',
@@ -37,7 +37,7 @@ const products = [
     },
     {
         name: 'Sony Playstation 4 Pro White Version',
-        image: '/images/playstation.jpg',
+        image: 'https://cdn.dummyjson.com/product-images/laptops/asus-zenbook-pro-dual-screen-laptop/1.webp',
         description:
             'The ultimate home entertainment center starts with PlayStation. Whether you are into gaming, HD movies, television, music',
         brand: 'Sony',
@@ -49,7 +49,7 @@ const products = [
     },
     {
         name: 'Logitech G-Series Gaming Mouse',
-        image: '/images/mouse.jpg',
+        image: 'https://cdn.dummyjson.com/product-images/laptops/lenovo-yoga-920/1.webp',
         description:
             'Get a better handle on your games with this Logitech LIGHTSYNC gaming mouse. The six programmable buttons allow customization for a smooth playing experience',
         brand: 'Logitech',
@@ -61,7 +61,7 @@ const products = [
     },
     {
         name: 'Amazon Echo Dot 3rd Generation',
-        image: '/images/alexa.jpg',
+        image: 'https://cdn.dummyjson.com/product-images/laptops/new-dell-xps-13-9300-laptop/1.webp',
         description:
             'Meet Echo Dot - Our most popular smart speaker with a fabric design. It is our most compact smart speaker that fits perfectly into small space',
         brand: 'Amazon',
@@ -72,27 +72,71 @@ const products = [
         numReviews: 12,
     },
     {
-        name: 'Doritos Cool Ranch',
-        image: '/images/doritos.jpg',
-        brand: 'Doritos',
-        category: 'Snacks',
-        description: 'Tortilla chips with cool ranch flavor',
-        price: 4.99,
-        countInStock: 50,
-        rating: 4.8,
-        numReviews: 10
-    },
-    {
-        name: 'Coca Cola 2L',
-        image: '/images/coke.jpg',
+        name: 'Coca Cola (Coke) 2L',
+        image: 'https://cdn.dummyjson.com/product-images/groceries/soft-drinks/1.webp',
         brand: 'Coca Cola',
         category: 'Drinks',
         description: 'Classic Coke 2L bottle',
         price: 2.50,
         countInStock: 100,
         rating: 4.5,
-        numReviews: 20
-    }
-];
+        numReviews: 10,
+    },
+    {
+        name: 'Pepsi Can 330ml',
+        image: 'https://cdn.dummyjson.com/product-images/groceries/soft-drinks/1.webp',
+        brand: 'Pepsi',
+        category: 'Drinks',
+        description: 'Refreshing Pepsi can',
+        price: 1.00,
+        countInStock: 150,
+        rating: 4.2,
+        numReviews: 8,
+    },
+    {
+        name: 'Fresh Red Apples 1kg',
+        image: 'https://cdn.dummyjson.com/product-images/groceries/apple/1.webp',
+        brand: 'FreshPro',
+        category: 'Fruits',
+        description: 'Crisp and sweet red apples',
+        price: 3.99,
+        countInStock: 50,
+        rating: 4.8,
+        numReviews: 15,
+    },
+    {
+        name: 'Bananas 1kg',
+        image: 'https://cdn.dummyjson.com/product-images/groceries/kiwi/1.webp',
+        brand: 'FreshPro',
+        category: 'Fruits',
+        description: 'Ripe and ready to eat',
+        price: 1.99,
+        countInStock: 60,
+        rating: 4.7,
+        numReviews: 20,
+    },
+    {
+        name: 'Broccoli 1kg',
+        image: 'https://cdn.dummyjson.com/product-images/groceries/green-bell-pepper/1.webp',
+        brand: 'FreshPro',
+        category: 'Vegetables',
+        description: 'Fresh broccoli florets',
+        price: 2.49,
+        countInStock: 40,
+        rating: 4.6,
+        numReviews: 12,
+    },
+    {
+        name: 'Carrots 1kg',
+        image: 'https://cdn.dummyjson.com/product-images/groceries/potatoes/1.webp',
+        brand: 'FreshPro',
+        category: 'Vegetables',
+        description: 'Organic crunchy carrots',
+        price: 1.49,
+        countInStock: 70,
+        rating: 4.5,
+        numReviews: 18,
+    },
+]
 
-module.exports = products;
+module.exports = products

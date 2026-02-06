@@ -10,7 +10,19 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const userInfo = localStorage.getItem('userInfo');
         if (userInfo) {
-            setUser(JSON.parse(userInfo));
+            try {
+                const parsedUser = JSON.parse(userInfo);
+                if (parsedUser && parsedUser.token) {
+                    setUser(parsedUser);
+                } else {
+                    localStorage.removeItem('userInfo');
+                    setUser(null);
+                }
+            } catch (error) {
+                console.error('Error parsing user info:', error);
+                localStorage.removeItem('userInfo');
+                setUser(null);
+            }
         }
         setLoading(false);
     }, []);
