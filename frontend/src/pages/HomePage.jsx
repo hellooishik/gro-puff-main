@@ -10,12 +10,12 @@ const HomePage = () => {
 
     useEffect(() => {
         const fetchProducts = async () => {
-            const { data } = await axios.get(`/api/products${location.search}`); // Pass search query directly
-            setProducts(data);
+            const { data } = await axios.get(`/api/products`);
+            setProducts(data); // In a real app we might limit this to top 8 or 'featured'
         };
 
         fetchProducts();
-    }, [location.search]);
+    }, []);
 
     return (
         <div className="bg-white min-h-screen pb-20">
@@ -84,7 +84,7 @@ const HomePage = () => {
                 <h2 className="text-4xl font-extrabold text-center mb-12 text-[#2E2E2E]">Browse popular categories</h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     {['Snacks', 'Drinks', 'Alcohol', 'Grocery', 'Cleaning', 'Ice Cream', 'Quick Meals', 'Bath & Beauty'].map((cat) => (
-                        <div key={cat} className="group cursor-pointer">
+                        <Link to={`/search?category=${cat}`} key={cat} className="group cursor-pointer block">
                             <div className="bg-[#F1F1F1] rounded-2xl p-8 text-center hover:bg-white hover:shadow-xl transition duration-300 border border-transparent hover:border-gray-100 flex flex-col items-center justify-center h-48">
                                 {/* Cat Placeholder Image */}
                                 <div className={`w-20 h-20 mb-4 rounded-full flex items-center justify-center text-2xl
@@ -104,7 +104,7 @@ const HomePage = () => {
                                 </div>
                                 <h3 className="text-xl font-bold text-gray-800">{cat}</h3>
                             </div>
-                        </div>
+                        </Link>
                     ))}
                 </div>
             </section>

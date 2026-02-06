@@ -2,16 +2,29 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useContext, useState } from 'react';
 import AuthContext from '../context/AuthContext';
 import CartContext from '../context/CartContext';
-import { ShoppingBag, User, LogOut } from 'lucide-react';
+import { ShoppingBag, User as UserIcon, LogOut } from 'lucide-react';
 
 const Header = () => {
-    const { user, logout } = useContext(AuthContext);
-    const { cartItems } = useContext(CartContext);
+    const auth = useContext(AuthContext);
+    const { user, logout } = auth || {};
+    const cart = useContext(CartContext);
+    const { cartItems } = cart || { cartItems: [] };
+
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [keyword, setKeyword] = useState('');
     const navigate = useNavigate();
 
-    const totalQty = cartItems.reduce((acc, item) => acc + item.qty, 0);
+    const totalQty = cartItems ? cartItems.reduce((acc, item) => acc + item.qty, 0) : 0;
+    const totalPrice = cartItems ? cartItems.reduce((acc, item) => acc + item.qty * item.price, 0).toFixed(2) : '0.00';
+
+    const handleSearch = (e) => {
+        e.preventDefault();
+        if (keyword.trim()) {
+            navigate(`/search?keyword=${keyword}`);
+        } else {
+            navigate('/search');
+        }
+    };
 
     return (
         <header className="bg-white sticky top-0 z-50 shadow-sm border-b border-gray-100">
@@ -22,15 +35,7 @@ const Header = () => {
                 </Link>
 
                 {/* Search Bar - Hidden on mobile, visible on md */}
-                {/* Search Bar - Hidden on mobile, visible on md */}
-                <form onSubmit={(e) => {
-                    e.preventDefault();
-                    if (keyword.trim()) {
-                        navigate(`/?keyword=${keyword}`);
-                    } else {
-                        navigate('/');
-                    }
-                }} className="hidden md:flex flex-1 max-w-2xl relative">
+                <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-2xl relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </div>
@@ -65,13 +70,13 @@ const Header = () => {
                         </div>
                     ) : (
                         <Link to="/login" className="flex items-center space-x-1 text-gray-600 hover:text-[#00ADEF] font-medium">
-                            <User size={22} />
+                            <UserIcon size={22} />
                             <span className="hidden md:inline">Sign In</span>
                         </Link>
                     )}
 
                     <Link to="/cart" className="relative flex items-center bg-[#00ADEF] text-white px-4 py-2 rounded-full hover:bg-[#0092ca] transition shadow-md">
-                        <span className="font-bold mr-2">${cartItems.reduce((acc, item) => acc + item.qty * item.price, 0).toFixed(2)}</span>
+                        <span className="font-bold mr-2">${totalPrice}</span>
                         <ShoppingBag size={20} />
                         {totalQty > 0 && (
                             <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center border-2 border-white">

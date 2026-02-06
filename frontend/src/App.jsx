@@ -1,6 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
+import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
+import SearchPage from './pages/SearchPage';
 import Login from './pages/LoginPage';
 import Register from './pages/RegisterPage';
 import CartPage from './pages/CartPage';
@@ -19,6 +21,7 @@ function App() {
             <main className="flex-grow">
               <Routes>
                 <Route path="/" element={<HomePage />} />
+                <Route path="/search" element={<SearchPage />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/cart" element={<CartPage />} />
@@ -27,9 +30,7 @@ function App() {
                 {/* <Route path="/admin" element={<AdminDashboard />} /> */}
               </Routes>
             </main>
-            <footer className="bg-gray-800 text-white py-6 text-center">
-              <p>&copy; 2026 GoPuff Clone. All rights reserved.</p>
-            </footer>
+            <Footer />
           </div>
         </Router>
       </CartProvider>
