@@ -1,4 +1,8 @@
 {
+    "buildCommand": "npm run build",
+    "env": {
+        "VITE_API_URL": "https://gro-puff-main-s1t8.vercel.app/"
+    },
     "rewrites": [
         {
             "source": "/(.*)",
