@@ -10,8 +10,13 @@ const HomePage = () => {
 
     useEffect(() => {
         const fetchProducts = async () => {
-            const { data } = await axios.get(`/api/products`);
-            setProducts(data); // In a real app we might limit this to top 8 or 'featured'
+            try {
+                const { data } = await axios.get(`/api/products`);
+                setProducts(data); // In a real app we might limit this to top 8 or 'featured'
+            } catch (error) {
+                console.error("Failed to fetch products:", error);
+                // Optional: set basic state or just ensure page doesn't crash
+            }
         };
 
         fetchProducts();
