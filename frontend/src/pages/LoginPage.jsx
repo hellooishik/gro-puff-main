@@ -20,11 +20,13 @@ const Login = () => {
 
     const submitHandler = async (e) => {
         e.preventDefault();
+        setError(null);
         try {
             await login(email, password);
             navigate(redirect);
         } catch (err) {
-            setError(err);
+            console.error('Login error:', err);
+            setError(typeof err === 'string' ? err : err.message || 'Login failed');
         }
     };
 
@@ -32,7 +34,11 @@ const Login = () => {
         <div className="flex justify-center items-center py-20 bg-gray-50 min-h-[80vh]">
             <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
                 <h1 className="text-2xl font-bold mb-6 text-center">Sign In</h1>
-                {error && <div className="bg-red-100 text-red-700 p-3 rounded mb-4">{error}</div>}
+                {error && (
+                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                        {error}
+                    </div>
+                )}
                 <form onSubmit={submitHandler}>
                     <div className="mb-4">
                         <label className="block text-gray-700 mb-2">Email Address</label>

@@ -37,9 +37,9 @@ export const AuthProvider = ({ children }) => {
             localStorage.setItem('userInfo', JSON.stringify(data));
             return data;
         } catch (error) {
-            throw error.response && error.response.data.message
-                ? error.response.data.message
-                : error.message;
+            const errorMessage = error.response?.data?.message || error.message || 'Login failed';
+            console.error('Login error details:', error.response?.data || error.message);
+            throw errorMessage;
         }
     };
 
@@ -54,9 +54,9 @@ export const AuthProvider = ({ children }) => {
             localStorage.setItem('userInfo', JSON.stringify(data));
             return data;
         } catch (error) {
-            throw error.response && error.response.data.message
-                ? error.response.data.message
-                : error.message;
+            const errorMessage = error.response?.data?.message || error.message || 'Registration failed';
+            console.error('Registration error details:', error.response?.data || error.message);
+            throw errorMessage;
         }
     };
 

@@ -21,6 +21,7 @@ const Register = () => {
 
     const submitHandler = async (e) => {
         e.preventDefault();
+        setError(null);
         if (password !== confirmPassword) {
             setMessage('Passwords do not match');
         } else {
@@ -28,7 +29,8 @@ const Register = () => {
                 await register(name, email, password);
                 navigate('/');
             } catch (err) {
-                setError(err);
+                console.error('Register error:', err);
+                setError(typeof err === 'string' ? err : err.message || 'Registration failed');
             }
         }
     };
@@ -37,8 +39,16 @@ const Register = () => {
         <div className="flex justify-center items-center py-20 bg-gray-50 min-h-[80vh]">
             <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
                 <h1 className="text-2xl font-bold mb-6 text-center">Sign Up</h1>
-                {message && <div className="bg-red-100 text-red-700 p-3 rounded mb-4">{message}</div>}
-                {error && <div className="bg-red-100 text-red-700 p-3 rounded mb-4">{error}</div>}
+                {message && (
+                    <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
+                        {message}
+                    </div>
+                )}
+                {error && (
+                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                        {error}
+                    </div>
+                )}
                 <form onSubmit={submitHandler}>
                     <div className="mb-4">
                         <label className="block text-gray-700 mb-2">Name</label>
