@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
+import axios from '../api/axios';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
