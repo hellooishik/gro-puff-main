@@ -1,7 +1,11 @@
 import { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { loadStripe } from '@stripe/stripe-js';
 import CartContext from '../context/CartContext';
 import AuthContext from '../context/AuthContext';
+
+// Initialize Stripe with publishable key
+const stripePromise = loadStripe('pk_test_51T52ZkDZCNoQB45O9G5PlLYzHyh7dyuUCf50qUnbxvsazruQ7PzVxvT57bgVR0EBOOV4tSaKlrQB4DgdHdPIRcfx00OlozjpRu');
 
 const CheckoutPage = () => {
     const { cartItems, clearCart } = useContext(CartContext);
@@ -13,6 +17,7 @@ const CheckoutPage = () => {
     const [postalCode, setPostalCode] = useState('');
     const [country, setCountry] = useState('United Kingdom'); // Default to UK
     const [paymentMethod, setPaymentMethod] = useState('Stripe');
+    const [loading, setLoading] = useState(false);
 
     // UK Postcode Regex (Simple version)
     // improved regex: ^([A-Z]{1,2}\d[A-Z\d]? ?\d[A-Z]{2}|GIR ?0AA)$
@@ -26,6 +31,40 @@ const CheckoutPage = () => {
             navigate('/cart');
         }
     }, [user, cartItems, navigate]);
+
+    const handlePayment = async () => {
+        setLoading(true);
+        const subtotal = cartItems.reduce((acc, item) => acc + item.qty * item.price, 0);
+        const deliveryFee = subtotal > 50 ? 0 : 5.99;
+        const total = parseFloat(subtotal) + deliveryFee;
+        const amountInCents = Math.round(total * 100); // Stripe expects amount in cents
+
+        try {
+            const response = await fetch('http://localhost:5000/create-checkout-session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ amount: amountInCents }),
+            });
+
+            const session = await response.json();
+
+            const stripe = await stripePromise;
+            const result = await stripe.redirectToCheckout({
+                sessionId: session.id,
+            });
+
+            if (result.error) {
+                alert(result.error.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Payment failed. Please try again.');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const submitHandler = (e) => {
         e.preventDefault();
@@ -41,11 +80,8 @@ const CheckoutPage = () => {
             return;
         }
 
-        // Proceed to place order logic (mock for now or API call)
-        // console.log('Order Placed');
-        alert('Order placed successfully! (Mock)');
-        clearCart();
-        navigate('/');
+        // Proceed to payment
+        handlePayment();
     };
 
     const subtotal = cartItems.reduce((acc, item) => acc + item.qty * item.price, 0).toFixed(2);
@@ -135,9 +171,10 @@ const CheckoutPage = () => {
 
                             <button
                                 type="submit"
-                                className="w-full bg-[#00ADEF] text-white py-3 rounded-full font-bold text-lg hover:bg-[#0092ca] transition"
+                                disabled={loading}
+                                className="w-full bg-[#00ADEF] text-white py-3 rounded-full font-bold text-lg hover:bg-[#0092ca] transition disabled:opacity-50"
                             >
-                                Place Order
+                                {loading ? 'Processing...' : 'Place Order'}
                             </button>
                         </form>
                     </div>
