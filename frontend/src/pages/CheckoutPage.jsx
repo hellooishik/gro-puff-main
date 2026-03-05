@@ -1,6 +1,7 @@
 import { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
+import axios from '../api/axios';
 import CartContext from '../context/CartContext';
 import AuthContext from '../context/AuthContext';
 
@@ -40,15 +41,11 @@ const CheckoutPage = () => {
         const amountInCents = Math.round(total * 100); // Stripe expects amount in cents
 
         try {
-            const response = await fetch('http://localhost:5000/create-checkout-session', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ amount: amountInCents }),
+            const response = await axios.post('/create-checkout-session', {
+                amount: amountInCents,
             });
 
-            const session = await response.json();
+            const session = response.data;
 
             const stripe = await stripePromise;
             const result = await stripe.redirectToCheckout({
