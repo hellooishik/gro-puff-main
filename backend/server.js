@@ -24,6 +24,20 @@ app.post('/create-checkout-session', async (req, res) => {
     const { amount } = req.body; // amount in cents
 
     try {
+        // Validate amount
+        if (!amount || amount <= 0) {
+            return res.status(400).json({ error: 'Invalid amount' });
+        }
+
+        // Check if FRONTEND_URL is set
+        if (!process.env.FRONTEND_URL) {
+            return res.status(500).json({ error: 'FRONTEND_URL not configured' });
+        }
+
+        const frontendUrl = process.env.FRONTEND_URL.endsWith('/') 
+            ? process.env.FRONTEND_URL.slice(0, -1) 
+            : process.env.FRONTEND_URL;
+
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
             line_items: [
@@ -39,12 +53,13 @@ app.post('/create-checkout-session', async (req, res) => {
                 },
             ],
             mode: 'payment',
-            success_url: process.env.FRONTEND_URL + '/success',
-            cancel_url: process.env.FRONTEND_URL + '/cancel',
+            success_url: `${frontendUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${frontendUrl}/cancel`,
         });
 
         res.json({ id: session.id });
     } catch (error) {
+        console.error('Stripe error:', error);
         res.status(500).json({ error: error.message });
     }
 });
