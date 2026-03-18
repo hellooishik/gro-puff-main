@@ -174,6 +174,12 @@ const CheckoutPage = () => {
                                 <p className="text-sm text-gray-500 mt-1">We currently only ship to the United Kingdom.</p>
                             </div>
 
+                            {errorMsg && (
+                                <div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                                    <span className="block sm:inline">{errorMsg}</span>
+                                </div>
+                            )}
+
                             <h2 className="text-xl font-semibold mb-4 border-t pt-4">Payment Method</h2>
                             <div className="mb-6">
                                 <div className="flex items-center mb-2">
