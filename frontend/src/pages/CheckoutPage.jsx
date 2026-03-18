@@ -1,12 +1,8 @@
 import { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { loadStripe } from '@stripe/stripe-js';
 import axios from '../api/axios';
 import CartContext from '../context/CartContext';
 import AuthContext from '../context/AuthContext';
-
-// Initialize Stripe with publishable key
-const stripePromise = loadStripe('pk_test_51T52ZkDZCNoQB45O9G5PlLYzHyh7dyuUCf50qUnbxvsazruQ7PzVxvT57bgVR0EBOOV4tSaKlrQB4DgdHdPIRcfx00OlozjpRu');
 
 const CheckoutPage = () => {
     const { cartItems, clearCart } = useContext(CartContext);
@@ -17,7 +13,7 @@ const CheckoutPage = () => {
     const [city, setCity] = useState('');
     const [postalCode, setPostalCode] = useState('');
     const [country, setCountry] = useState('United Kingdom'); // Default to UK
-    const [paymentMethod, setPaymentMethod] = useState('Stripe');
+    const [paymentMethod, setPaymentMethod] = useState('COD');
     const [loading, setLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
     const [isFirstOrder, setIsFirstOrder] = useState(false);
@@ -55,35 +51,13 @@ const CheckoutPage = () => {
         }
     }, [user, cartItems, navigate]);
 
-    const handlePayment = async () => {
-        setLoading(true);
-        const subtotal = cartItems.reduce((acc, item) => acc + item.qty * item.price, 0);
-        const deliveryFee = subtotal > 50 ? 0 : 5.99;
-        const total = parseFloat(subtotal) + deliveryFee;
-        const amountInCents = Math.round(total * 100); // Stripe expects amount in cents
-
-        try {
-            const response = await axios.post('/create-checkout-session', {
-                amount: amountInCents,
-            });
-
-            const session = response.data;
-
-            const stripe = await stripePromise;
-            const result = await stripe.redirectToCheckout({
-                sessionId: session.id,
-            });
-
-            if (result.error) {
-                alert(result.error.message);
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Payment failed. Please try again.');
-        } finally {
-            setLoading(false);
-        }
-    };
+    const subtotal = cartItems.reduce((acc, item) => acc + item.qty * item.price, 0).toFixed(2);
+    const deliveryFee = parseFloat(subtotal) > 50 ? 0.00 : 5.99;
+    
+    // Calculate total including discounts
+    const discount = isFirstOrder ? 10.00 : 0.00;
+    const computedTotal = (parseFloat(subtotal) + (deliveryFee === 0 ? 0 : parseFloat(deliveryFee))) - discount;
+    const total = computedTotal > 0 ? computedTotal.toFixed(2) : '0.00';
 
     const submitHandler = async (e) => {
         e.preventDefault();
@@ -99,20 +73,42 @@ const CheckoutPage = () => {
             return;
         }
 
-        // Proceed to place order logic (mock for now or API call)
-        // console.log('Order Placed');
-        alert('Order placed successfully! (Mock)');
-        clearCart();
-        navigate('/');
+        setLoading(true);
+
+        try {
+            const config = { headers: { Authorization: `Bearer ${user.token}` } };
+            
+            const orderPayload = {
+                orderItems: cartItems.map(item => ({
+                     name: item.name,
+                     qty: item.qty,
+                     image: item.image,
+                     price: item.price,
+                     product: item.product
+                })),
+                shippingAddress: { address, city, postalCode, country },
+                paymentMethod: 'COD',
+                itemsPrice: subtotal,
+                shippingPrice: deliveryFee === 0 ? 0 : deliveryFee,
+                taxPrice: 0,
+            };
+
+            await axios.post('/api/orders', orderPayload, config);
+
+            clearCart();
+            setLoading(false);
+            alert('Order placed successfully! Payment will be collected at delivery.');
+            navigate('/');
+        } catch (error) {
+            console.error('Error details:', error);
+            if (error.response && error.response.data && error.response.data.message) {
+                setErrorMsg(error.response.data.message);
+            } else {
+                setErrorMsg('An error occurred. Please try again.');
+            }
+            setLoading(false);
+        }
     };
-
-    const subtotal = cartItems.reduce((acc, item) => acc + item.qty * item.price, 0).toFixed(2);
-    const deliveryFee = parseFloat(subtotal) > 50 ? 0.00 : 5.99;
-
-    // Calculate total including discounts
-    const discount = isFirstOrder ? 10.00 : 0.00;
-    const computedTotal = (parseFloat(subtotal) + (deliveryFee === 0 ? 0 : parseFloat(deliveryFee))) - discount;
-    const total = computedTotal > 0 ? computedTotal.toFixed(2) : '0.00';
 
     return (
         <div className="container mx-auto px-4 py-10">
@@ -183,16 +179,16 @@ const CheckoutPage = () => {
                                 <div className="flex items-center mb-2">
                                     <input
                                         type="radio"
-                                        id="stripe"
+                                        id="cod"
                                         name="paymentMethod"
-                                        value="Stripe"
+                                        value="COD"
                                         checked
                                         readOnly
                                         className="text-[#00ADEF] focus:ring-[#00ADEF]"
                                     />
-                                    <label htmlFor="stripe" className="ml-2">Stripe / Credit Card</label>
+                                    <label htmlFor="cod" className="ml-2">Cash on Delivery (COD)</label>
                                 </div>
-                                {/* Add more passed mocks if needed */}
+                                <p className="text-sm text-gray-500 mt-1">Payment will be collected at delivery.</p>
                             </div>
 
                             <button
@@ -200,7 +196,7 @@ const CheckoutPage = () => {
                                 disabled={loading}
                                 className="w-full bg-[#00ADEF] text-white py-3 rounded-full font-bold text-lg hover:bg-[#0092ca] transition disabled:opacity-50"
                             >
-                                {loading ? 'Processing...' : 'Place Order'}
+                                {loading ? 'Processing...' : 'Place Order (Cash on Delivery)'}
                             </button>
                         </form>
                     </div>
