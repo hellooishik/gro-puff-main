@@ -1,7 +1,12 @@
 import { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { loadStripe } from '@stripe/stripe-js';
+import axios from '../api/axios';
 import CartContext from '../context/CartContext';
 import AuthContext from '../context/AuthContext';
+
+// Initialize Stripe with publishable key
+const stripePromise = loadStripe('pk_test_51T52ZkDZCNoQB45O9G5PlLYzHyh7dyuUCf50qUnbxvsazruQ7PzVxvT57bgVR0EBOOV4tSaKlrQB4DgdHdPIRcfx00OlozjpRu');
 
 const CheckoutPage = () => {
     const { cartItems, clearCart } = useContext(CartContext);
@@ -11,13 +16,8 @@ const CheckoutPage = () => {
     const [address, setAddress] = useState('');
     const [city, setCity] = useState('');
     const [postalCode, setPostalCode] = useState('');
-    const [country, setCountry] = useState('United Kingdom');
-    const [paymentMethod, setPaymentMethod] = useState('COD');
-    const [errorMsg, setErrorMsg] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    
-    // Offers state
-    const [isFirstOrder, setIsFirstOrder] = useState(false);
+    const [country, setCountry] = useState('United Kingdom'); // Default to UK
+    const [paymentMethod, setPaymentMethod] = useState('Stripe');
 
     // UK Postcode Regex (Simple version)
     // improved regex: ^([A-Z]{1,2}\d[A-Z\d]? ?\d[A-Z]{2}|GIR ?0AA)$
@@ -52,6 +52,36 @@ const CheckoutPage = () => {
         }
     }, [user, cartItems, navigate]);
 
+    const handlePayment = async () => {
+        setLoading(true);
+        const subtotal = cartItems.reduce((acc, item) => acc + item.qty * item.price, 0);
+        const deliveryFee = subtotal > 50 ? 0 : 5.99;
+        const total = parseFloat(subtotal) + deliveryFee;
+        const amountInCents = Math.round(total * 100); // Stripe expects amount in cents
+
+        try {
+            const response = await axios.post('/create-checkout-session', {
+                amount: amountInCents,
+            });
+
+            const session = response.data;
+
+            const stripe = await stripePromise;
+            const result = await stripe.redirectToCheckout({
+                sessionId: session.id,
+            });
+
+            if (result.error) {
+                alert(result.error.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Payment failed. Please try again.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const submitHandler = async (e) => {
         e.preventDefault();
         setErrorMsg('');
@@ -66,45 +96,16 @@ const CheckoutPage = () => {
             return;
         }
 
-        try {
-            setIsSubmitting(true);
-            const axios = (await import('../api/axios')).default;
-            const config = { headers: { Authorization: `Bearer ${user.token}` } };
-            
-            const orderPayload = {
-                orderItems: cartItems.map(item => ({
-                     name: item.name,
-                     qty: item.qty,
-                     image: item.image,
-                     price: item.price,
-                     product: item.product
-                })),
-                shippingAddress: { address, city, postalCode, country },
-                paymentMethod: 'COD',
-                itemsPrice: subtotal,
-                shippingPrice: deliveryFee === 'Free' ? 0 : deliveryFee,
-                taxPrice: 0,
-            };
-
-            await axios.post('/api/orders', orderPayload, config);
-            
-            setIsSubmitting(false);
-            alert('Order placed successfully! Payment will be collected at delivery.');
-            clearCart();
-            navigate('/');
-        } catch (error) {
-            setIsSubmitting(false);
-            if (error.response && error.response.data && error.response.data.message) {
-                setErrorMsg(error.response.data.message);
-            } else {
-                setErrorMsg('An error occurred. Please try again.');
-            }
-        }
+        // Proceed to place order logic (mock for now or API call)
+        // console.log('Order Placed');
+        alert('Order placed successfully! (Mock)');
+        clearCart();
+        navigate('/');
     };
 
     const subtotal = cartItems.reduce((acc, item) => acc + item.qty * item.price, 0).toFixed(2);
     const deliveryFee = parseFloat(subtotal) > 50 ? 0.00 : 5.99;
-    
+
     // Calculate total including discounts
     const discount = isFirstOrder ? 10.00 : 0.00;
     const computedTotal = (parseFloat(subtotal) + (deliveryFee === 0 ? 0 : parseFloat(deliveryFee))) - discount;
@@ -193,9 +194,10 @@ const CheckoutPage = () => {
 
                             <button
                                 type="submit"
-                                className="w-full bg-[#00ADEF] text-white py-3 rounded-full font-bold text-lg hover:bg-[#0092ca] transition"
+                                disabled={loading}
+                                className="w-full bg-[#00ADEF] text-white py-3 rounded-full font-bold text-lg hover:bg-[#0092ca] transition disabled:opacity-50"
                             >
-                                Place Order
+                                {loading ? 'Processing...' : 'Place Order'}
                             </button>
                         </form>
                     </div>
@@ -204,7 +206,7 @@ const CheckoutPage = () => {
                     <div className="md:w-1/3">
                         <div className="bg-gray-50 p-6 rounded-lg shadow-sm border sticky top-24">
                             <h2 className="text-xl font-bold mb-4">Order Summary</h2>
-                            
+
                             {isFirstOrder && (
                                 <div className="mb-4 bg-green-100 text-green-800 p-2 rounded text-sm font-semibold text-center border border-green-200">
                                     👉 £10 OFF applied (First Order Offer)
@@ -224,7 +226,7 @@ const CheckoutPage = () => {
                                 <span>Shipping</span>
                                 <span>{deliveryFee === 0 ? 'Free' : `£${deliveryFee}`}</span>
                             </div>
-                            
+
                             {isFirstOrder && (
                                 <div className="flex justify-between mb-2 text-green-600 font-medium">
                                     <span>First Order Discount</span>
