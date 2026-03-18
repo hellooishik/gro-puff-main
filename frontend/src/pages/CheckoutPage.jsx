@@ -18,6 +18,9 @@ const CheckoutPage = () => {
     const [postalCode, setPostalCode] = useState('');
     const [country, setCountry] = useState('United Kingdom'); // Default to UK
     const [paymentMethod, setPaymentMethod] = useState('Stripe');
+    const [loading, setLoading] = useState(false);
+    const [errorMsg, setErrorMsg] = useState('');
+    const [isFirstOrder, setIsFirstOrder] = useState(false);
 
     // UK Postcode Regex (Simple version)
     // improved regex: ^([A-Z]{1,2}\d[A-Z\d]? ?\d[A-Z]{2}|GIR ?0AA)$
