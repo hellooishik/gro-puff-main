@@ -61,6 +61,9 @@ const Header = () => {
                                     Admin
                                 </Link>
                             )}
+                            <Link to="/profile" className="text-gray-600 text-sm font-medium hover:text-[#00ADEF] transition">
+                                Profile
+                            </Link>
                             <button
                                 onClick={logout}
                                 className="text-gray-500 hover:text-[#00ADEF] transition"
