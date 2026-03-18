@@ -261,7 +261,7 @@ const ProfilePage = () => {
                                                 </span>
                                                 <div className="text-right">
                                                     <p className="text-sm text-gray-500">Total</p>
-                                                    <p className="font-bold text-gray-900">£{order.totalPrice.toFixed(2)}</p>
+                                                    <p className="font-bold text-gray-900">£{(order.totalPrice || 0).toFixed(2)}</p>
                                                 </div>
                                             </div>
                                         </div>

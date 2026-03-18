@@ -92,7 +92,7 @@ const OrderDetails = () => {
                             {order.status}
                         </span>
                         <div className="text-gray-600 font-medium">
-                            Total: <span className="text-xl font-bold text-gray-900 ml-1">£{order.totalPrice.toFixed(2)}</span>
+                            Total: <span className="text-xl font-bold text-gray-900 ml-1">£{(order.totalPrice || 0).toFixed(2)}</span>
                         </div>
                     </div>
                 </div>
@@ -120,25 +120,25 @@ const OrderDetails = () => {
                         <div className="bg-gray-50 p-4 rounded-xl text-sm text-gray-700 space-y-3">
                             <div className="flex justify-between">
                                 <span>Items Total</span>
-                                <span>£{order.itemsPrice.toFixed(2)}</span>
+                                <span>£{(order.itemsPrice || 0).toFixed(2)}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span>Shipping</span>
-                                <span>£{order.shippingPrice.toFixed(2)}</span>
+                                <span>£{(order.shippingPrice || 0).toFixed(2)}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span>Tax</span>
-                                <span>£{order.taxPrice.toFixed(2)}</span>
+                                <span>£{(order.taxPrice || 0).toFixed(2)}</span>
                             </div>
                             {order.discount > 0 && (
                                 <div className="flex justify-between text-green-600 font-medium">
                                     <span>Discount</span>
-                                    <span>-£{order.discount.toFixed(2)}</span>
+                                    <span>-£{(order.discount || 0).toFixed(2)}</span>
                                 </div>
                             )}
                             <div className="border-t border-gray-200 pt-2 flex justify-between font-bold text-base text-gray-900">
                                 <span>Total</span>
-                                <span>£{order.totalPrice.toFixed(2)}</span>
+                                <span>£{(order.totalPrice || 0).toFixed(2)}</span>
                             </div>
                         </div>
                     </div>
@@ -174,7 +174,7 @@ const OrderDetails = () => {
                                     {item.isFreeItem ? (
                                         <span className="text-green-600 px-2 py-1 bg-green-50 rounded text-sm">FREE</span>
                                     ) : (
-                                        <span>£{item.price.toFixed(2)}</span>
+                                        <span>£{(item.price || 0).toFixed(2)}</span>
                                     )}
                                 </div>
                             </div>
