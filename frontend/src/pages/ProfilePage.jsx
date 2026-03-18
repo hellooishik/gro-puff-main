@@ -1,16 +1,26 @@
 import { useState, useEffect, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from '../api/axios';
 import AuthContext from '../context/AuthContext';
 import { Package, Calendar, MapPin, CheckCircle, Clock, Truck } from 'lucide-react';
 
 const ProfilePage = () => {
-    const { user } = useContext(AuthContext);
+    const { user, updateProfile } = useContext(AuthContext);
     const navigate = useNavigate();
 
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+
+    // Profile form state
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
+    const [phone, setPhone] = useState('');
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [profileMessage, setProfileMessage] = useState(null);
+    const [updateSuccess, setUpdateSuccess] = useState(false);
 
     useEffect(() => {
         if (!user) {
@@ -33,8 +43,40 @@ const ProfilePage = () => {
             }
         };
 
-        fetchMyOrders();
+        if (user) {
+            setName(user.name);
+            setEmail(user.email);
+            setUsername(user.username || '');
+            setPhone(user.phone || '');
+            fetchMyOrders();
+        }
     }, [user, navigate]);
+
+    const submitProfileHandler = async (e) => {
+        e.preventDefault();
+        setProfileMessage(null);
+        setUpdateSuccess(false);
+
+        if (password !== confirmPassword) {
+            setProfileMessage('Passwords do not match');
+        } else {
+            try {
+                await updateProfile({
+                    name,
+                    email,
+                    username,
+                    phone,
+                    password: password || undefined
+                });
+                setUpdateSuccess(true);
+                setPassword('');
+                setConfirmPassword('');
+                setTimeout(() => setUpdateSuccess(false), 3000);
+            } catch (err) {
+                setProfileMessage(typeof err === 'string' ? err : err.message || 'Update failed');
+            }
+        }
+    };
 
     const getStatusIcon = (status) => {
         switch (status) {
@@ -75,7 +117,7 @@ const ProfilePage = () => {
             <h1 className="text-3xl font-bold mb-8 text-gray-800">My Profile</h1>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {/* User Info Card */}
+                {/* User Info Form */}
                 <div className="md:col-span-1">
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                         <div className="flex items-center space-x-4 mb-6">
@@ -85,16 +127,91 @@ const ProfilePage = () => {
                                 </span>
                             </div>
                             <div>
-                                <h2 className="text-lg font-bold text-gray-800">{user?.name}</h2>
-                                <p className="text-sm text-gray-500">{user?.email}</p>
+                                <h2 className="text-lg font-bold text-gray-800">Edit Profile</h2>
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mt-1">
+                                    Status: Active
+                                </span>
                             </div>
                         </div>
-                        <div className="pt-4 border-t border-gray-100">
-                            <p className="text-sm text-gray-500 mb-1">Account Status</p>
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                Active
-                            </span>
-                        </div>
+
+                        {profileMessage && (
+                            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 text-sm">
+                                {profileMessage}
+                            </div>
+                        )}
+                        {updateSuccess && (
+                            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 text-sm">
+                                Profile Updated Successfully
+                            </div>
+                        )}
+
+                        <form onSubmit={submitProfileHandler} className="space-y-4">
+                            <div>
+                                <label className="block text-xs text-gray-500 mb-1">Name</label>
+                                <input
+                                    type="text"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00ADEF] text-sm"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs text-gray-500 mb-1">Username</label>
+                                <input
+                                    type="text"
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
+                                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00ADEF] text-sm"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs text-gray-500 mb-1">Phone</label>
+                                <input
+                                    type="tel"
+                                    value={phone}
+                                    onChange={(e) => setPhone(e.target.value)}
+                                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00ADEF] text-sm"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs text-gray-500 mb-1">Email</label>
+                                <input
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00ADEF] text-sm"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs text-gray-500 mb-1">New Password (optional)</label>
+                                <input
+                                    type="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00ADEF] text-sm"
+                                    placeholder="Leave blank to keep current"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs text-gray-500 mb-1">Confirm New Password</label>
+                                <input
+                                    type="password"
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00ADEF] text-sm"
+                                />
+                            </div>
+                            <button
+                                type="submit"
+                                className="w-full bg-[#00ADEF] text-white py-2 rounded-lg font-semibold hover:bg-opacity-90 transition text-sm"
+                            >
+                                Update Profile
+                            </button>
+                        </form>
                     </div>
                 </div>
 
@@ -127,7 +244,7 @@ const ProfilePage = () => {
                         ) : (
                             <div className="space-y-4">
                                 {orders.map((order) => (
-                                    <div key={order._id} className="border border-gray-100 rounded-xl p-5 hover:border-[#00ADEF] transition-colors group">
+                                    <Link to={`/order/${order._id}`} key={order._id} className="block border border-gray-100 rounded-xl p-5 hover:border-[#00ADEF] transition-colors group cursor-pointer">
                                         <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-gray-50 pb-4 mb-4 gap-4">
                                             <div>
                                                 <p className="text-sm text-gray-500 mb-1">
@@ -170,7 +287,7 @@ const ProfilePage = () => {
                                                {order.orderItems.length} items
                                             </div>
                                         </div>
-                                    </div>
+                                    </Link>
                                 ))}
                             </div>
                         )}

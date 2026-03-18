@@ -7,19 +7,19 @@ const User = require('../models/userModel');
 // @route   POST /api/auth/register
 // @access  Public
 const registerUser = asyncHandler(async (req, res) => {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, username, phone, role } = req.body;
 
-    if (!name || !email || !password) {
+    if (!name || !email || !password || !username || !phone) {
         res.status(400);
         throw new Error('Please add all fields');
     }
 
-    // Check if user exists
-    const userExists = await User.findOne({ email });
+    // Check if user exists (by email or username)
+    const userExists = await User.findOne({ $or: [{ email }, { username }] });
 
     if (userExists) {
         res.status(400);
-        throw new Error('User already exists');
+        throw new Error('User with this email or username already exists');
     }
 
     // Create user
@@ -31,6 +31,8 @@ const registerUser = asyncHandler(async (req, res) => {
         name,
         email,
         password,
+        username,
+        phone,
         role: role || 'customer',
     });
 
@@ -39,6 +41,8 @@ const registerUser = asyncHandler(async (req, res) => {
             _id: user.id,
             name: user.name,
             email: user.email,
+            username: user.username,
+            phone: user.phone,
             role: user.role,
             token: generateToken(user._id),
         });
@@ -62,6 +66,8 @@ const loginUser = asyncHandler(async (req, res) => {
             _id: user.id,
             name: user.name,
             email: user.email,
+            username: user.username,
+            phone: user.phone,
             role: user.role,
             token: generateToken(user._id),
         });
@@ -79,8 +85,94 @@ const getMe = asyncHandler(async (req, res) => {
         _id: req.user.id,
         name: req.user.name,
         email: req.user.email,
+        username: req.user.username,
+        phone: req.user.phone,
         role: req.user.role,
     });
+});
+
+// @desc    Update user profile
+// @route   PUT /api/auth/profile
+// @access  Private
+const updateUserProfile = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.user._id);
+
+    if (user) {
+        user.name = req.body.name || user.name;
+        user.email = req.body.email || user.email;
+        user.username = req.body.username || user.username;
+        user.phone = req.body.phone || user.phone;
+
+        if (req.body.password) {
+            user.password = req.body.password;
+        }
+
+        const updatedUser = await user.save();
+
+        res.json({
+            _id: updatedUser._id,
+            name: updatedUser.name,
+            email: updatedUser.email,
+            username: updatedUser.username,
+            phone: updatedUser.phone,
+            role: updatedUser.role,
+            token: generateToken(updatedUser._id),
+        });
+    } else {
+        res.status(404);
+        throw new Error('User not found');
+    }
+});
+
+// @desc    Get all users
+// @route   GET /api/auth
+// @access  Private/Admin
+const getUsers = asyncHandler(async (req, res) => {
+    const users = await User.find({}).select('-password');
+    res.json(users);
+});
+
+// @desc    Get user by ID
+// @route   GET /api/auth/:id
+// @access  Private/Admin
+const getUserById = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.params.id).select('-password');
+
+    if (user) {
+        res.json(user);
+    } else {
+        res.status(404);
+        throw new Error('User not found');
+    }
+});
+
+// @desc    Update user
+// @route   PUT /api/auth/:id
+// @access  Private/Admin
+const updateUser = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.params.id);
+
+    if (user) {
+        user.name = req.body.name || user.name;
+        user.email = req.body.email || user.email;
+        user.username = req.body.username || user.username;
+        user.phone = req.body.phone || user.phone;
+        user.role = req.body.role || user.role;
+
+        const updatedUser = await user.save();
+
+        res.json({
+            _id: updatedUser._id,
+            name: updatedUser.name,
+            email: updatedUser.email,
+            username: updatedUser.username,
+            phone: updatedUser.phone,
+            role: updatedUser.role,
+        });
+    } else {
+        res.status(404);
+        throw new Error('User not found');
+    }
 });
 
 // Generate JWT
@@ -94,4 +186,8 @@ module.exports = {
     registerUser,
     loginUser,
     getMe,
+    updateUserProfile,
+    getUsers,
+    getUserById,
+    updateUser,
 };

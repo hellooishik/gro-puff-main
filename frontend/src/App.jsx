@@ -11,8 +11,10 @@ import ProductDetails from './pages/ProductDetails';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProducts from './pages/admin/AdminProducts';
 import AdminOrders from './pages/admin/AdminOrders';
+import AdminUsers from './pages/admin/AdminUsers';
 import AdminRoute from './components/AdminRoute';
 import ProfilePage from './pages/ProfilePage';
+import OrderDetails from './pages/OrderDetails';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 
@@ -33,6 +35,7 @@ function App() {
                 <Route path="/checkout" element={<CheckoutPage />} />
                 <Route path="/product/:id" element={<ProductDetails />} />
                 <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/order/:id" element={<OrderDetails />} />
                 
                 {/* Admin Routes */}
                 <Route path="" element={<AdminRoute />}>
@@ -40,6 +43,7 @@ function App() {
                   <Route path="/admin/dashboard" element={<AdminDashboard />} />
                   <Route path="/admin/products" element={<AdminProducts />} />
                   <Route path="/admin/orders" element={<AdminOrders />} />
+                  <Route path="/admin/users" element={<AdminUsers />} />
                 </Route>
               </Routes>
             </main>

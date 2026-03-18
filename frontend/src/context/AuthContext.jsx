@@ -43,12 +43,14 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const register = async (name, email, password) => {
+    const register = async (name, email, password, username, phone) => {
         try {
             const { data } = await axios.post('/api/auth/register', {
                 name,
                 email,
                 password,
+                username,
+                phone,
             });
             setUser(data);
             localStorage.setItem('userInfo', JSON.stringify(data));
@@ -60,13 +62,26 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const updateProfile = async (userData) => {
+        try {
+            const { data } = await axios.put('/api/auth/profile', userData);
+            setUser(data);
+            localStorage.setItem('userInfo', JSON.stringify(data));
+            return data;
+        } catch (error) {
+            const errorMessage = error.response?.data?.message || error.message || 'Profile update failed';
+            console.error('Profile update error details:', error.response?.data || error.message);
+            throw errorMessage;
+        }
+    };
+
     const logout = () => {
         localStorage.removeItem('userInfo');
         setUser(null);
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, register, logout, loading }}>
+        <AuthContext.Provider value={{ user, login, register, logout, updateProfile, loading }}>
             {children}
         </AuthContext.Provider>
     );

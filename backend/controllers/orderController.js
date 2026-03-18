@@ -1,8 +1,8 @@
 const asyncHandler = require('express-async-handler');
 const Order = require('../models/orderModel');
-
 const https = require('https');
 const Product = require('../models/productModel');
+const sendEmail = require('../utils/sendEmail');
 
 // Helper for Haversine
 function getDistanceFromLatLonInMiles(lat1, lon1, lat2, lon2) {
@@ -124,6 +124,25 @@ const addOrderItems = asyncHandler(async (req, res) => {
     });
 
     const createdOrder = await order.save();
+
+    // Send order confirmation email
+    try {
+        const orderUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/profile`; // Or specific order page when ready
+        const message = `
+            <h2>Thank you for your order, ${req.user.name}!</h2>
+            <p>Your order <strong>#${createdOrder._id}</strong> has been successfully placed.</p>
+            <p><strong>Total Amount:</strong> £${createdOrder.totalPrice.toFixed(2)}</p>
+            <p>We will notify you once it ships. You can view your order details <a href="${orderUrl}">here</a>.</p>
+        `;
+        await sendEmail({
+            email: req.user.email,
+            subject: `Order Confirmation - #${createdOrder._id}`,
+            html: message,
+        });
+    } catch (error) {
+        console.error('Email could not be sent:', error);
+    }
+
     res.status(201).json(createdOrder);
 });
 
@@ -137,7 +156,13 @@ const getOrderById = asyncHandler(async (req, res) => {
     );
 
     if (order) {
-        res.json(order);
+        // Only admin or the user who created it can view the order
+        if (req.user.role === 'admin' || order.user._id.toString() === req.user._id.toString()) {
+            res.json(order);
+        } else {
+            res.status(401);
+            throw new Error('Not authorized to view this order');
+        }
     } else {
         res.status(404);
         throw new Error('Order not found');
