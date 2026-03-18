@@ -13,6 +13,7 @@ const orderSchema = mongoose.Schema(
                 qty: { type: Number, required: true },
                 image: { type: String, required: true },
                 price: { type: Number, required: true },
+                isFreeItem: { type: Boolean, default: false },
                 product: {
                     type: mongoose.Schema.Types.ObjectId,
                     required: true,
@@ -29,6 +30,7 @@ const orderSchema = mongoose.Schema(
         paymentMethod: {
             type: String,
             required: true,
+            default: 'COD',
         },
         paymentResult: {
             id: { type: String },
@@ -67,11 +69,15 @@ const orderSchema = mongoose.Schema(
         deliveredAt: {
             type: Date,
         },
+        discount: {
+            type: Number,
+            default: 0,
+        },
         status: {
             type: String,
             required: true,
             default: 'Pending',
-            enum: ['Pending', 'Packed', 'Out_for_Delivery', 'Delivered', 'Cancelled'],
+            enum: ['Pending', 'Packed', 'Out for Delivery', 'Delivered', 'Cancelled'],
         },
     },
     {

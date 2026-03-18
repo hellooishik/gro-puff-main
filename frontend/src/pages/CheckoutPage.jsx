@@ -11,12 +11,37 @@ const CheckoutPage = () => {
     const [address, setAddress] = useState('');
     const [city, setCity] = useState('');
     const [postalCode, setPostalCode] = useState('');
-    const [country, setCountry] = useState('United Kingdom'); // Default to UK
-    const [paymentMethod, setPaymentMethod] = useState('Stripe');
+    const [country, setCountry] = useState('United Kingdom');
+    const [paymentMethod, setPaymentMethod] = useState('COD');
+    const [errorMsg, setErrorMsg] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    
+    // Offers state
+    const [isFirstOrder, setIsFirstOrder] = useState(false);
 
     // UK Postcode Regex (Simple version)
     // improved regex: ^([A-Z]{1,2}\d[A-Z\d]? ?\d[A-Z]{2}|GIR ?0AA)$
     const ukPostcodeRegex = /^([A-Z]{1,2}\d[A-Z\d]? ?\d[A-Z]{2}|GIR ?0AA)$/i;
+
+    // Fetch orders to check for first order discount
+    useEffect(() => {
+        const checkFirstOrder = async () => {
+            if (user) {
+                try {
+                    const axios = (await import('../api/axios')).default;
+                    const config = { headers: { Authorization: `Bearer ${user.token}` } };
+                    const { data } = await axios.get('/api/orders/my', config);
+                    const validOrders = data.filter(o => o.status !== 'Cancelled');
+                    if (validOrders.length === 0) {
+                        setIsFirstOrder(true);
+                    }
+                } catch (error) {
+                    console.error('Failed to check orders', error);
+                }
+            }
+        };
+        checkFirstOrder();
+    }, [user]);
 
     useEffect(() => {
         if (!user) {
@@ -27,30 +52,63 @@ const CheckoutPage = () => {
         }
     }, [user, cartItems, navigate]);
 
-    const submitHandler = (e) => {
+    const submitHandler = async (e) => {
         e.preventDefault();
+        setErrorMsg('');
 
-        // Strict UK Validation
         if (country.trim().toLowerCase() !== 'united kingdom' && country.trim().toLowerCase() !== 'uk') {
-            alert('Sorry, we only ship to the United Kingdom.');
+            setErrorMsg('Sorry, we only ship to the United Kingdom.');
             return;
         }
 
         if (!ukPostcodeRegex.test(postalCode)) {
-            alert('Please enter a valid UK postcode.');
+            setErrorMsg('Please enter a valid UK postcode.');
             return;
         }
 
-        // Proceed to place order logic (mock for now or API call)
-        // console.log('Order Placed');
-        alert('Order placed successfully! (Mock)');
-        clearCart();
-        navigate('/');
+        try {
+            setIsSubmitting(true);
+            const axios = (await import('../api/axios')).default;
+            const config = { headers: { Authorization: `Bearer ${user.token}` } };
+            
+            const orderPayload = {
+                orderItems: cartItems.map(item => ({
+                     name: item.name,
+                     qty: item.qty,
+                     image: item.image,
+                     price: item.price,
+                     product: item.product
+                })),
+                shippingAddress: { address, city, postalCode, country },
+                paymentMethod: 'COD',
+                itemsPrice: subtotal,
+                shippingPrice: deliveryFee === 'Free' ? 0 : deliveryFee,
+                taxPrice: 0,
+            };
+
+            await axios.post('/api/orders', orderPayload, config);
+            
+            setIsSubmitting(false);
+            alert('Order placed successfully! Payment will be collected at delivery.');
+            clearCart();
+            navigate('/');
+        } catch (error) {
+            setIsSubmitting(false);
+            if (error.response && error.response.data && error.response.data.message) {
+                setErrorMsg(error.response.data.message);
+            } else {
+                setErrorMsg('An error occurred. Please try again.');
+            }
+        }
     };
 
     const subtotal = cartItems.reduce((acc, item) => acc + item.qty * item.price, 0).toFixed(2);
-    const deliveryFee = subtotal > 50 ? 0.00 : 5.99;
-    const total = (parseFloat(subtotal) + (deliveryFee === 'Free' ? 0 : parseFloat(deliveryFee))).toFixed(2);
+    const deliveryFee = parseFloat(subtotal) > 50 ? 0.00 : 5.99;
+    
+    // Calculate total including discounts
+    const discount = isFirstOrder ? 10.00 : 0.00;
+    const computedTotal = (parseFloat(subtotal) + (deliveryFee === 0 ? 0 : parseFloat(deliveryFee))) - discount;
+    const total = computedTotal > 0 ? computedTotal.toFixed(2) : '0.00';
 
     return (
         <div className="container mx-auto px-4 py-10">
@@ -146,21 +204,37 @@ const CheckoutPage = () => {
                     <div className="md:w-1/3">
                         <div className="bg-gray-50 p-6 rounded-lg shadow-sm border sticky top-24">
                             <h2 className="text-xl font-bold mb-4">Order Summary</h2>
+                            
+                            {isFirstOrder && (
+                                <div className="mb-4 bg-green-100 text-green-800 p-2 rounded text-sm font-semibold text-center border border-green-200">
+                                    👉 £10 OFF applied (First Order Offer)
+                                </div>
+                            )}
+                            {parseFloat(subtotal) >= 20 && (
+                                <div className="mb-4 bg-blue-100 text-[#00ADEF] p-2 rounded text-sm font-semibold text-center border border-blue-200">
+                                    👉 Free Milk will be added to your order 🎉
+                                </div>
+                            )}
+
                             <div className="flex justify-between mb-2 text-gray-600">
                                 <span>Items</span>
-                                <span>${subtotal}</span>
+                                <span>£{subtotal}</span>
                             </div>
                             <div className="flex justify-between mb-2 text-gray-600">
                                 <span>Shipping</span>
-                                <span>{deliveryFee === 0 ? 'Free' : `$${deliveryFee}`}</span>
+                                <span>{deliveryFee === 0 ? 'Free' : `£${deliveryFee}`}</span>
                             </div>
-                            <div className="flex justify-between mb-4 text-gray-600">
-                                <span>Tax</span>
-                                <span>$0.00</span>
-                            </div>
+                            
+                            {isFirstOrder && (
+                                <div className="flex justify-between mb-2 text-green-600 font-medium">
+                                    <span>First Order Discount</span>
+                                    <span>-£10.00</span>
+                                </div>
+                            )}
+
                             <div className="border-t pt-2 flex justify-between font-bold text-lg">
                                 <span>Total</span>
-                                <span>${total}</span>
+                                <span>£{total}</span>
                             </div>
 
                             <div className="mt-6">
