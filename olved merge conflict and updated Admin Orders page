@@ -1,0 +1,119 @@
+[1mdiff --cc frontend/src/pages/CheckoutPage.jsx[m
+[1mindex 031577b,121d8c0..0000000[m
+[1m--- a/frontend/src/pages/CheckoutPage.jsx[m
+[1m+++ b/frontend/src/pages/CheckoutPage.jsx[m
+[36m@@@ -11,13 -16,9 +16,19 @@@[m [mconst CheckoutPage = () => [m
+      const [address, setAddress] = useState('');[m
+      const [city, setCity] = useState('');[m
+      const [postalCode, setPostalCode] = useState('');[m
+[32m++<<<<<<< HEAD[m
+[32m +    const [country, setCountry] = useState('United Kingdom');[m
+[32m +    const [paymentMethod, setPaymentMethod] = useState('COD');[m
+[32m +    const [errorMsg, setErrorMsg] = useState('');[m
+[32m +    const [isSubmitting, setIsSubmitting] = useState(false);[m
+[32m +    [m
+[32m +    // Offers state[m
+[32m +    const [isFirstOrder, setIsFirstOrder] = useState(false);[m
+[32m++=======[m
+[32m+     const [country, setCountry] = useState('United Kingdom'); // Default to UK[m
+[32m+     const [paymentMethod, setPaymentMethod] = useState('Stripe');[m
+[32m+     const [loading, setLoading] = useState(false);[m
+[32m++>>>>>>> d08fe0e35f344ab573d2dbcc5d54055ff75ac977[m
+  [m
+      // UK Postcode Regex (Simple version)[m
+      // improved regex: ^([A-Z]{1,2}\d[A-Z\d]? ?\d[A-Z]{2}|GIR ?0AA)$[m
+[36m@@@ -52,12 -33,42 +63,46 @@@[m
+          }[m
+      }, [user, cartItems, navigate]);[m
+  [m
+[32m++<<<<<<< HEAD[m
+[32m +    const submitHandler = async (e) => {[m
+[32m++=======[m
+[32m+     const handlePayment = async () => {[m
+[32m+         setLoading(true);[m
+[32m+         const subtotal = cartItems.reduce((acc, item) => acc + item.qty * item.price, 0);[m
+[32m+         const deliveryFee = subtotal > 50 ? 0 : 5.99;[m
+[32m+         const total = parseFloat(subtotal) + deliveryFee;[m
+[32m+         const amountInCents = Math.round(total * 100); // Stripe expects amount in cents[m
+[32m+ [m
+[32m+         try {[m
+[32m+             const response = await axios.post('/create-checkout-session', {[m
+[32m+                 amount: amountInCents,[m
+[32m+             });[m
+[32m+ [m
+[32m+             const session = response.data;[m
+[32m+ [m
+[32m+             const stripe = await stripePromise;[m
+[32m+             const result = await stripe.redirectToCheckout({[m
+[32m+                 sessionId: session.id,[m
+[32m+             });[m
+[32m+ [m
+[32m+             if (result.error) {[m
+[32m+                 alert(result.error.message);[m
+[32m+             }[m
+[32m+         } catch (error) {[m
+[32m+             console.error('Error:', error);[m
+[32m+             alert('Payment failed. Please try again.');[m
+[32m+         } finally {[m
+[32m+             setLoading(false);[m
+[32m+         }[m
+[32m+     };[m
+[32m+ [m
+[32m+     const submitHandler = (e) => {[m
+[32m++>>>>>>> d08fe0e35f344ab573d2dbcc5d54055ff75ac977[m
+          e.preventDefault();[m
+[32m +        setErrorMsg('');[m
+  [m
+[31m -        // Strict UK Validation[m
+          if (country.trim().toLowerCase() !== 'united kingdom' && country.trim().toLowerCase() !== 'uk') {[m
+[31m -            alert('Sorry, we only ship to the United Kingdom.');[m
+[32m +            setErrorMsg('Sorry, we only ship to the United Kingdom.');[m
+              return;[m
+          }[m
+  [m
+[36m@@@ -66,40 -77,8 +111,45 @@@[m
+              return;[m
+          }[m
+  [m
+[32m++<<<<<<< HEAD[m
+[32m +        try {[m
+[32m +            setIsSubmitting(true);[m
+[32m +            const axios = (await import('../api/axios')).default;[m
+[32m +            const config = { headers: { Authorization: `Bearer ${user.token}` } };[m
+[32m +            [m
+[32m +            const orderPayload = {[m
+[32m +                orderItems: cartItems.map(item => ({[m
+[32m +                     name: item.name,[m
+[32m +                     qty: item.qty,[m
+[32m +                     image: item.image,[m
+[32m +                     price: item.price,[m
+[32m +                     product: item.product[m
+[32m +                })),[m
+[32m +                shippingAddress: { address, city, postalCode, country },[m
+[32m +                paymentMethod: 'COD',[m
+[32m +                itemsPrice: subtotal,[m
+[32m +                shippingPrice: deliveryFee === 'Free' ? 0 : deliveryFee,[m
+[32m +                taxPrice: 0,[m
+[32m +            };[m
+[32m +[m
+[32m +            await axios.post('/api/orders', orderPayload, config);[m
+[32m +            [m
+[32m +            setIsSubmitting(false);[m
+[32m +            alert('Order placed successfully! Payment will be collected at delivery.');[m
+[32m +            clearCart();[m
+[32m +            navigate('/');[m
+[32m +        } catch (error) {[m
+[32m +            setIsSubmitting(false);[m
+[32m +            if (error.response && error.response.data && error.response.data.message) {[m
+[32m +                setErrorMsg(error.response.data.message);[m
+[32m +            } else {[m
+[32m +                setErrorMsg('An error occurred. Please try again.');[m
+[32m +            }[m
+[32m +        }[m
+[32m++=======[m
+[32m+         // Proceed to payment[m
+[32m+         handlePayment();[m
+[32m++>>>>>>> d08fe0e35f344ab573d2dbcc5d54055ff75ac977[m
+      };[m
+  [m
+      const subtotal = cartItems.reduce((acc, item) => acc + item.qty * item.price, 0).toFixed(2);[m
