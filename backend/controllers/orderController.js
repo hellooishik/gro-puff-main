@@ -149,6 +149,18 @@ const addOrderItems = asyncHandler(async (req, res) => {
         console.error('Email could not be sent:', error);
     }
 
+    // Decrement stock and increment numOrders
+    for (const item of createdOrder.orderItems) {
+        const product = await Product.findById(item.product);
+        if (product) {
+            product.countInStock = Math.max(0, product.countInStock - item.qty);
+            if (!item.isFreeItem) {
+                product.numOrders = (product.numOrders || 0) + item.qty;
+            }
+            await product.save();
+        }
+    }
+
     res.status(201).json(createdOrder);
 });
 

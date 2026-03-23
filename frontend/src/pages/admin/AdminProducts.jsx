@@ -116,8 +116,27 @@ const AdminProducts = () => {
                                 <input type="number" value={formData.price} onChange={(e) => setFormData({...formData, price: e.target.value})} className="w-full border p-2 rounded" required />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium">Image URL</label>
-                                <input type="text" value={formData.image} onChange={(e) => setFormData({...formData, image: e.target.value})} className="w-full border p-2 rounded" required />
+                                <label className="block text-sm font-medium">Image Upload</label>
+                                <input 
+                                    type="file" 
+                                    accept="image/*"
+                                    onChange={(e) => {
+                                        const file = e.target.files[0];
+                                        if (file) {
+                                            const reader = new FileReader();
+                                            reader.onloadend = () => {
+                                                setFormData({...formData, image: reader.result});
+                                            };
+                                            reader.readAsDataURL(file);
+                                        }
+                                    }} 
+                                    className="w-full border p-2 rounded bg-gray-50" 
+                                />
+                                {formData.image && (
+                                    <div className="mt-2">
+                                        <img src={formData.image} alt="Preview" className="h-20 object-contain bg-gray-100 rounded border p-1" />
+                                    </div>
+                                )}
                             </div>
                             <div>
                                 <label className="block text-sm font-medium">Brand</label>

@@ -18,7 +18,7 @@ const getProducts = asyncHandler(async (req, res) => {
         ? { category: req.query.category }
         : {};
 
-    const products = await Product.find({ ...keyword, ...category });
+    const products = await Product.find({ ...keyword, ...category }).sort({ numOrders: -1 });
 
     res.json(products);
 });

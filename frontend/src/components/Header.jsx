@@ -75,10 +75,14 @@ const Header = () => {
                             </button>
                         </div>
                     ) : (
-                        <Link to="/login" className="flex items-center space-x-1 text-gray-600 hover:text-[#00ADEF] font-medium">
-                            <UserIcon size={22} />
-                            <span className="hidden md:inline">Sign In</span>
-                        </Link>
+                        <div className="flex items-center space-x-4">
+                            <Link to="/login" className="text-gray-600 hover:text-[#00ADEF] font-medium hidden md:block">
+                                Log In
+                            </Link>
+                            <Link to="/register" className="flex items-center text-white bg-[#00ADEF] hover:bg-[#0092ca] font-bold px-5 py-2 rounded-full shadow-md transition-all duration-300">
+                                Join Now
+                            </Link>
+                        </div>
                     )}
 
                     <Link to="/cart" className="relative flex items-center bg-[#00ADEF] text-white px-4 py-2 rounded-full hover:bg-[#0092ca] transition shadow-md">

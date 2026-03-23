@@ -7,12 +7,16 @@ const User = require('../models/userModel');
 // @route   POST /api/auth/register
 // @access  Public
 const registerUser = asyncHandler(async (req, res) => {
-    const { name, email, password, username, phone, role } = req.body;
+    let { name, email, password, username, phone, role } = req.body;
 
-    if (!name || !email || !password || !username || !phone) {
+    if (!email || !password) {
         res.status(400);
-        throw new Error('Please add all fields');
+        throw new Error('Please add email and password');
     }
+
+    if (!name) name = email.split('@')[0];
+    if (!username) username = `${name}_${Date.now().toString().slice(-4)}`;
+    if (!phone) phone = 'None Provided';
 
     // Check if user exists (by email or username)
     const userExists = await User.findOne({ $or: [{ email }, { username }] });
