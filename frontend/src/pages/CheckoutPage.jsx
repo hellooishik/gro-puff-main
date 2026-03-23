@@ -60,6 +60,7 @@ const CheckoutPage = () => {
     
     // Calculate total including discounts
     const giftFee = isGiftPacked ? 2.00 : 0.00;
+    const discount = isFirstOrder ? 10.00 : 0.00;
     const computedTotal = (parseFloat(subtotal) + (deliveryFee === 0 ? 0 : parseFloat(deliveryFee)) + tipAmount + giftFee) - discount;
     const total = computedTotal > 0 ? computedTotal.toFixed(2) : '0.00';
 
