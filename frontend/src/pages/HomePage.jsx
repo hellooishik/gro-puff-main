@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 function getDistanceFromLatLonInMiles(lat1, lon1, lat2, lon2) {
     if (!lat1 || !lon1 || !lat2 || !lon2) return 999;
@@ -19,7 +19,21 @@ const HomePage = () => {
     const [postcode, setPostcode] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [products, setProducts] = useState([]);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                const { data } = await axios.get(`/api/products`);
+                setProducts(data.slice(0, 8)); // Grab top 8
+            } catch (error) {
+                console.error("Failed to fetch products:", error);
+            }
+        };
+
+        fetchProducts();
+    }, []);
 
     const handleCheckDelivery = async (e) => {
         e.preventDefault();
@@ -137,6 +151,68 @@ const HomePage = () => {
                         </div>
                     )}
                 </div>
+
+                {/* Categories Grid */}
+                <div className="mb-16 mt-12 bg-white p-6 md:p-10 rounded-3xl shadow-[0_20px_0_#2b82b1] border-[6px] border-[#0D4E9A] relative z-20">
+                    <h2 className="text-3xl md:text-5xl font-black text-[#0D4E9A] mb-8 uppercase text-center tracking-tighter" style={{ textShadow: '2px 2px 0 #FFD100' }}>
+                        Shop By Category
+                    </h2>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+                        {['Snacks', 'Drinks', 'Alcohol', 'Grocery', 'Cleaning', 'Ice Cream', 'Bakery', 'Beauty'].map((cat, idx) => (
+                            <Link to={`/search?category=${cat}`} key={cat} className="group cursor-pointer block transform hover:scale-105 transition-transform duration-200">
+                                <div className={`h-32 md:h-48 rounded-2xl p-4 md:p-6 text-center border-[4px] border-black flex flex-col items-center justify-center shadow-[4px_4px_0_#000] ${idx % 2 === 0 ? 'bg-[#FFD100]' : 'bg-[#60B3E6]'}`}>
+                                    <div className="w-12 h-12 md:w-20 md:h-20 bg-white rounded-full flex items-center justify-center text-3xl md:text-4xl mb-3 border-4 border-black shadow-inner">
+                                        {cat === 'Snacks' && '🍿'}
+                                        {cat === 'Drinks' && '🥤'}
+                                        {cat === 'Alcohol' && '🍺'}
+                                        {cat === 'Grocery' && '🥑'}
+                                        {cat === 'Cleaning' && '🧼'}
+                                        {cat === 'Ice Cream' && '🍦'}
+                                        {cat === 'Bakery' && '🥐'}
+                                        {cat === 'Beauty' && '💄'}
+                                    </div>
+                                    <h3 className="text-lg md:text-2xl font-black text-black tracking-tight uppercase leading-tight">{cat}</h3>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Trending Products Grid */}
+                {products.length > 0 && (
+                    <div className="mb-20 relative z-20">
+                        <h2 className="text-3xl md:text-5xl font-black text-[#D91C2A] mb-10 uppercase text-center tracking-tighter inline-block relative border-4 border-black bg-[#FFD100] px-8 py-4 shadow-[8px_8px_0_#000] rotate-[-2deg]">
+                            Trending Near You <span className="text-black">🔥</span>
+                        </h2>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
+                            {products.map((product) => (
+                                <div key={product._id} className="bg-white rounded-2xl overflow-hidden border-[4px] border-black shadow-[6px_6px_0_#000] flex flex-col group hover:-translate-y-2 transition-transform duration-300">
+                                    <Link to={`/product/${product._id}`} className="block relative aspect-square p-6 bg-gray-50 border-b-[4px] border-black">
+                                        <img
+                                            src={product.image}
+                                            alt={product.name}
+                                            className="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition duration-300 ease-out drop-shadow-md"
+                                        />
+                                    </Link>
+                                    <div className="p-4 md:p-5 flex flex-col flex-grow text-left">
+                                        <div className="flex-grow">
+                                            <h3 className="font-bold text-gray-900 md:text-lg leading-tight mb-1 line-clamp-2">
+                                                <Link to={`/product/${product._id}`}>{product.name}</Link>
+                                            </h3>
+                                            <p className="text-xs text-gray-500 font-bold uppercase">{product.brand}</p>
+                                        </div>
+                                        <div className="mt-4 flex justify-between items-center">
+                                            <span className="font-black text-2xl md:text-3xl text-[#0D4E9A]">£{product.price}</span>
+                                            <button className="bg-[#D91C2A] text-white w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center font-black text-2xl md:text-3xl border-[3px] border-black shadow-[0_4px_0_#000] hover:translate-y-1 hover:shadow-[0_2px_0_#000] active:translate-y-2 active:shadow-none transition">
+                                                +
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 {/* Bottom Footer Callout */}
                 <div className="bg-[#00883A] text-white font-black text-2xl md:text-4xl py-6 mx-auto w-full md:w-[80%] transform skew-x-[-10deg] shadow-2xl border-y-4 border-[#005a26] tracking-tighter uppercase mb-2">
