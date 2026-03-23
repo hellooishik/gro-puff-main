@@ -25,7 +25,8 @@ const HomePage = () => {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const { data } = await axios.get(`/api/products`);
+                const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+                const { data } = await axios.get(`${API_URL}/api/products`);
                 if (Array.isArray(data)) {
                     setProducts(data); // fetch all for categorization
                 } else if (data && Array.isArray(data.products)) {
