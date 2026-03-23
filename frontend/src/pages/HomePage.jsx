@@ -27,9 +27,9 @@ const HomePage = () => {
             try {
                 const { data } = await axios.get(`/api/products`);
                 if (Array.isArray(data)) {
-                    setProducts(data.slice(0, 8));
+                    setProducts(data); // fetch all for categorization
                 } else if (data && Array.isArray(data.products)) {
-                    setProducts(data.products.slice(0, 8));
+                    setProducts(data.products);
                 } else {
                     console.error("API did not return an array:", data);
                     setProducts([]);
@@ -193,8 +193,8 @@ const HomePage = () => {
                             Trending Near You <span className="text-black">🔥</span>
                         </h2>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
-                            {products.map((product) => (
-                                <div key={product._id} className="bg-white rounded-2xl overflow-hidden border-[4px] border-black shadow-[6px_6px_0_#000] flex flex-col group hover:-translate-y-2 transition-transform duration-300">
+                            {products.slice(0, 8).map((product) => (
+                                <div key={`trend-${product._id}`} className="bg-white rounded-2xl overflow-hidden border-[4px] border-black shadow-[6px_6px_0_#000] flex flex-col group hover:-translate-y-2 transition-transform duration-300">
                                     <Link to={`/product/${product._id}`} className="block relative aspect-square p-6 bg-gray-50 border-b-[4px] border-black">
                                         <img
                                             src={product.image}
@@ -219,6 +219,52 @@ const HomePage = () => {
                                 </div>
                             ))}
                         </div>
+                    </div>
+                )}
+
+                {/* Category-Wise Product Breakdown */}
+                {Array.isArray(products) && products.length > 0 && (
+                    <div className="space-y-16 relative z-20 mb-20 max-w-7xl mx-auto">
+                        {['Snacks', 'Drinks', 'Alcohol', 'Grocery', 'Cleaning', 'Ice Cream', 'Bakery', 'Beauty'].map(cat => {
+                            const catProducts = products.filter(p => p.category === cat);
+                            if (catProducts.length === 0) return null;
+                            
+                            return (
+                                <div key={cat} className="bg-white p-6 md:p-10 rounded-3xl border-[6px] border-[#0D4E9A] shadow-[8px_8px_0_#2b82b1] relative">
+                                    <div className="flex justify-between items-end mb-8 border-b-4 border-dashed border-gray-200 pb-4">
+                                        <h2 className="text-4xl font-black text-[#D91C2A] uppercase tracking-tighter" style={{ textShadow: '2px 2px 0 #FFD100' }}>
+                                            {cat} Aisle
+                                        </h2>
+                                        <Link to={`/search?category=${cat}`} className="text-[#0D4E9A] font-bold text-xl hover:underline uppercase tracking-wide">
+                                            View All &rarr;
+                                        </Link>
+                                    </div>
+                                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                                        {catProducts.slice(0, 4).map(product => (
+                                            <div key={product._id} className="bg-white rounded-2xl overflow-hidden border-[4px] border-black shadow-[4px_4px_0_#000] flex flex-col group hover:-translate-y-1 transition-transform duration-300">
+                                                <Link to={`/product/${product._id}`} className="block relative aspect-square p-4 bg-gray-50 border-b-[4px] border-black">
+                                                    <img src={product.image} alt={product.name} className="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition duration-300" />
+                                                </Link>
+                                                <div className="p-4 flex flex-col flex-grow text-left">
+                                                    <div className="flex-grow">
+                                                        <h3 className="font-bold text-gray-900 leading-tight mb-1 line-clamp-2">
+                                                            <Link to={`/product/${product._id}`}>{product.name}</Link>
+                                                        </h3>
+                                                        <p className="text-xs text-gray-500 font-bold uppercase">{product.brand}</p>
+                                                    </div>
+                                                    <div className="mt-3 flex justify-between items-center">
+                                                        <span className="font-black text-2xl text-[#0D4E9A]">£{product.price.toFixed(2)}</span>
+                                                        <button className="bg-[#D91C2A] text-white w-10 h-10 rounded-full flex items-center justify-center font-black text-2xl border-[3px] border-black shadow-[0_3px_0_#000] hover:translate-y-1 hover:shadow-none transition">
+                                                            +
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            );
+                        })}
                     </div>
                 )}
 
