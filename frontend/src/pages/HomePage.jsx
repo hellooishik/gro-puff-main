@@ -26,9 +26,17 @@ const HomePage = () => {
         const fetchProducts = async () => {
             try {
                 const { data } = await axios.get(`/api/products`);
-                setProducts(data.slice(0, 8)); // Grab top 8
+                if (Array.isArray(data)) {
+                    setProducts(data.slice(0, 8));
+                } else if (data && Array.isArray(data.products)) {
+                    setProducts(data.products.slice(0, 8));
+                } else {
+                    console.error("API did not return an array:", data);
+                    setProducts([]);
+                }
             } catch (error) {
                 console.error("Failed to fetch products:", error);
+                setProducts([]);
             }
         };
 
@@ -179,7 +187,7 @@ const HomePage = () => {
                 </div>
 
                 {/* Trending Products Grid */}
-                {products.length > 0 && (
+                {Array.isArray(products) && products.length > 0 && (
                     <div className="mb-20 relative z-20">
                         <h2 className="text-3xl md:text-5xl font-black text-[#D91C2A] mb-10 uppercase text-center tracking-tighter inline-block relative border-4 border-black bg-[#FFD100] px-8 py-4 shadow-[8px_8px_0_#000] rotate-[-2deg]">
                             Trending Near You <span className="text-black">🔥</span>
