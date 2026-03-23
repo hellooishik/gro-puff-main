@@ -225,10 +225,83 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
     }
 });
 
+// @desc    Get vendor sales growth analytics
+// @route   GET /api/orders/vendor-sales
+// @access  Private/AdminOrVendor
+const getVendorSales = asyncHandler(async (req, res) => {
+    const aggregation = [
+        { $unwind: "$orderItems" },
+        {
+            $lookup: {
+                from: "products",
+                localField: "orderItems.product",
+                foreignField: "_id",
+                as: "productDetails"
+            }
+        },
+        { $unwind: "$productDetails" }
+    ];
+
+    if (req.user.role === 'vendor') {
+        aggregation.push({
+            $match: {
+                "productDetails.user": req.user._id
+            }
+        });
+    }
+
+    // Only include non-cancelled orders
+    aggregation.push({
+        $match: {
+            "status": { $ne: "Cancelled" }
+        }
+    });
+
+    aggregation.push({
+        $group: {
+            _id: "$productDetails.user",
+            totalRevenue: { $sum: { $multiply: ["$orderItems.price", "$orderItems.qty"] } },
+            totalItemsSold: { $sum: "$orderItems.qty" },
+            orderCount: { $addToSet: "$_id" }
+        }
+    });
+
+    aggregation.push({
+        $lookup: {
+            from: "users",
+            localField: "_id",
+            foreignField: "_id",
+            as: "vendorDetails"
+        }
+    });
+    
+    aggregation.push({
+        $unwind: {
+            path: "$vendorDetails",
+            preserveNullAndEmptyArrays: true
+        }
+    });
+
+    aggregation.push({
+        $project: {
+            _id: 1,
+            totalRevenue: 1,
+            totalItemsSold: 1,
+            totalOrders: { $size: "$orderCount" },
+            vendorName: { $ifNull: ["$vendorDetails.name", "Unknown Vendor"] },
+            vendorEmail: { $ifNull: ["$vendorDetails.email", "N/A"] }
+        }
+    });
+
+    const salesData = await Order.aggregate(aggregation);
+    res.json(salesData);
+});
+
 module.exports = {
     addOrderItems,
     getOrderById,
     getMyOrders,
     getOrders,
     updateOrderStatus,
+    getVendorSales,
 };

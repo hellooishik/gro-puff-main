@@ -14,6 +14,8 @@ import AdminOrders from './pages/admin/AdminOrders';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminCategories from './pages/admin/AdminCategories';
 import AdminRoute from './components/AdminRoute';
+import VendorDashboard from './pages/vendor/VendorDashboard';
+import VendorProducts from './pages/vendor/VendorProducts';
 import ProfilePage from './pages/ProfilePage';
 import OrderDetails from './pages/OrderDetails';
 import { AuthProvider } from './context/AuthContext';
@@ -37,6 +39,10 @@ function App() {
                 <Route path="/product/:id" element={<ProductDetails />} />
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/order/:id" element={<OrderDetails />} />
+                
+                {/* Vendor Routes */}
+                <Route path="/vendor/dashboard" element={<VendorDashboard />} />
+                <Route path="/vendor/products" element={<VendorProducts />} />
                 
                 {/* Admin Routes */}
                 <Route path="" element={<AdminRoute />}>

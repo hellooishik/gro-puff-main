@@ -44,6 +44,10 @@ const deleteProduct = asyncHandler(async (req, res) => {
     const product = await Product.findById(req.params.id);
 
     if (product) {
+        if (req.user.role !== 'admin' && product.user.toString() !== req.user._id.toString()) {
+            res.status(401);
+            throw new Error('Not authorized to manipulate this product');
+        }
         await Product.deleteOne({ _id: product._id });
         res.json({ message: 'Product removed' });
     } else {
@@ -89,6 +93,10 @@ const updateProduct = asyncHandler(async (req, res) => {
     const product = await Product.findById(req.params.id);
 
     if (product) {
+        if (req.user.role !== 'admin' && product.user.toString() !== req.user._id.toString()) {
+            res.status(401);
+            throw new Error('Not authorized to manipulate this product');
+        }
         product.name = name;
         product.price = price;
         product.description = description;

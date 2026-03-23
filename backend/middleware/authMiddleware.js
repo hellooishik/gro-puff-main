@@ -42,4 +42,22 @@ const admin = (req, res, next) => {
     }
 };
 
-module.exports = { protect, admin };
+const vendor = (req, res, next) => {
+    if (req.user && req.user.role === 'vendor') {
+        next();
+    } else {
+        res.status(401);
+        throw new Error('Not authorized as a vendor');
+    }
+};
+
+const adminOrVendor = (req, res, next) => {
+    if (req.user && (req.user.role === 'admin' || req.user.role === 'vendor')) {
+        next();
+    } else {
+        res.status(401);
+        throw new Error('Not authorized for this operation');
+    }
+};
+
+module.exports = { protect, admin, vendor, adminOrVendor };
