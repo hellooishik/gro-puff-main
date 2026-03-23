@@ -32,6 +32,18 @@ const orderSchema = mongoose.Schema(
             required: true,
             default: 'COD',
         },
+        deliveryInstruction: {
+            type: String,
+            default: 'None',
+        },
+        tipAmount: {
+            type: Number,
+            default: 0.0,
+        },
+        isGiftPacked: {
+            type: Boolean,
+            default: false,
+        },
         paymentResult: {
             id: { type: String },
             status: { type: String },

@@ -34,6 +34,9 @@ const addOrderItems = asyncHandler(async (req, res) => {
         itemsPrice,
         taxPrice,
         shippingPrice,
+        deliveryInstruction,
+        tipAmount,
+        isGiftPacked
     } = req.body;
 
     if (orderItems && orderItems.length === 0) {
@@ -106,7 +109,7 @@ const addOrderItems = asyncHandler(async (req, res) => {
     taxPrice = Number(taxPrice) || 0;
     shippingPrice = Number(shippingPrice) || 0;
     
-    let calculatedTotal = (itemsPrice + taxPrice + shippingPrice) - discount;
+    let calculatedTotal = (itemsPrice + taxPrice + shippingPrice + (Number(tipAmount) || 0) + (isGiftPacked ? 2.0 : 0)) - discount;
     let totalPrice = calculatedTotal > 0 ? calculatedTotal : 0;
 
     const order = new Order({
@@ -117,6 +120,9 @@ const addOrderItems = asyncHandler(async (req, res) => {
         itemsPrice,
         taxPrice,
         shippingPrice,
+        deliveryInstruction: deliveryInstruction || 'None',
+        tipAmount: Number(tipAmount) || 0,
+        isGiftPacked: Boolean(isGiftPacked),
         discount,
         totalPrice,
         status: 'Pending',

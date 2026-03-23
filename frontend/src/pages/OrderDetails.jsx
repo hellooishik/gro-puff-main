@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from '../api/axios';
 import AuthContext from '../context/AuthContext';
 import { Package, Calendar, MapPin, Truck, CheckCircle, Clock, CreditCard } from 'lucide-react';
+import DeliveryTracker from '../components/DeliveryTracker';
 
 const OrderDetails = () => {
     const { id } = useParams();
@@ -97,11 +98,19 @@ const OrderDetails = () => {
                     </div>
                 </div>
 
+                <div className="p-6 border-b border-gray-100">
+                    <DeliveryTracker 
+                        status={order.status} 
+                        address={order.shippingAddress?.address} 
+                        city={order.shippingAddress?.city} 
+                    />
+                </div>
+
                 <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-8 border-b border-gray-100">
                     <div>
                         <h2 className="text-lg font-bold text-gray-800 flex items-center mb-4">
                             <MapPin size={20} className="mr-2 text-[#00ADEF]" />
-                            Shipping Details
+                            Delivery Details
                         </h2>
                         <div className="bg-gray-50 p-4 rounded-xl text-sm text-gray-700 space-y-2">
                             <p><span className="font-semibold text-gray-900">Name:</span> {order.user?.name}</p>
@@ -109,6 +118,9 @@ const OrderDetails = () => {
                             <p><span className="font-semibold text-gray-900">Address:</span> {order.shippingAddress.address}</p>
                             <p><span className="font-semibold text-gray-900">City:</span> {order.shippingAddress.city}</p>
                             <p><span className="font-semibold text-gray-900">Postal Code:</span> {order.shippingAddress.postalCode}</p>
+                            {order.deliveryInstruction && order.deliveryInstruction !== 'None' && (
+                                <p><span className="font-semibold text-gray-900">Instructions:</span> {order.deliveryInstruction}</p>
+                            )}
                         </div>
                     </div>
 
@@ -123,9 +135,21 @@ const OrderDetails = () => {
                                 <span>£{(order.itemsPrice || 0).toFixed(2)}</span>
                             </div>
                             <div className="flex justify-between">
-                                <span>Shipping</span>
+                                <span>Delivery & Handling</span>
                                 <span>£{(order.shippingPrice || 0).toFixed(2)}</span>
                             </div>
+                            {order.isGiftPacked && (
+                                <div className="flex justify-between">
+                                    <span>Gift Packing</span>
+                                    <span>£2.00</span>
+                                </div>
+                            )}
+                            {order.tipAmount > 0 && (
+                                <div className="flex justify-between">
+                                    <span>Tip</span>
+                                    <span>£{(order.tipAmount || 0).toFixed(2)}</span>
+                                </div>
+                            )}
                             <div className="flex justify-between">
                                 <span>Tax</span>
                                 <span>£{(order.taxPrice || 0).toFixed(2)}</span>

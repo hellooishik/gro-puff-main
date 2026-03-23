@@ -5,6 +5,7 @@ import AuthContext from '../../context/AuthContext';
 const AdminProducts = () => {
     const { user } = useContext(AuthContext);
     const [products, setProducts] = useState([]);
+    const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -22,6 +23,7 @@ const AdminProducts = () => {
 
     useEffect(() => {
         fetchProducts();
+        fetchCategories();
     }, []);
 
     const fetchProducts = async () => {
@@ -33,6 +35,15 @@ const AdminProducts = () => {
             setError('Failed to fetch products');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchCategories = async () => {
+        try {
+            const { data } = await axios.get('/api/categories');
+            setCategories(data);
+        } catch (err) {
+            console.error('Failed to fetch categories');
         }
     };
 
@@ -114,7 +125,12 @@ const AdminProducts = () => {
                             </div>
                             <div>
                                 <label className="block text-sm font-medium">Category</label>
-                                <input type="text" value={formData.category} onChange={(e) => setFormData({...formData, category: e.target.value})} className="w-full border p-2 rounded" required />
+                                <select value={formData.category} onChange={(e) => setFormData({...formData, category: e.target.value})} className="w-full border p-2 rounded" required>
+                                    <option value="">Select Category</option>
+                                    {categories.map(c => (
+                                        <option key={c._id} value={c.name}>{c.name}</option>
+                                    ))}
+                                </select>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium">Stock</label>

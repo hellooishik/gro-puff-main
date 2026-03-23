@@ -1,4 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
+import { Link } from 'react-router-dom';
 import axios from '../../api/axios';
 import AuthContext from '../../context/AuthContext';
 
@@ -73,6 +74,7 @@ const AdminOrders = () => {
                                         <option value="Delivered">Delivered</option>
                                         <option value="Cancelled">Cancelled</option>
                                     </select>
+                                    <Link to={`/order/${order._id}`} className="ml-2 text-sm text-[#00ADEF] underline">View</Link>
                                 </td>
                             </tr>
                         ))}

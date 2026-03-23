@@ -20,6 +20,11 @@ const AdminDashboard = () => {
                     <h2 className="text-2xl font-bold mb-2 text-[#00ADEF]">👥 Manage Users</h2>
                     <p className="text-gray-600">View and edit user access and profiles.</p>
                 </Link>
+
+                <Link to="/admin/categories" className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition text-center">
+                    <h2 className="text-2xl font-bold mb-2 text-[#00ADEF]">📁 Manage Categories</h2>
+                    <p className="text-gray-600">Add, edit, and delete product categories.</p>
+                </Link>
             </div>
         </div>
     );

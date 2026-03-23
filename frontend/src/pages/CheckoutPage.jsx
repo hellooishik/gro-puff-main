@@ -14,6 +14,10 @@ const CheckoutPage = () => {
     const [postalCode, setPostalCode] = useState('');
     const [country, setCountry] = useState('United Kingdom'); // Default to UK
     const [paymentMethod, setPaymentMethod] = useState('COD');
+    const [deliveryInstruction, setDeliveryInstruction] = useState('None');
+    const [tipAmount, setTipAmount] = useState(0);
+    const [customTip, setCustomTip] = useState('');
+    const [isGiftPacked, setIsGiftPacked] = useState(false);
     const [loading, setLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
     const [isFirstOrder, setIsFirstOrder] = useState(false);
@@ -55,8 +59,8 @@ const CheckoutPage = () => {
     const deliveryFee = parseFloat(subtotal) > 50 ? 0.00 : 5.99;
     
     // Calculate total including discounts
-    const discount = isFirstOrder ? 10.00 : 0.00;
-    const computedTotal = (parseFloat(subtotal) + (deliveryFee === 0 ? 0 : parseFloat(deliveryFee))) - discount;
+    const giftFee = isGiftPacked ? 2.00 : 0.00;
+    const computedTotal = (parseFloat(subtotal) + (deliveryFee === 0 ? 0 : parseFloat(deliveryFee)) + tipAmount + giftFee) - discount;
     const total = computedTotal > 0 ? computedTotal.toFixed(2) : '0.00';
 
     const submitHandler = async (e) => {
@@ -87,10 +91,13 @@ const CheckoutPage = () => {
                      product: item.product
                 })),
                 shippingAddress: { address, city, postalCode, country },
-                paymentMethod: 'COD',
+                paymentMethod: paymentMethod,
                 itemsPrice: subtotal,
                 shippingPrice: deliveryFee === 0 ? 0 : deliveryFee,
                 taxPrice: 0,
+                deliveryInstruction,
+                tipAmount,
+                isGiftPacked
             };
 
             await axios.post('/api/orders', orderPayload, config);
@@ -118,7 +125,7 @@ const CheckoutPage = () => {
                 <div className="flex flex-col md:flex-row gap-8">
                     {/* Shipping Form */}
                     <div className="md:w-2/3 bg-white p-6 rounded-lg shadow-sm border">
-                        <h2 className="text-xl font-semibold mb-4">Shipping Address</h2>
+                        <h2 className="text-xl font-semibold mb-4">Delivery Address</h2>
                         <form onSubmit={submitHandler}>
                             <div className="mb-4">
                                 <label className="block text-gray-700 font-medium mb-2">Address</label>
@@ -174,6 +181,34 @@ const CheckoutPage = () => {
                                 <p className="text-sm text-gray-500 mt-1">We currently only ship to the United Kingdom.</p>
                             </div>
 
+                            <div className="mb-6">
+                                <label className="block text-gray-700 font-medium mb-2">Delivery Instructions</label>
+                                <select 
+                                    value={deliveryInstruction} 
+                                    onChange={(e) => setDeliveryInstruction(e.target.value)}
+                                    className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00ADEF] bg-white"
+                                >
+                                    <option value="None">None</option>
+                                    <option value="Avoid calling">Avoid calling</option>
+                                    <option value="Dont ring bell">Don't ring bell</option>
+                                    <option value="Leave by door">Leave by door</option>
+                                    <option value="Pet at home">Pet at home</option>
+                                </select>
+                            </div>
+
+                            <div className="mb-6">
+                                <label className="block text-gray-700 font-medium mb-3 border-b pb-2">Gift Packing</label>
+                                <label className="flex items-center gap-3 cursor-pointer">
+                                    <input 
+                                        type="checkbox" 
+                                        checked={isGiftPacked}
+                                        onChange={(e) => setIsGiftPacked(e.target.checked)}
+                                        className="w-5 h-5 text-[#00ADEF] rounded focus:ring-[#00ADEF]"
+                                    />
+                                    <span className="text-gray-700 font-medium">Add Gift Packing (+£2.00)</span>
+                                </label>
+                            </div>
+
                             {errorMsg && (
                                 <div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
                                     <span className="block sm:inline">{errorMsg}</span>
@@ -181,28 +216,41 @@ const CheckoutPage = () => {
                             )}
 
                             <h2 className="text-xl font-semibold mb-4 border-t pt-4">Payment Method</h2>
-                            <div className="mb-6">
-                                <div className="flex items-center mb-2">
+                            <div className="mb-6 space-y-3">
+                                <label className="flex items-center cursor-pointer p-3 border rounded-lg hover:bg-gray-50 transition">
                                     <input
                                         type="radio"
-                                        id="cod"
                                         name="paymentMethod"
                                         value="COD"
-                                        checked
-                                        readOnly
-                                        className="text-[#00ADEF] focus:ring-[#00ADEF]"
+                                        checked={paymentMethod === 'COD'}
+                                        onChange={() => setPaymentMethod('COD')}
+                                        className="w-5 h-5 text-[#00ADEF] focus:ring-[#00ADEF]"
                                     />
-                                    <label htmlFor="cod" className="ml-2">Cash on Delivery (COD)</label>
-                                </div>
-                                <p className="text-sm text-gray-500 mt-1">Payment will be collected at delivery.</p>
+                                    <span className="ml-3 font-medium text-gray-800">Cash on Delivery (COD)</span>
+                                </label>
+                                <label className="flex items-center cursor-pointer p-3 border rounded-lg hover:bg-gray-50 transition">
+                                    <input
+                                        type="radio"
+                                        name="paymentMethod"
+                                        value="Online Pay"
+                                        checked={paymentMethod === 'Online Pay'}
+                                        onChange={() => setPaymentMethod('Online Pay')}
+                                        className="w-5 h-5 text-[#00ADEF] focus:ring-[#00ADEF]"
+                                    />
+                                    <span className="ml-3 font-medium text-gray-800">Online Pay (Card)</span>
+                                </label>
+                            </div>
+
+                            <div className="mb-6 bg-gray-50 p-4 rounded-lg text-sm text-gray-600 border border-gray-200">
+                                <strong>Cancellation Policy:</strong> Once order placed, any cancellation may result in a fee. In case of unexpected delays leading to order cancellation, a complete refund will be provided.
                             </div>
 
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full bg-[#00ADEF] text-white py-3 rounded-full font-bold text-lg hover:bg-[#0092ca] transition disabled:opacity-50"
+                                className="w-full bg-[#00ADEF] text-white py-3 rounded-full font-bold text-lg hover:bg-[#0092ca] transition disabled:opacity-50 shadow-md"
                             >
-                                {loading ? 'Processing...' : 'Place Order (Cash on Delivery)'}
+                                {loading ? 'Processing...' : `Place Order (£${total})`}
                             </button>
                         </form>
                     </div>
@@ -228,9 +276,60 @@ const CheckoutPage = () => {
                                 <span>£{subtotal}</span>
                             </div>
                             <div className="flex justify-between mb-2 text-gray-600">
-                                <span>Shipping</span>
+                                <span>Delivery & Handling</span>
                                 <span>{deliveryFee === 0 ? 'Free' : `£${deliveryFee}`}</span>
                             </div>
+                            
+                            {isGiftPacked && (
+                                <div className="flex justify-between mb-2 text-gray-600">
+                                    <span>Gift Packing</span>
+                                    <span>£2.00</span>
+                                </div>
+                            )}
+
+                            <div className="mt-4 mb-4">
+                                <h4 className="text-sm font-semibold mb-2">Tip Delivery Partner</h4>
+                                <div className="flex gap-2 mb-2">
+                                    {[2, 5, 7].map(amount => (
+                                        <button 
+                                            key={amount} 
+                                            type="button"
+                                            onClick={() => { setTipAmount(amount); setCustomTip(''); }}
+                                            className={`flex-1 py-1 px-2 rounded border text-sm font-medium transition ${tipAmount === amount && !customTip ? 'bg-[#00ADEF] text-white border-[#00ADEF]' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+                                        >
+                                            £{amount}
+                                        </button>
+                                    ))}
+                                    <button 
+                                        type="button"
+                                        onClick={() => { setTipAmount(0); setCustomTip('custom'); }}
+                                        className={`flex-1 py-1 px-2 rounded border text-sm font-medium transition ${customTip ? 'bg-[#00ADEF] text-white border-[#00ADEF]' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+                                    >
+                                        Other
+                                    </button>
+                                </div>
+                                {customTip && (
+                                    <div className="flex items-center gap-2 mt-2">
+                                        <span className="text-gray-500 font-medium text-sm">£</span>
+                                        <input 
+                                            type="number" 
+                                            min="0"
+                                            step="0.5"
+                                            value={tipAmount}
+                                            onChange={(e) => setTipAmount(parseFloat(e.target.value) || 0)}
+                                            className="w-full p-2 border rounded focus:outline-none focus:border-[#00ADEF] text-sm"
+                                            placeholder="Enter tip amount" 
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                            
+                            {tipAmount > 0 && (
+                                <div className="flex justify-between mb-2 text-gray-600">
+                                    <span>Tip</span>
+                                    <span>£{tipAmount.toFixed(2)}</span>
+                                </div>
+                            )}
 
                             {isFirstOrder && (
                                 <div className="flex justify-between mb-2 text-green-600 font-medium">
