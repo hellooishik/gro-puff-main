@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
+import CartContext from '../context/CartContext';
 
 function getDistanceFromLatLonInMiles(lat1, lon1, lat2, lon2) {
     if (!lat1 || !lon1 || !lat2 || !lon2) return 999;
@@ -21,6 +22,12 @@ const HomePage = () => {
     const [loading, setLoading] = useState(false);
     const [products, setProducts] = useState([]);
     const navigate = useNavigate();
+    const { addToCart } = useContext(CartContext);
+
+    const handleAddToCart = (e, product) => {
+        e.preventDefault();
+        addToCart(product, 1);
+    };
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -215,7 +222,7 @@ const HomePage = () => {
                                         </div>
                                         <div className="mt-4 flex justify-between items-center">
                                             <span className="font-black text-2xl md:text-3xl text-[#0D4E9A]">£{product.price.toFixed(2)}</span>
-                                            <button className="bg-[#D91C2A] text-white w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center font-black text-2xl md:text-3xl border-[3px] border-black shadow-[0_4px_0_#000] hover:translate-y-1 hover:shadow-[0_2px_0_#000] active:translate-y-2 active:shadow-none transition">
+                                            <button onClick={(e) => handleAddToCart(e, product)} className="bg-[#D91C2A] text-white w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center font-black text-2xl md:text-3xl border-[3px] border-black shadow-[0_4px_0_#000] hover:translate-y-1 hover:shadow-[0_2px_0_#000] active:translate-y-2 active:shadow-none transition">
                                                 +
                                             </button>
                                         </div>
@@ -254,7 +261,7 @@ const HomePage = () => {
                                         </div>
                                         <div className="mt-4 flex justify-between items-center">
                                             <span className="font-black text-2xl md:text-3xl text-[#0D4E9A]">£{product.price.toFixed(2)}</span>
-                                            <button className="bg-[#D91C2A] text-white w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center font-black text-2xl md:text-3xl border-[3px] border-black shadow-[0_4px_0_#000] hover:translate-y-1 hover:shadow-[0_2px_0_#000] active:translate-y-2 active:shadow-none transition">
+                                            <button onClick={(e) => handleAddToCart(e, product)} className="bg-[#D91C2A] text-white w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center font-black text-2xl md:text-3xl border-[3px] border-black shadow-[0_4px_0_#000] hover:translate-y-1 hover:shadow-[0_2px_0_#000] active:translate-y-2 active:shadow-none transition">
                                                 +
                                             </button>
                                         </div>
@@ -297,7 +304,7 @@ const HomePage = () => {
                                                     </div>
                                                     <div className="mt-3 flex justify-between items-center">
                                                         <span className="font-black text-2xl text-[#0D4E9A]">£{product.price.toFixed(2)}</span>
-                                                        <button className="bg-[#D91C2A] text-white w-10 h-10 rounded-full flex items-center justify-center font-black text-2xl border-[3px] border-black shadow-[0_3px_0_#000] hover:translate-y-1 hover:shadow-none transition">
+                                                        <button onClick={(e) => handleAddToCart(e, product)} className="bg-[#D91C2A] text-white w-10 h-10 rounded-full flex items-center justify-center font-black text-2xl border-[3px] border-black shadow-[0_3px_0_#000] hover:translate-y-1 hover:shadow-none transition">
                                                             +
                                                         </button>
                                                     </div>
