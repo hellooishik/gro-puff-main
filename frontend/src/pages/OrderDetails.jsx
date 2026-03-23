@@ -2,7 +2,7 @@ import { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from '../api/axios';
 import AuthContext from '../context/AuthContext';
-import { Package, Calendar, MapPin, Truck, CheckCircle, Clock, CreditCard } from 'lucide-react';
+import { Package, Calendar, MapPin, Truck, CheckCircle, Clock, CreditCard, Heart } from 'lucide-react';
 import DeliveryTracker from '../components/DeliveryTracker';
 
 const OrderDetails = () => {
@@ -13,6 +13,30 @@ const OrderDetails = () => {
     const [order, setOrder] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [timeLeft, setTimeLeft] = useState(600); // 10 minutes
+
+    useEffect(() => {
+        if (order && order.status === 'Pending') {
+            const orderTime = new Date(order.createdAt).getTime();
+            const now = new Date().getTime();
+            const diffSecs = Math.floor((now - orderTime) / 1000);
+            const remaining = 600 - diffSecs;
+            setTimeLeft(remaining > 0 ? remaining : 0);
+
+            if (remaining > 0) {
+                const interval = setInterval(() => {
+                    setTimeLeft(prev => prev > 0 ? prev - 1 : 0);
+                }, 1000);
+                return () => clearInterval(interval);
+            }
+        }
+    }, [order]);
+
+    const formatTime = (seconds) => {
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        return `${m}:${s < 10 ? '0' : ''}${s}`;
+    };
 
     useEffect(() => {
         if (!user) {
@@ -97,6 +121,21 @@ const OrderDetails = () => {
                         </div>
                     </div>
                 </div>
+
+                {order.status === 'Pending' && (
+                    <div className="bg-gradient-to-r from-[#D91C2A] to-[#B01421] p-8 text-center text-white border-b-4 border-[#850E18]">
+                        <Heart className="mx-auto mb-3" size={40} fill="white" />
+                        <h2 className="text-2xl md:text-3xl font-black mb-2 uppercase tracking-wide">Thank you for your order!</h2>
+                        <p className="text-pink-100 font-medium text-lg mb-6">Our awesome shoppers are currently picking your items locally.</p>
+                        
+                        <div className="bg-white/10 rounded-2xl p-6 backdrop-blur-md mx-auto max-w-sm shadow-xl border-4 border-[#FFD100]">
+                            <h3 className="text-[#FFD100] font-black uppercase tracking-widest text-sm mb-2">Estimated Delivery In</h3>
+                            <div className="text-6xl font-black font-mono tracking-tighter text-white drop-shadow-md">
+                                {formatTime(timeLeft)}
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 <div className="p-6 border-b border-gray-100">
                     <DeliveryTracker 

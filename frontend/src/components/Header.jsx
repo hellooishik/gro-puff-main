@@ -30,8 +30,11 @@ const Header = () => {
         <header className="bg-white sticky top-0 z-50 shadow-sm border-b border-gray-100">
             <div className="container mx-auto px-4 py-3 flex justify-between items-center">
                 {/* Logo */}
-                <Link to="/" className="text-3xl font-extrabold tracking-tighter mr-8 bg-gradient-to-r from-pink-500 via-purple-500 to-[#00ADEF] bg-clip-text text-transparent transform hover:scale-105 transition-transform duration-300">
-                    Winkin.
+                <Link to="/" className="mr-8 flex items-center transform hover:scale-105 transition-transform duration-300">
+                    <span className="relative inline-block font-black text-4xl tracking-tighter rotate-[-3deg] drop-shadow-lg">
+                        <span className="absolute inset-0 text-[#0051AC] select-none" style={{ WebkitTextStroke: '6px #0051AC' }}>Winkin</span>
+                        <span className="relative text-white drop-shadow-sm">Wink<span className="text-[#FFD100]">in</span></span>
+                    </span>
                 </Link>
 
                 {/* Search Bar - Hidden on mobile, visible on md */}
