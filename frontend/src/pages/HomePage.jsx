@@ -186,16 +186,58 @@ const HomePage = () => {
                     </div>
                 </div>
 
-                {/* Trending Products Grid */}
+                {/* Top Sellers Grid */}
                 {Array.isArray(products) && products.length > 0 && (
+                    <div className="mb-16 relative z-20">
+                        <h2 className="text-3xl md:text-5xl font-black text-[#0D4E9A] mb-10 uppercase text-center tracking-tighter inline-block relative border-4 border-black bg-white px-8 py-4 shadow-[8px_8px_0_#000] rotate-[1deg]">
+                            Most Ordered <span className="text-black">🏆</span>
+                        </h2>
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
+                            {products.slice(0, 4).map((product) => (
+                                <div key={`top-${product._id}`} className="bg-white rounded-2xl overflow-hidden border-[4px] border-[#0D4E9A] shadow-[6px_6px_0_#0D4E9A] flex flex-col group hover:-translate-y-2 transition-transform duration-300">
+                                    <Link to={`/product/${product._id}`} className="block relative aspect-square p-6 bg-gray-50 border-b-[4px] border-[#0D4E9A]">
+                                        <div className="absolute top-2 left-2 bg-[#D91C2A] text-white font-black px-3 py-1 text-sm border-2 border-black rotate-[-5deg] z-10 shadow-sm">
+                                            BEST SELLER
+                                        </div>
+                                        <img
+                                            src={product.image}
+                                            alt={product.name}
+                                            className="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition duration-300 ease-out drop-shadow-md relative z-0"
+                                        />
+                                    </Link>
+                                    <div className="p-4 md:p-5 flex flex-col flex-grow text-left">
+                                        <div className="flex-grow">
+                                            <h3 className="font-bold text-gray-900 md:text-lg leading-tight mb-1 line-clamp-2">
+                                                <Link to={`/product/${product._id}`}>{product.name}</Link>
+                                            </h3>
+                                            <p className="text-xs text-gray-500 font-bold uppercase">{product.brand}</p>
+                                        </div>
+                                        <div className="mt-4 flex justify-between items-center">
+                                            <span className="font-black text-2xl md:text-3xl text-[#0D4E9A]">£{product.price.toFixed(2)}</span>
+                                            <button className="bg-[#D91C2A] text-white w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center font-black text-2xl md:text-3xl border-[3px] border-black shadow-[0_4px_0_#000] hover:translate-y-1 hover:shadow-[0_2px_0_#000] active:translate-y-2 active:shadow-none transition">
+                                                +
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Trending Products Grid */}
+                {Array.isArray(products) && products.length > 4 && (
                     <div className="mb-20 relative z-20">
                         <h2 className="text-3xl md:text-5xl font-black text-[#D91C2A] mb-10 uppercase text-center tracking-tighter inline-block relative border-4 border-black bg-[#FFD100] px-8 py-4 shadow-[8px_8px_0_#000] rotate-[-2deg]">
                             Trending Near You <span className="text-black">🔥</span>
                         </h2>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
-                            {products.slice(0, 8).map((product) => (
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
+                            {products.slice(4, 12).map((product) => (
                                 <div key={`trend-${product._id}`} className="bg-white rounded-2xl overflow-hidden border-[4px] border-black shadow-[6px_6px_0_#000] flex flex-col group hover:-translate-y-2 transition-transform duration-300">
                                     <Link to={`/product/${product._id}`} className="block relative aspect-square p-6 bg-gray-50 border-b-[4px] border-black">
+                                        <div className="absolute top-2 left-2 bg-[#FFD100] text-black font-black px-3 py-1 text-sm border-2 border-black rotate-[3deg] z-10 shadow-sm">
+                                            HOT
+                                        </div>
                                         <img
                                             src={product.image}
                                             alt={product.name}
@@ -210,7 +252,7 @@ const HomePage = () => {
                                             <p className="text-xs text-gray-500 font-bold uppercase">{product.brand}</p>
                                         </div>
                                         <div className="mt-4 flex justify-between items-center">
-                                            <span className="font-black text-2xl md:text-3xl text-[#0D4E9A]">£{product.price}</span>
+                                            <span className="font-black text-2xl md:text-3xl text-[#0D4E9A]">£{product.price.toFixed(2)}</span>
                                             <button className="bg-[#D91C2A] text-white w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center font-black text-2xl md:text-3xl border-[3px] border-black shadow-[0_4px_0_#000] hover:translate-y-1 hover:shadow-[0_2px_0_#000] active:translate-y-2 active:shadow-none transition">
                                                 +
                                             </button>
