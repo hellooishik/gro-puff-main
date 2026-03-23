@@ -30,8 +30,8 @@ const Header = () => {
         <header className="bg-white sticky top-0 z-50 shadow-sm border-b border-gray-100">
             <div className="container mx-auto px-4 py-3 flex justify-between items-center">
                 {/* Logo */}
-                <Link to="/" className="text-3xl font-extrabold tracking-tighter text-[#00ADEF] mr-8">
-                    FreshPro
+                <Link to="/" className="text-3xl font-extrabold tracking-tighter mr-8 bg-gradient-to-r from-pink-500 via-purple-500 to-[#00ADEF] bg-clip-text text-transparent transform hover:scale-105 transition-transform duration-300">
+                    Winkin.
                 </Link>
 
                 {/* Search Bar - Hidden on mobile, visible on md */}

@@ -8,8 +8,8 @@ const Footer = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
                     {/* Brand Section */}
                     <div>
-                        <Link to="/" className="text-3xl font-extrabold tracking-tighter text-[#00ADEF] mb-6 block">
-                            FreshPro
+                        <Link to="/" className="text-3xl font-extrabold tracking-tighter mb-6 block bg-gradient-to-r from-pink-500 via-purple-500 to-[#00ADEF] bg-clip-text text-transparent">
+                            Winkin.
                         </Link>
                         <p className="text-gray-400 mb-6 leading-relaxed">
                             Groceries delivered in minutes. Fresh produce, daily essentials, and more at supermarket prices.
@@ -76,7 +76,7 @@ const Footer = () => {
                 </div>
 
                 <div className="border-t border-gray-800 pt-8 text-center text-gray-500 text-sm">
-                    <p>&copy; {new Date().getFullYear()} FreshPro. All rights reserved.</p>
+                    <p>&copy; {new Date().getFullYear()} Winkin. All rights reserved.</p>
                 </div>
             </div>
         </footer>
