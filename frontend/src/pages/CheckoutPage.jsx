@@ -1,5 +1,5 @@
 import { useState, useContext, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import axios from '../api/axios';
 import CartContext from '../context/CartContext';
 import AuthContext from '../context/AuthContext';
@@ -17,10 +17,16 @@ const CheckoutPage = () => {
     const [deliveryInstruction, setDeliveryInstruction] = useState('None');
     const [tipAmount, setTipAmount] = useState(0);
     const [customTip, setCustomTip] = useState('');
-    const [isGiftPacked, setIsGiftPacked] = useState(false);
+    const location = useLocation();
+    const [isGiftPacked, setIsGiftPacked] = useState(location.state?.isGiftPacked || false);
     const [loading, setLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
     const [isFirstOrder, setIsFirstOrder] = useState(false);
+    
+    // Coupon State
+    const [couponCode, setCouponCode] = useState('');
+    const [appliedCoupon, setAppliedCoupon] = useState(null);
+    const [couponError, setCouponError] = useState('');
 
     // UK Postcode Regex (Simple version)
     // improved regex: ^([A-Z]{1,2}\d[A-Z\d]? ?\d[A-Z]{2}|GIR ?0AA)$
@@ -46,6 +52,19 @@ const CheckoutPage = () => {
         checkFirstOrder();
     }, [user]);
 
+    const applyCouponHandler = async () => {
+        if (!couponCode.trim()) return;
+        try {
+            const config = { headers: { Authorization: `Bearer ${user.token}` } };
+            const { data } = await axios.get(`/api/coupons/verify/${couponCode}`, config);
+            setAppliedCoupon(data);
+            setCouponError('');
+        } catch (error) {
+            setAppliedCoupon(null);
+            setCouponError(error.response?.data?.message || 'Invalid coupon code');
+        }
+    };
+
     useEffect(() => {
         if (!user) {
             navigate('/login');
@@ -60,8 +79,9 @@ const CheckoutPage = () => {
     
     // Calculate total including discounts
     const giftFee = isGiftPacked ? 2.00 : 0.00;
-    const discount = isFirstOrder ? 10.00 : 0.00;
-    const computedTotal = (parseFloat(subtotal) + (deliveryFee === 0 ? 0 : parseFloat(deliveryFee)) + tipAmount + giftFee) - discount;
+    const firstOrderDiscount = isFirstOrder ? 10.00 : 0.00;
+    const couponDiscount = appliedCoupon ? appliedCoupon.discount : 0.00;
+    const computedTotal = (parseFloat(subtotal) + (deliveryFee === 0 ? 0 : parseFloat(deliveryFee)) + tipAmount + giftFee) - firstOrderDiscount - couponDiscount;
     const total = computedTotal > 0 ? computedTotal.toFixed(2) : '0.00';
 
     const submitHandler = async (e) => {
@@ -240,6 +260,14 @@ const CheckoutPage = () => {
                                     />
                                     <span className="ml-3 font-medium text-gray-800">Online Pay (Card)</span>
                                 </label>
+                                {paymentMethod === 'Online Pay' && (
+                                    <div className="ml-8 p-4 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800">
+                                        <p className="font-bold mb-1">Please send payment to:</p>
+                                        <p>Account Name: <strong>XNETWORK ONLINE LTD</strong></p>
+                                        <p>Account Number: <strong>68169984</strong></p>
+                                        <p>Sort Code: <strong>04-00-05</strong></p>
+                                    </div>
+                                )}
                             </div>
 
                             <div className="mb-6 bg-gray-50 p-4 rounded-lg text-sm text-gray-600 border border-gray-200">
@@ -339,9 +367,42 @@ const CheckoutPage = () => {
                                 </div>
                             )}
 
+                            {appliedCoupon && (
+                                <div className="flex justify-between items-center mb-2 text-green-600 font-medium bg-green-50 p-2 rounded border border-green-200">
+                                    <div className="flex items-center gap-2">
+                                        <span>Coupon ({appliedCoupon.code})</span>
+                                        <button type="button" onClick={() => {setAppliedCoupon(null); setCouponCode('');}} className="text-red-500 text-xs hover:underline bg-white px-2 py-0.5 rounded shadow-sm border border-red-200">Remove</button>
+                                    </div>
+                                    <span>-£{appliedCoupon.discount.toFixed(2)}</span>
+                                </div>
+                            )}
+
                             <div className="border-t pt-2 flex justify-between font-bold text-lg">
                                 <span>Total</span>
                                 <span>£{total}</span>
+                            </div>
+
+                            <div className="mt-6 mb-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                <h3 className="font-bold mb-3 text-sm text-gray-800 uppercase tracking-widest flex items-center gap-2"><span>🎟️</span> Promo Code</h3>
+                                <div className="flex gap-2">
+                                    <input 
+                                        type="text" 
+                                        value={couponCode}
+                                        onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                                        placeholder="Enter code" 
+                                        className="flex-1 p-3 border rounded-lg focus:outline-none focus:border-[#00ADEF] uppercase text-sm font-bold tracking-wide"
+                                        disabled={appliedCoupon}
+                                    />
+                                    <button 
+                                        type="button" 
+                                        onClick={applyCouponHandler}
+                                        disabled={!couponCode || appliedCoupon}
+                                        className="bg-black text-white px-6 rounded-lg font-black text-sm hover:bg-gray-800 transition disabled:opacity-50 uppercase tracking-widest shadow-md hover:shadow-lg disabled:shadow-none"
+                                    >
+                                        Apply
+                                    </button>
+                                </div>
+                                {couponError && <p className="text-red-500 text-xs mt-2 font-bold animate-pulse">{couponError}</p>}
                             </div>
 
                             <div className="mt-6">
@@ -354,7 +415,7 @@ const CheckoutPage = () => {
                                                 <div className="truncate font-medium">{item.name}</div>
                                                 <div className="text-gray-500">Qty: {item.qty}</div>
                                             </div>
-                                            <div>${(item.price * item.qty).toFixed(2)}</div>
+                                            <div>£{(item.price * item.qty).toFixed(2)}</div>
                                         </div>
                                     ))}
                                 </div>

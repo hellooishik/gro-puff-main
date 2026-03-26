@@ -13,6 +13,7 @@ import AdminProducts from './pages/admin/AdminProducts';
 import AdminOrders from './pages/admin/AdminOrders';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminCategories from './pages/admin/AdminCategories';
+import AdminCoupons from './pages/admin/AdminCoupons';
 import AdminRoute from './components/AdminRoute';
 import VendorDashboard from './pages/vendor/VendorDashboard';
 import VendorProducts from './pages/vendor/VendorProducts';
@@ -52,6 +53,7 @@ function App() {
                   <Route path="/admin/orders" element={<AdminOrders />} />
                   <Route path="/admin/users" element={<AdminUsers />} />
                   <Route path="/admin/categories" element={<AdminCategories />} />
+                  <Route path="/admin/coupons" element={<AdminCoupons />} />
                 </Route>
               </Routes>
             </main>

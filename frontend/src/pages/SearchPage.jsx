@@ -29,7 +29,7 @@ const SearchPage = () => {
 
     const getTitle = () => {
         if (category) return `Category: ${category}`;
-        if (keyword) return `Search Results for "${keyword}"`;
+        if (keyword) return `Search Results for "£{keyword}"`;
         return 'All Products';
     };
 
@@ -74,7 +74,7 @@ const SearchPage = () => {
                                             </h3>
                                             <p className="text-sm text-gray-500 mt-1">{product.brand}</p>
                                         </div>
-                                        <span className="font-bold text-gray-900">${product.price}</span>
+                                        <span className="font-bold text-gray-900">£{product.price}</span>
                                     </div>
                                 </div>
                             </div>

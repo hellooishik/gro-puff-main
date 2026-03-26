@@ -112,14 +112,14 @@ const Footer = () => {
                         <h3 className="text-2xl font-black mb-6 uppercase tracking-wider text-[#003B18] border-b-4 border-[#3B6E1A] inline-block pb-1">Get the App</h3>
                         <p className="font-bold mb-6 text-lg">Download for iOS and Android to start saving directly from your village!</p>
                         <div className="space-y-4">
-                            <button className="bg-[#1A1A1A] text-white px-6 py-3 rounded-xl font-black border-4 border-black hover:bg-[#D91C2A] shadow-[0_4px_0_#000] hover:translate-y-1 hover:shadow-none transition-all flex items-center w-full justify-center gap-3 group">
+                            <button onClick={() => alert('Our app coming soon!')} className="bg-[#1A1A1A] text-white px-6 py-3 rounded-xl font-black border-4 border-black hover:bg-[#D91C2A] shadow-[0_4px_0_#000] hover:translate-y-1 hover:shadow-none transition-all flex items-center w-full justify-center gap-3 group">
                                 <span className="text-3xl group-hover:scale-110 transition-transform">🍏</span>
                                 <div className="text-left leading-tight">
                                     <div className="text-[10px] uppercase font-bold text-gray-300 group-hover:text-white">Download on the</div>
                                     <div className="text-lg">App Store</div>
                                 </div>
                             </button>
-                            <button className="bg-[#1A1A1A] text-white px-6 py-3 rounded-xl font-black border-4 border-black hover:bg-[#D91C2A] shadow-[0_4px_0_#000] hover:translate-y-1 hover:shadow-none transition-all flex items-center w-full justify-center gap-3 group">
+                            <button onClick={() => alert('Our app coming soon!')} className="bg-[#1A1A1A] text-white px-6 py-3 rounded-xl font-black border-4 border-black hover:bg-[#D91C2A] shadow-[0_4px_0_#000] hover:translate-y-1 hover:shadow-none transition-all flex items-center w-full justify-center gap-3 group">
                                 <span className="text-3xl group-hover:scale-110 transition-transform">▶️</span>
                                 <div className="text-left leading-tight">
                                     <div className="text-[10px] uppercase font-bold text-gray-300 group-hover:text-white">Get it on</div>

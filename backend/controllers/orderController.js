@@ -138,7 +138,7 @@ const addOrderItems = asyncHandler(async (req, res) => {
             <h2>Thank you for your order, ${req.user.name}!</h2>
             <p>Your order <strong>#${createdOrder._id}</strong> has been successfully placed.</p>
             <p><strong>Total Amount:</strong> £${createdOrder.totalPrice.toFixed(2)}</p>
-            <p>We will notify you once it ships. You can view your order details <a href="${orderUrl}">here</a>.</p>
+            <p>We will notify you once it ships. You can view your order details <a href="£{orderUrl}">here</a>.</p>
         `;
         await sendEmail({
             email: req.user.email,
@@ -230,7 +230,7 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
 // @access  Private/AdminOrVendor
 const getVendorSales = asyncHandler(async (req, res) => {
     const aggregation = [
-        { $unwind: "$orderItems" },
+        { $unwind: "£orderItems" },
         {
             $lookup: {
                 from: "products",
@@ -239,7 +239,7 @@ const getVendorSales = asyncHandler(async (req, res) => {
                 as: "productDetails"
             }
         },
-        { $unwind: "$productDetails" }
+        { $unwind: "£productDetails" }
     ];
 
     if (req.user.role === 'vendor') {
@@ -259,10 +259,10 @@ const getVendorSales = asyncHandler(async (req, res) => {
 
     aggregation.push({
         $group: {
-            _id: "$productDetails.user",
-            totalRevenue: { $sum: { $multiply: ["$orderItems.price", "$orderItems.qty"] } },
-            totalItemsSold: { $sum: "$orderItems.qty" },
-            orderCount: { $addToSet: "$_id" }
+            _id: "£productDetails.user",
+            totalRevenue: { $sum: { $multiply: ["£orderItems.price", "£orderItems.qty"] } },
+            totalItemsSold: { $sum: "£orderItems.qty" },
+            orderCount: { $addToSet: "£_id" }
         }
     });
 
@@ -277,7 +277,7 @@ const getVendorSales = asyncHandler(async (req, res) => {
     
     aggregation.push({
         $unwind: {
-            path: "$vendorDetails",
+            path: "£vendorDetails",
             preserveNullAndEmptyArrays: true
         }
     });
@@ -287,9 +287,9 @@ const getVendorSales = asyncHandler(async (req, res) => {
             _id: 1,
             totalRevenue: 1,
             totalItemsSold: 1,
-            totalOrders: { $size: "$orderCount" },
-            vendorName: { $ifNull: ["$vendorDetails.name", "Unknown Vendor"] },
-            vendorEmail: { $ifNull: ["$vendorDetails.email", "N/A"] }
+            totalOrders: { $size: "£orderCount" },
+            vendorName: { $ifNull: ["£vendorDetails.name", "Unknown Vendor"] },
+            vendorEmail: { $ifNull: ["£vendorDetails.email", "N/A"] }
         }
     });
 

@@ -184,7 +184,7 @@ const AdminProducts = () => {
                             <tr key={product._id} className="border-b">
                                 <td className="p-3 text-sm">{product._id}</td>
                                 <td className="p-3">{product.name}</td>
-                                <td className="p-3">${product.price}</td>
+                                <td className="p-3">£{product.price}</td>
                                 <td className="p-3">{product.countInStock}</td>
                                 <td className="p-3">
                                     <button 

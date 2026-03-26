@@ -2,6 +2,7 @@ import { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import CartContext from '../context/CartContext';
+import AuthContext from '../context/AuthContext';
 
 function getDistanceFromLatLonInMiles(lat1, lon1, lat2, lon2) {
     if (!lat1 || !lon1 || !lat2 || !lon2) return 999;
@@ -21,11 +22,18 @@ const HomePage = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [products, setProducts] = useState([]);
+    const [coupons, setCoupons] = useState([]);
     const navigate = useNavigate();
     const { addToCart } = useContext(CartContext);
+    const { user } = useContext(AuthContext);
 
     const handleAddToCart = (e, product) => {
         e.preventDefault();
+        if (!user) {
+            alert('Please sign in before adding items to the cart.');
+            navigate('/login');
+            return;
+        }
         addToCart(product, 1);
     };
 
@@ -41,6 +49,14 @@ const HomePage = () => {
                 } else {
                     console.error("API did not return an array:", data);
                     setProducts([]);
+                }
+
+                // Fetch active coupons
+                try {
+                    const couponRes = await axios.get(`${API_URL}/api/coupons`);
+                    setCoupons(couponRes.data.filter(c => c.isActive));
+                } catch (err) {
+                    console.error("Failed to fetch coupons:", err);
                 }
             } catch (error) {
                 console.error("Failed to fetch products:", error);
@@ -113,6 +129,29 @@ const HomePage = () => {
                         ORDER NOW & SAVE!
                     </div>
                 </div>
+
+                {/* Active Coupons Section */}
+                {coupons.length > 0 && (
+                    <div className="mb-12 max-w-5xl mx-auto bg-green-50 p-6 md:p-8 rounded-3xl border-4 border-green-600 shadow-[8px_8px_0_#16a34a] relative z-20 overflow-hidden transform rotate-[1deg]">
+                        <div className="absolute -right-10 -top-10 text-8xl opacity-10">🎟️</div>
+                        <h2 className="text-2xl md:text-3xl font-black text-green-800 mb-6 uppercase tracking-widest border-b-4 border-green-200 inline-block pb-1">
+                            Current Offers
+                        </h2>
+                        <div className="flex flex-wrap gap-4">
+                            {coupons.map(coupon => (
+                                <div key={coupon._id} className="bg-white border-4 border-dashed border-green-400 rounded-xl p-4 flex items-center justify-between min-w-[300px] flex-1 shadow-[4px_4px_0_#86efac] hover:-translate-y-1 hover:shadow-[6px_6px_0_#86efac] transition cursor-pointer">
+                                    <div>
+                                        <div className="text-green-600 font-black text-3xl">£{coupon.discount.toFixed(2)} OFF</div>
+                                        <div className="text-gray-500 font-bold text-sm uppercase">Use code at checkout</div>
+                                    </div>
+                                    <div className="bg-green-100 text-green-800 px-6 py-3 rounded-lg font-black tracking-widest text-2xl border-2 border-green-300 shadow-inner">
+                                        {coupon.code}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 {/* Grid of Badges */}
                 <div className="flex flex-col md:flex-row items-center justify-center gap-12 mb-16 px-4">

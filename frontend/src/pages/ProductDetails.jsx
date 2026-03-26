@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import axios from '../api/axios';
 import { Minus, Plus, ShoppingBag, ArrowLeft } from 'lucide-react';
 import CartContext from '../context/CartContext';
+import AuthContext from '../context/AuthContext';
 
 const ProductDetails = () => {
     const { id } = useParams();
@@ -13,6 +14,7 @@ const ProductDetails = () => {
     const [loading, setLoading] = useState(true);
 
     const { addToCart } = useContext(CartContext);
+    const { user } = useContext(AuthContext);
 
     // Initial Product Fetch
     useEffect(() => {
@@ -51,12 +53,22 @@ const ProductDetails = () => {
     }, [product.category, product._id]);
 
     const addToCartHandler = () => {
+        if (!user) {
+            alert('Please sign in before adding items to the cart.');
+            navigate('/login');
+            return;
+        }
         addToCart(product, qty);
     };
 
     const handleQuickAdd = (e, recProduct) => {
         e.preventDefault();
         e.stopPropagation();
+        if (!user) {
+            alert('Please sign in before adding items to the cart.');
+            navigate('/login');
+            return;
+        }
         addToCart(recProduct, 1);
     };
 

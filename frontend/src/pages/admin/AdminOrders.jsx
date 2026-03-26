@@ -60,7 +60,7 @@ const AdminOrders = () => {
                                 <td className="p-3 text-sm">{order._id}</td>
                                 <td className="p-3">{order.user ? order.user.name : 'Deleted User'}</td>
                                 <td className="p-3">{order.createdAt ? order.createdAt.substring(0, 10) : 'N/A'}</td>
-                                <td className="p-3">${(order.totalPrice || 0).toFixed(2)}</td>
+                                <td className="p-3">£{(order.totalPrice || 0).toFixed(2)}</td>
                                 <td className="p-3">{order.isPaid ? 'Yes' : 'No'}</td>
                                 <td className="p-3">
                                     <select 

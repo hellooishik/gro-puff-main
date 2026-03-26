@@ -25,6 +25,11 @@ const AdminDashboard = () => {
                     <h2 className="text-2xl font-bold mb-2 text-[#00ADEF]">📁 Manage Categories</h2>
                     <p className="text-gray-600">Add, edit, and delete product categories.</p>
                 </Link>
+
+                <Link to="/admin/coupons" className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition text-center">
+                    <h2 className="text-2xl font-bold mb-2 text-[#00ADEF]">🎟️ Manage Coupons</h2>
+                    <p className="text-gray-600">Add, edit, and delete discount coupons.</p>
+                </Link>
             </div>
         </div>
     );

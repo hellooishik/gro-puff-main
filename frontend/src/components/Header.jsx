@@ -97,7 +97,7 @@ const Header = () => {
                     )}
 
                     <Link to="/cart" className="relative flex items-center bg-[#FFD100] text-black px-5 py-3 rounded-full hover:bg-[#f5c900] transition-all shadow-[0_4px_0_#000] hover:translate-y-1 hover:shadow-[0_2px_0_#000] active:translate-y-2 active:shadow-none border-[4px] border-black group">
-                        <span className="font-black text-xl mr-2">${totalPrice}</span>
+                        <span className="font-black text-xl mr-2">£{totalPrice}</span>
                         <ShoppingBag size={26} strokeWidth={2.5} className="group-hover:scale-110 transition-transform" />
                         {totalQty > 0 && (
                             <span className="absolute -top-3 -right-3 bg-[#D91C2A] text-white text-sm font-black rounded-full h-8 w-8 flex items-center justify-center border-[3px] border-black shadow-sm transform rotate-12">

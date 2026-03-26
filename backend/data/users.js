@@ -13,8 +13,8 @@ const users = [
         // Wait, bcrypt is async.
         // Better: change seeder to use User.create() in a loop or fix data.
         // For now, I'll put a placeholder hash for 'password123'.
-        // Hash for '123456': $2a$10$3/2.D.X/2.
-        // Hash for 'password123' (approx): $2y$10$ ...
+        // Hash for '123456': £2a£10£3/2.D.X/2.
+        // Hash for 'password123' (approx): £2y£10$ ...
         // Let's rely on seeder doing the right thing or Use Create.
         // I'll update seeder.js to use User.create() inside a Promise.all or for loop, OR just manually hash here.
         isAdmin: true,
