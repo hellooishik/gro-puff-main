@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import axios from '../api/axios';
 import CartContext from '../context/CartContext';
 import AuthContext from '../context/AuthContext';
+import { CreditCard, Banknote, Truck, Gift, Tag, CheckCircle2, ShoppingBag, MapPin } from 'lucide-react';
 
 const CheckoutPage = () => {
     const { cartItems, clearCart } = useContext(CartContext);
@@ -12,7 +13,7 @@ const CheckoutPage = () => {
     const [address, setAddress] = useState('');
     const [city, setCity] = useState('');
     const [postalCode, setPostalCode] = useState('');
-    const [country, setCountry] = useState('United Kingdom'); // Default to UK
+    const [country, setCountry] = useState('United Kingdom');
     const [paymentMethod, setPaymentMethod] = useState('COD');
     const [deliveryInstruction, setDeliveryInstruction] = useState('None');
     const [tipAmount, setTipAmount] = useState(0);
@@ -23,23 +24,19 @@ const CheckoutPage = () => {
     const [errorMsg, setErrorMsg] = useState('');
     const [isFirstOrder, setIsFirstOrder] = useState(false);
     
-    // Coupon State
     const [couponCode, setCouponCode] = useState('');
     const [appliedCoupon, setAppliedCoupon] = useState(null);
     const [couponError, setCouponError] = useState('');
 
-    // UK Postcode Regex (Simple version)
-    // improved regex: ^([A-Z]{1,2}\d[A-Z\d]? ?\d[A-Z]{2}|GIR ?0AA)$
     const ukPostcodeRegex = /^([A-Z]{1,2}\d[A-Z\d]? ?\d[A-Z]{2}|GIR ?0AA)$/i;
 
-    // Fetch orders to check for first order discount
     useEffect(() => {
         const checkFirstOrder = async () => {
             if (user) {
                 try {
-                    const axios = (await import('../api/axios')).default;
+                    const axiosModule = (await import('../api/axios')).default;
                     const config = { headers: { Authorization: `Bearer ${user.token}` } };
-                    const { data } = await axios.get('/api/orders/my', config);
+                    const { data } = await axiosModule.get('/api/orders/my', config);
                     const validOrders = data.filter(o => o.status !== 'Cancelled');
                     if (validOrders.length === 0) {
                         setIsFirstOrder(true);
@@ -66,18 +63,14 @@ const CheckoutPage = () => {
     };
 
     useEffect(() => {
-        if (!user) {
-            navigate('/login');
-        }
-        if (cartItems.length === 0) {
-            navigate('/cart');
-        }
+        if (!user) navigate('/login');
+        if (cartItems.length === 0) navigate('/cart');
     }, [user, cartItems, navigate]);
 
     const subtotal = cartItems.reduce((acc, item) => acc + item.qty * item.price, 0).toFixed(2);
     const deliveryFee = parseFloat(subtotal) > 50 ? 0.00 : 5.99;
     
-    // Calculate total including discounts
+    // Calculate total
     const giftFee = isGiftPacked ? 2.00 : 0.00;
     const firstOrderDiscount = isFirstOrder ? 10.00 : 0.00;
     const couponDiscount = appliedCoupon ? appliedCoupon.discount : 0.00;
@@ -125,11 +118,11 @@ const CheckoutPage = () => {
 
             clearCart();
             setLoading(false);
-            alert('Order placed successfully! Payment will be collected at delivery.');
+            alert('Order placed successfully!');
             navigate('/');
         } catch (error) {
             console.error('Error details:', error);
-            if (error.response && error.response.data && error.response.data.message) {
+            if (error.response?.data?.message) {
                 setErrorMsg(error.response.data.message);
             } else {
                 setErrorMsg('An error occurred. Please try again.');
@@ -139,289 +132,359 @@ const CheckoutPage = () => {
     };
 
     return (
-        <div className="container mx-auto px-4 py-10">
-            <div className="max-w-3xl mx-auto">
-                <h1 className="text-3xl font-bold mb-8 text-center">Checkout</h1>
+        <div className="bg-[#f8fafc] min-h-screen pb-20 pt-10 font-sans selection:bg-[#00ADEF] selection:text-white">
+            <div className="container mx-auto px-4 max-w-6xl">
+                
+                <div className="text-center mb-10">
+                    <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight flex justify-center items-center gap-3">
+                        <ShoppingBag className="w-10 h-10 text-[#00ADEF]" /> Secure Checkout
+                    </h1>
+                    <p className="text-gray-500 mt-3 font-medium text-lg">Almost there! Choose your preferences and finalize your order.</p>
+                </div>
 
-                <div className="flex flex-col md:flex-row gap-8">
-                    {/* Shipping Form */}
-                    <div className="md:w-2/3 bg-white p-6 rounded-lg shadow-sm border">
-                        <h2 className="text-xl font-semibold mb-4">Delivery Address</h2>
-                        <form onSubmit={submitHandler}>
-                            <div className="mb-4">
-                                <label className="block text-gray-700 font-medium mb-2">Address</label>
-                                <input
-                                    type="text"
-                                    placeholder="Enter address"
-                                    value={address}
-                                    onChange={(e) => setAddress(e.target.value)}
-                                    className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00ADEF]"
-                                    required
-                                />
-                            </div>
+                {errorMsg && (
+                    <div className="mb-8 bg-red-50 border-l-8 border-red-500 p-6 rounded-r-2xl shadow-sm animate-pulse flex items-start gap-4">
+                        <div className="text-red-500 text-2xl mt-1">⚠️</div>
+                        <div>
+                            <h3 className="text-red-800 font-bold text-lg">Action Required</h3>
+                            <p className="text-red-600 font-medium">{errorMsg}</p>
+                        </div>
+                    </div>
+                )}
 
-                            <div className="mb-4">
-                                <label className="block text-gray-700 font-medium mb-2">City</label>
-                                <input
-                                    type="text"
-                                    placeholder="Enter city"
-                                    value={city}
-                                    onChange={(e) => setCity(e.target.value)}
-                                    className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00ADEF]"
-                                    required
-                                />
-                            </div>
-
-                            <div className="mb-4">
-                                <label className="block text-gray-700 font-medium mb-2">Postal Code</label>
-                                <input
-                                    type="text"
-                                    placeholder="Enter UK postcode"
-                                    value={postalCode}
-                                    onChange={(e) => setPostalCode(e.target.value)}
-                                    className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00ADEF]"
-                                    required
-                                />
-                            </div>
-
-                            <div className="mb-6">
-                                <label className="block text-gray-700 font-medium mb-2">Country</label>
-                                <input
-                                    type="text"
-                                    placeholder="Enter country"
-                                    value={country} // Controlled input
-                                    // onChange={(e) => setCountry(e.target.value)} // Lock to UK or warn? User said "only for uk".
-                                    // Let's allow editing but validation will fail? 
-                                    // Better to just make it readOnly or select?
-                                    // User said "search bar should work and should go to proper checkout page with details and address. only for uk".
-                                    // I'll make it readonly to prevent errors.
-                                    readOnly
-                                    className="w-full p-3 border rounded-lg bg-gray-100 cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-[#00ADEF]"
-                                    required
-                                />
-                                <p className="text-sm text-gray-500 mt-1">We currently only ship to the United Kingdom.</p>
-                            </div>
-
-                            <div className="mb-6">
-                                <label className="block text-gray-700 font-medium mb-2">Delivery Instructions</label>
-                                <select 
-                                    value={deliveryInstruction} 
-                                    onChange={(e) => setDeliveryInstruction(e.target.value)}
-                                    className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00ADEF] bg-white"
-                                >
-                                    <option value="None">None</option>
-                                    <option value="Avoid calling">Avoid calling</option>
-                                    <option value="Dont ring bell">Don't ring bell</option>
-                                    <option value="Leave by door">Leave by door</option>
-                                    <option value="Pet at home">Pet at home</option>
-                                </select>
-                            </div>
-
-                            <div className="mb-6">
-                                <label className="block text-gray-700 font-medium mb-3 border-b pb-2">Gift Packing</label>
-                                <label className="flex items-center gap-3 cursor-pointer">
-                                    <input 
-                                        type="checkbox" 
-                                        checked={isGiftPacked}
-                                        onChange={(e) => setIsGiftPacked(e.target.checked)}
-                                        className="w-5 h-5 text-[#00ADEF] rounded focus:ring-[#00ADEF]"
-                                    />
-                                    <span className="text-gray-700 font-medium">Add Gift Packing (+£2.00)</span>
-                                </label>
-                            </div>
-
-                            {errorMsg && (
-                                <div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                                    <span className="block sm:inline">{errorMsg}</span>
-                                </div>
-                            )}
-
-                            <h2 className="text-xl font-semibold mb-4 border-t pt-4">Payment Method</h2>
-                            <div className="mb-6 space-y-3">
-                                <label className="flex items-center cursor-pointer p-3 border rounded-lg hover:bg-gray-50 transition">
-                                    <input
-                                        type="radio"
-                                        name="paymentMethod"
-                                        value="COD"
-                                        checked={paymentMethod === 'COD'}
-                                        onChange={() => setPaymentMethod('COD')}
-                                        className="w-5 h-5 text-[#00ADEF] focus:ring-[#00ADEF]"
-                                    />
-                                    <span className="ml-3 font-medium text-gray-800">Cash on Delivery (COD)</span>
-                                </label>
-                                <label className="flex items-center cursor-pointer p-3 border rounded-lg hover:bg-gray-50 transition">
-                                    <input
-                                        type="radio"
-                                        name="paymentMethod"
-                                        value="Online Pay"
-                                        checked={paymentMethod === 'Online Pay'}
-                                        onChange={() => setPaymentMethod('Online Pay')}
-                                        className="w-5 h-5 text-[#00ADEF] focus:ring-[#00ADEF]"
-                                    />
-                                    <span className="ml-3 font-medium text-gray-800">Online Pay (Card)</span>
-                                </label>
-                                {paymentMethod === 'Online Pay' && (
-                                    <div className="ml-8 p-4 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800">
-                                        <p className="font-bold mb-1">Please send payment to:</p>
-                                        <p>Account Name: <strong>XNETWORK ONLINE LTD</strong></p>
-                                        <p>Account Number: <strong>68169984</strong></p>
-                                        <p>Sort Code: <strong>04-00-05</strong></p>
+                <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
+                    
+                    {/* Left Column: Form */}
+                    <div className="lg:w-2/3 space-y-8">
+                        
+                        <form id="checkout-form" onSubmit={submitHandler} className="space-y-8">
+                            
+                            {/* Shipping Details */}
+                            <div className="bg-white p-8 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 relative overflow-hidden">
+                                <div className="absolute top-0 left-0 w-2 h-full bg-[#00ADEF]"></div>
+                                <h2 className="text-2xl font-black mb-6 flex items-center gap-3 text-gray-800">
+                                    <MapPin className="text-[#00ADEF]" /> Delivery Address
+                                </h2>
+                                
+                                <div className="space-y-5">
+                                    <div>
+                                        <label className="block text-gray-600 font-bold mb-2 uppercase tracking-wide text-xs">Street Address</label>
+                                        <input
+                                            type="text"
+                                            placeholder="E.g. 123 Baker Street"
+                                            value={address}
+                                            onChange={(e) => setAddress(e.target.value)}
+                                            className="w-full p-4 bg-gray-50 border-2 border-transparent rounded-xl focus:bg-white focus:outline-none focus:border-[#00ADEF] focus:ring-4 focus:ring-[#00ADEF]/10 transition-all text-gray-800 font-medium"
+                                            required
+                                        />
                                     </div>
-                                )}
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                        <div>
+                                            <label className="block text-gray-600 font-bold mb-2 uppercase tracking-wide text-xs">City</label>
+                                            <input
+                                                type="text"
+                                                placeholder="E.g. London"
+                                                value={city}
+                                                onChange={(e) => setCity(e.target.value)}
+                                                className="w-full p-4 bg-gray-50 border-2 border-transparent rounded-xl focus:bg-white focus:outline-none focus:border-[#00ADEF] focus:ring-4 focus:ring-[#00ADEF]/10 transition-all text-gray-800 font-medium"
+                                                required
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-gray-600 font-bold mb-2 uppercase tracking-wide text-xs">UK Postcode</label>
+                                            <input
+                                                type="text"
+                                                placeholder="E.g. NW1 6XE"
+                                                value={postalCode}
+                                                onChange={(e) => setPostalCode(e.target.value)}
+                                                className="w-full p-4 bg-gray-50 border-2 border-transparent rounded-xl focus:bg-white focus:outline-none focus:border-[#00ADEF] focus:ring-4 focus:ring-[#00ADEF]/10 transition-all text-gray-800 font-bold uppercase"
+                                                required
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-gray-600 font-bold mb-2 uppercase tracking-wide text-xs">Country</label>
+                                        <input
+                                            type="text"
+                                            value={country}
+                                            readOnly
+                                            className="w-full p-4 bg-gray-100 border-2 border-transparent rounded-xl text-gray-500 font-bold cursor-not-allowed"
+                                        />
+                                        <p className="text-xs text-blue-500 font-bold mt-2 flex items-center gap-1">
+                                            <Truck size={14} /> Currently shipping exclusively to the United Kingdom.
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div className="mb-6 bg-gray-50 p-4 rounded-lg text-sm text-gray-600 border border-gray-200">
-                                <strong>Cancellation Policy:</strong> Once order placed, any cancellation may result in a fee. In case of unexpected delays leading to order cancellation, a complete refund will be provided.
+                            {/* Delivery Preferences */}
+                            <div className="bg-white p-8 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 relative overflow-hidden">
+                                <div className="absolute top-0 left-0 w-2 h-full bg-purple-500"></div>
+                                <h2 className="text-2xl font-black mb-6 flex items-center gap-3 text-gray-800">
+                                    <Truck className="text-purple-500" /> Delivery Preferences
+                                </h2>
+                                
+                                <div className="space-y-6">
+                                    <div>
+                                        <label className="block text-gray-600 font-bold mb-2 uppercase tracking-wide text-xs">Driver Instructions</label>
+                                        <div className="relative">
+                                            <select 
+                                                value={deliveryInstruction} 
+                                                onChange={(e) => setDeliveryInstruction(e.target.value)}
+                                                className="w-full p-4 bg-gray-50 border-2 border-transparent rounded-xl focus:bg-white focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all text-gray-800 font-bold appearance-none cursor-pointer"
+                                            >
+                                                <option value="None">No special instructions</option>
+                                                <option value="Avoid calling">Avoid calling me</option>
+                                                <option value="Dont ring bell">Please don't ring the doorbell</option>
+                                                <option value="Leave by door">Leave securely by the door</option>
+                                                <option value="Pet at home">Beware - Pet at home!</option>
+                                            </select>
+                                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                                                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div 
+                                        onClick={() => setIsGiftPacked(!isGiftPacked)}
+                                        className={`p-5 rounded-2xl border-2 cursor-pointer transition-all flex items-center justify-between group ${isGiftPacked ? 'border-pink-500 bg-pink-50 shadow-md transform -translate-y-1' : 'border-gray-100 hover:border-pink-200 hover:bg-pink-50/50'}`}
+                                    >
+                                        <div className="flex items-center gap-4">
+                                            <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${isGiftPacked ? 'bg-pink-500 text-white' : 'bg-gray-100 text-gray-400 group-hover:bg-pink-200 group-hover:text-pink-600'}`}>
+                                                <Gift size={24} />
+                                            </div>
+                                            <div>
+                                                <h3 className={`font-bold text-lg ${isGiftPacked ? 'text-pink-800' : 'text-gray-700'}`}>Make it a Gift</h3>
+                                                <p className="text-gray-500 text-sm font-medium">Premium packaging (+£2.00)</p>
+                                            </div>
+                                        </div>
+                                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${isGiftPacked ? 'bg-pink-500 border-pink-500' : 'border-gray-300'}`}>
+                                            {isGiftPacked && <CheckCircle2 size={16} className="text-white" />}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
-                            <button
-                                type="submit"
-                                disabled={loading}
-                                className="w-full bg-[#00ADEF] text-white py-3 rounded-full font-bold text-lg hover:bg-[#0092ca] transition disabled:opacity-50 shadow-md"
-                            >
-                                {loading ? 'Processing...' : `Place Order (£${total})`}
-                            </button>
+                            {/* Payment Method */}
+                            <div className="bg-white p-8 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 relative overflow-hidden">
+                                <div className="absolute top-0 left-0 w-2 h-full bg-green-500"></div>
+                                <h2 className="text-2xl font-black mb-6 flex items-center gap-3 text-gray-800">
+                                    <CreditCard className="text-green-500" /> Payment Details
+                                </h2>
+                                
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div 
+                                        onClick={() => setPaymentMethod('COD')}
+                                        className={`p-5 rounded-2xl border-2 cursor-pointer transition-all flex flex-col items-start gap-4 ${paymentMethod === 'COD' ? 'border-green-500 bg-green-50 shadow-md transform -translate-y-1' : 'border-gray-100 bg-white hover:border-green-200'}`}
+                                    >
+                                        <div className="flex justify-between w-full items-center">
+                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${paymentMethod === 'COD' ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-500'}`}>
+                                                <Banknote size={20} />
+                                            </div>
+                                            <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${paymentMethod === 'COD' ? 'bg-green-500 border-green-500' : 'border-gray-300'}`}>
+                                                {paymentMethod === 'COD' && <div className="w-2.5 h-2.5 bg-white rounded-full"></div>}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h3 className={`font-black tracking-wide ${paymentMethod === 'COD' ? 'text-green-800' : 'text-gray-800'}`}>Pay on Delivery</h3>
+                                            <p className="text-gray-500 text-xs font-medium mt-1">Cash or card at your door</p>
+                                        </div>
+                                    </div>
+
+                                    <div 
+                                        onClick={() => setPaymentMethod('Online Pay')}
+                                        className={`p-5 rounded-2xl border-2 cursor-pointer transition-all flex flex-col items-start gap-4 ${paymentMethod === 'Online Pay' ? 'border-[#00ADEF] bg-[#f0f9ff] shadow-md transform -translate-y-1' : 'border-gray-100 bg-white hover:border-[#00ADEF]/30'}`}
+                                    >
+                                        <div className="flex justify-between w-full items-center">
+                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${paymentMethod === 'Online Pay' ? 'bg-[#00ADEF] text-white' : 'bg-gray-100 text-gray-500'}`}>
+                                                <CreditCard size={20} />
+                                            </div>
+                                            <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${paymentMethod === 'Online Pay' ? 'bg-[#00ADEF] border-[#00ADEF]' : 'border-gray-300'}`}>
+                                                {paymentMethod === 'Online Pay' && <div className="w-2.5 h-2.5 bg-white rounded-full"></div>}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h3 className={`font-black tracking-wide ${paymentMethod === 'Online Pay' ? 'text-blue-900' : 'text-gray-800'}`}>Online Transfer</h3>
+                                            <p className="text-gray-500 text-xs font-medium mt-1">Direct wire to our bank</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Bank Details Dropdown */}
+                                <div className={`mt-4 overflow-hidden transition-all duration-300 ${paymentMethod === 'Online Pay' ? 'max-h-60 opacity-100' : 'max-h-0 opacity-0'}`}>
+                                    <div className="p-6 bg-[#00ADEF]/10 border border-[#00ADEF]/20 rounded-2xl mt-2 relative">
+                                        <div className="absolute top-0 right-0 w-20 h-20 bg-[#00ADEF] opacity-[0.03] rounded-bl-full"></div>
+                                        <h4 className="text-[#00ADEF] font-black uppercase tracking-widest text-xs mb-3">Recipient Details</h4>
+                                        <div className="space-y-2 text-sm text-blue-950 font-medium">
+                                            <div className="flex justify-between border-b border-blue-100 pb-2">
+                                                <span className="text-blue-600/70">Account Name</span>
+                                                <strong className="font-black">XNETWORK ONLINE LTD</strong>
+                                            </div>
+                                            <div className="flex justify-between border-b border-blue-100 pb-2">
+                                                <span className="text-blue-600/70">Account Number</span>
+                                                <strong className="font-black font-mono text-base tracking-wider">68169984</strong>
+                                            </div>
+                                            <div className="flex justify-between pb-1">
+                                                <span className="text-blue-600/70">Sort Code</span>
+                                                <strong className="font-black font-mono text-base tracking-wider">04-00-05</strong>
+                                            </div>
+                                        </div>
+                                        <p className="text-xs text-blue-600 font-bold mt-4 flex items-center gap-1">
+                                            <CheckCircle2 size={12} /> Please ensure details are correct before sending.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div className="bg-gray-100 p-6 rounded-2xl text-xs text-gray-500 font-medium text-center border border-gray-200">
+                                <strong>Cancellation Policy:</strong> Once an order is placed, cancellation may result in a fee. If unexpected delays lead to order cancellation on our end, a complete refund will be provided automatically.
+                            </div>
+
                         </form>
                     </div>
 
-                    {/* Order Summary */}
-                    <div className="md:w-1/3">
-                        <div className="bg-gray-50 p-6 rounded-lg shadow-sm border sticky top-24">
-                            <h2 className="text-xl font-bold mb-4">Order Summary</h2>
-
-                            {isFirstOrder && (
-                                <div className="mb-4 bg-green-100 text-green-800 p-2 rounded text-sm font-semibold text-center border border-green-200">
-                                    👉 £10 OFF applied (First Order Offer)
-                                </div>
-                            )}
-                            {parseFloat(subtotal) >= 20 && (
-                                <div className="mb-4 bg-blue-100 text-[#00ADEF] p-2 rounded text-sm font-semibold text-center border border-blue-200">
-                                    👉 Free Milk will be added to your order 🎉
-                                </div>
-                            )}
-
-                            <div className="flex justify-between mb-2 text-gray-600">
-                                <span>Items</span>
-                                <span>£{subtotal}</span>
-                            </div>
-                            <div className="flex justify-between mb-2 text-gray-600">
-                                <span>Delivery & Handling</span>
-                                <span>{deliveryFee === 0 ? 'Free' : `£${deliveryFee}`}</span>
-                            </div>
+                    {/* Right Column: Order Summary */}
+                    <div className="lg:w-1/3">
+                        <div className="bg-white rounded-[2rem] shadow-[0_20px_50px_rgb(0,0,0,0.08)] border border-gray-100 sticky top-24 overflow-hidden flex flex-col">
                             
-                            {isGiftPacked && (
-                                <div className="flex justify-between mb-2 text-gray-600">
-                                    <span>Gift Packing</span>
-                                    <span>£2.00</span>
-                                </div>
-                            )}
+                            <div className="bg-gradient-to-r from-gray-900 to-gray-800 p-6 text-white pt-8">
+                                <h2 className="text-2xl font-black tracking-wide text-center uppercase">Order Summary</h2>
+                            </div>
 
-                            <div className="mt-4 mb-4">
-                                <h4 className="text-sm font-semibold mb-2">Tip Delivery Partner</h4>
-                                <div className="flex gap-2 mb-2">
-                                    {[2, 5, 7].map(amount => (
-                                        <button 
-                                            key={amount} 
-                                            type="button"
-                                            onClick={() => { setTipAmount(amount); setCustomTip(''); }}
-                                            className={`flex-1 py-1 px-2 rounded border text-sm font-medium transition ${tipAmount === amount && !customTip ? 'bg-[#00ADEF] text-white border-[#00ADEF]' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
-                                        >
-                                            £{amount}
-                                        </button>
-                                    ))}
-                                    <button 
-                                        type="button"
-                                        onClick={() => { setTipAmount(0); setCustomTip('custom'); }}
-                                        className={`flex-1 py-1 px-2 rounded border text-sm font-medium transition ${customTip ? 'bg-[#00ADEF] text-white border-[#00ADEF]' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
-                                    >
-                                        Other
-                                    </button>
-                                </div>
-                                {customTip && (
-                                    <div className="flex items-center gap-2 mt-2">
-                                        <span className="text-gray-500 font-medium text-sm">£</span>
+                            <div className="p-6 md:p-8 flex-grow space-y-6 bg-white shrink-0">
+                                
+                                {/* Promo Code */}
+                                <div className="bg-gray-50 p-5 rounded-2xl border border-gray-100">
+                                    <h3 className="font-black mb-3 text-xs text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                                        <Tag size={14} className="text-[#00ADEF]" /> Add Promo Code
+                                    </h3>
+                                    <div className="flex gap-2">
                                         <input 
-                                            type="number" 
-                                            min="0"
-                                            step="0.5"
-                                            value={tipAmount}
-                                            onChange={(e) => setTipAmount(parseFloat(e.target.value) || 0)}
-                                            className="w-full p-2 border rounded focus:outline-none focus:border-[#00ADEF] text-sm"
-                                            placeholder="Enter tip amount" 
+                                            type="text" 
+                                            value={couponCode}
+                                            onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                                            placeholder="Enter code" 
+                                            className="flex-1 px-4 py-3 bg-white border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#00ADEF] uppercase text-sm font-bold tracking-wider placeholder-gray-300 transition-colors"
+                                            disabled={appliedCoupon}
                                         />
+                                        <button 
+                                            type="button" 
+                                            onClick={applyCouponHandler}
+                                            disabled={!couponCode || appliedCoupon}
+                                            className="bg-gray-900 text-white px-5 rounded-xl font-bold text-sm hover:bg-[#00ADEF] transition-all disabled:opacity-50 disabled:hover:bg-gray-900 uppercase tracking-widest shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0"
+                                        >
+                                            Apply
+                                        </button>
                                     </div>
-                                )}
-                            </div>
-                            
-                            {tipAmount > 0 && (
-                                <div className="flex justify-between mb-2 text-gray-600">
-                                    <span>Tip</span>
-                                    <span>£{tipAmount.toFixed(2)}</span>
+                                    {couponError && <p className="text-red-500 text-xs mt-2 font-bold animate-pulse px-1">{couponError}</p>}
                                 </div>
-                            )}
 
-                            {isFirstOrder && (
-                                <div className="flex justify-between mb-2 text-green-600 font-medium">
-                                    <span>First Order Discount</span>
-                                    <span>-£10.00</span>
-                                </div>
-                            )}
-
-                            {appliedCoupon && (
-                                <div className="flex justify-between items-center mb-2 text-green-600 font-medium bg-green-50 p-2 rounded border border-green-200">
-                                    <div className="flex items-center gap-2">
-                                        <span>Coupon ({appliedCoupon.code})</span>
-                                        <button type="button" onClick={() => {setAppliedCoupon(null); setCouponCode('');}} className="text-red-500 text-xs hover:underline bg-white px-2 py-0.5 rounded shadow-sm border border-red-200">Remove</button>
-                                    </div>
-                                    <span>-£{appliedCoupon.discount.toFixed(2)}</span>
-                                </div>
-                            )}
-
-                            <div className="border-t pt-2 flex justify-between font-bold text-lg">
-                                <span>Total</span>
-                                <span>£{total}</span>
-                            </div>
-
-                            <div className="mt-6 mb-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
-                                <h3 className="font-bold mb-3 text-sm text-gray-800 uppercase tracking-widest flex items-center gap-2"><span>🎟️</span> Promo Code</h3>
-                                <div className="flex gap-2">
-                                    <input 
-                                        type="text" 
-                                        value={couponCode}
-                                        onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                                        placeholder="Enter code" 
-                                        className="flex-1 p-3 border rounded-lg focus:outline-none focus:border-[#00ADEF] uppercase text-sm font-bold tracking-wide"
-                                        disabled={appliedCoupon}
-                                    />
-                                    <button 
-                                        type="button" 
-                                        onClick={applyCouponHandler}
-                                        disabled={!couponCode || appliedCoupon}
-                                        className="bg-black text-white px-6 rounded-lg font-black text-sm hover:bg-gray-800 transition disabled:opacity-50 uppercase tracking-widest shadow-md hover:shadow-lg disabled:shadow-none"
-                                    >
-                                        Apply
-                                    </button>
-                                </div>
-                                {couponError && <p className="text-red-500 text-xs mt-2 font-bold animate-pulse">{couponError}</p>}
-                            </div>
-
-                            <div className="mt-6">
-                                <h3 className="font-medium mb-2">Items in Cart:</h3>
-                                <div className="space-y-3 max-h-60 overflow-y-auto pr-2">
+                                {/* Items list preview */}
+                                <div className="space-y-4 max-h-48 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-200">
                                     {cartItems.map((item) => (
-                                        <div key={item.product} className="flex items-center gap-3 text-sm">
-                                            <img src={item.image} alt={item.name} className="w-10 h-10 object-contain rounded" />
-                                            <div className="flex-1">
-                                                <div className="truncate font-medium">{item.name}</div>
-                                                <div className="text-gray-500">Qty: {item.qty}</div>
+                                        <div key={item.product} className="flex gap-4 items-center p-2 hover:bg-gray-50 rounded-xl transition-colors">
+                                            <div className="w-14 h-14 bg-gray-100 rounded-lg p-1.5 shrink-0 border border-gray-200">
+                                                <img src={item.image} alt={item.name} className="w-full h-full object-contain mix-blend-multiply" />
                                             </div>
-                                            <div>£{(item.price * item.qty).toFixed(2)}</div>
+                                            <div className="flex-1 min-w-0">
+                                                <h4 className="font-bold text-gray-800 truncate text-sm">{item.name}</h4>
+                                                <p className="text-gray-400 font-medium text-xs">Qty: {item.qty}</p>
+                                            </div>
+                                            <div className="font-black text-gray-800">£{(item.price * item.qty).toFixed(2)}</div>
                                         </div>
                                     ))}
                                 </div>
+
+                                <div className="border-t-2 border-dashed border-gray-200 pt-6 space-y-3">
+                                    <div className="flex justify-between items-center text-gray-600 font-medium text-sm">
+                                        <span>Subtotal</span>
+                                        <span className="font-bold text-gray-800">£{subtotal}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center text-gray-600 font-medium text-sm">
+                                        <span>Delivery</span>
+                                        {deliveryFee === 0 
+                                            ? <span className="font-black text-green-600 bg-green-100 px-2 py-0.5 rounded uppercase tracking-wider text-xs">Free</span>
+                                            : <span className="font-bold text-gray-800">£{deliveryFee}</span>
+                                        }
+                                    </div>
+                                    
+                                    {isGiftPacked && (
+                                        <div className="flex justify-between items-center text-gray-600 font-medium text-sm">
+                                            <span className="flex items-center gap-1.5"><Gift size={14} className="text-pink-500"/> Gift Packing</span>
+                                            <span className="font-bold text-pink-700">£2.00</span>
+                                        </div>
+                                    )}
+
+                                    {/* Tipping Slider */}
+                                    <div className="pt-2">
+                                        <div className="flex justify-between text-sm font-medium text-gray-600 mb-2">
+                                            <span>Rider Tip</span>
+                                            <span className="font-bold text-gray-800">£{parseFloat(tipAmount).toFixed(2)}</span>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            {[0, 2, 5, 7].map(amount => (
+                                                <button 
+                                                    key={amount} 
+                                                    type="button"
+                                                    onClick={() => setTipAmount(amount)}
+                                                    className={`flex-1 py-1.5 rounded-lg text-sm font-bold transition-all border-2 ${tipAmount === amount ? 'border-[#00ADEF] bg-[#00ADEF] text-white shadow-md transform -translate-y-0.5' : 'border-gray-200 bg-white text-gray-600 hover:border-[#00ADEF]/50 hover:bg-[#00ADEF]/5'}`}
+                                                >
+                                                    {amount === 0 ? 'No tip' : `£${amount}`}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Active Offers */}
+                                {(isFirstOrder || appliedCoupon) && (
+                                    <div className="border-t-2 border-dashed border-gray-200 pt-5 space-y-2">
+                                        {isFirstOrder && (
+                                            <div className="flex justify-between items-center bg-green-50 px-3 py-2 rounded-lg border border-green-200">
+                                                <span className="text-green-700 font-bold text-sm flex items-center gap-1.5">⚡ First Order Offer</span>
+                                                <span className="font-black text-green-700">-£10.00</span>
+                                            </div>
+                                        )}
+                                        {appliedCoupon && (
+                                            <div className="flex justify-between items-center bg-green-50 px-3 py-2 rounded-lg border border-green-200 group">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-green-700 font-bold text-sm tracking-wide bg-white px-2 py-0.5 rounded shadow-sm border border-green-200 uppercase">{appliedCoupon.code}</span>
+                                                    <button type="button" onClick={() => {setAppliedCoupon(null); setCouponCode('');}} className="text-gray-400 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100" title="Remove coupon">
+                                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                                                    </button>
+                                                </div>
+                                                <span className="font-black text-green-700">-£{appliedCoupon.discount.toFixed(2)}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Total and Submit Banner */}
+                            <div className="bg-gray-900 p-6 md:p-8 mt-auto">
+                                <div className="flex justify-between items-end mb-6">
+                                    <span className="text-gray-400 font-bold uppercase tracking-widest text-sm">Total to pay</span>
+                                    <span className="text-4xl font-black text-white leading-none">£{total}</span>
+                                </div>
+                                <button
+                                    form="checkout-form"
+                                    type="submit"
+                                    disabled={loading}
+                                    className="w-full bg-[#00ADEF] text-white py-4 rounded-xl font-black text-lg uppercase tracking-widest hover:bg-[#0092ca] transition-all disabled:opacity-50 shadow-[0_6px_0_#007fac] active:shadow-none active:translate-y-1.5 hover:-translate-y-1 hover:shadow-[0_8px_0_#007fac] group flex items-center justify-center gap-3 overflow-hidden relative"
+                                >
+                                    <span className="relative z-10">{loading ? 'Processing...' : 'Place Secure Order'}</span>
+                                    {!loading && <svg className="w-6 h-6 relative z-10 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>}
+                                </button>
+                                <p className="text-center text-xs text-gray-500 font-bold mt-4 flex items-center justify-center gap-1.5">
+                                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg> 
+                                    256-bit SSL Encrypted Seamless Checkout
+                                </p>
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
