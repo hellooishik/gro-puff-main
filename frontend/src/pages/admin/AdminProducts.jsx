@@ -1,6 +1,7 @@
 import { useState, useEffect, useContext } from 'react';
 import axios from '../../api/axios';
 import AuthContext from '../../context/AuthContext';
+import Swal from 'sweetalert2';
 
 const AdminProducts = () => {
     const { user } = useContext(AuthContext);
@@ -48,13 +49,22 @@ const AdminProducts = () => {
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to delete this product?')) {
+        const result = await Swal.fire({
+            title: 'Are you sure you want to delete this product?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+        });
+        if (result.isConfirmed) {
             try {
                 const config = { headers: { Authorization: `Bearer ${user.token}` } };
                 await axios.delete(`/api/products/${id}`, config);
                 fetchProducts();
+                Swal.fire('Deleted!', 'Product has been deleted.', 'success');
             } catch (err) {
-                alert('Delete failed');
+                Swal.fire('Error', 'Delete failed', 'error');
             }
         }
     };
@@ -73,8 +83,9 @@ const AdminProducts = () => {
                 category: data.category,
                 countInStock: data.countInStock,
             });
+            Swal.fire('Success', 'Product created', 'success');
         } catch (err) {
-            alert('Create failed');
+            Swal.fire('Error', 'Create failed', 'error');
         }
     };
 
@@ -85,8 +96,9 @@ const AdminProducts = () => {
             await axios.put(`/api/products/${editingProduct._id}`, formData, config);
             setEditingProduct(null);
             fetchProducts();
+            Swal.fire('Success', 'Product updated', 'success');
         } catch (err) {
-            alert('Update failed');
+            Swal.fire('Error', 'Update failed', 'error');
         }
     };
 

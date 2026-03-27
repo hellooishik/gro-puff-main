@@ -1,6 +1,7 @@
 import { useState, useEffect, useContext } from 'react';
 import axios from '../../api/axios';
 import AuthContext from '../../context/AuthContext';
+import Swal from 'sweetalert2';
 
 const AdminCategories = () => {
     const { user } = useContext(AuthContext);
@@ -32,13 +33,22 @@ const AdminCategories = () => {
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to delete this category?')) {
+        const result = await Swal.fire({
+            title: 'Are you sure you want to delete this category?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+        });
+        if (result.isConfirmed) {
             try {
                 const config = { headers: { Authorization: `Bearer ${user.token}` } };
                 await axios.delete(`/api/categories/${id}`, config);
                 fetchCategories();
+                Swal.fire('Deleted!', 'Category has been deleted.', 'success');
             } catch (err) {
-                alert('Delete failed');
+                Swal.fire('Error', 'Delete failed', 'error');
             }
         }
     };
@@ -52,8 +62,9 @@ const AdminCategories = () => {
                 name: data.name,
                 image: data.image
             });
+            Swal.fire('Success', 'Category created', 'success');
         } catch (err) {
-            alert('Create failed');
+            Swal.fire('Error', 'Create failed', 'error');
         }
     };
 
@@ -64,8 +75,9 @@ const AdminCategories = () => {
             await axios.put(`/api/categories/${editingCategory._id}`, formData, config);
             setEditingCategory(null);
             fetchCategories();
+            Swal.fire('Success', 'Category updated', 'success');
         } catch (err) {
-            alert('Update failed');
+            Swal.fire('Error', 'Update failed', 'error');
         }
     };
 

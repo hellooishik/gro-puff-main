@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import axios from '../../api/axios';
 import AuthContext from '../../context/AuthContext';
 import { Edit2, Trash2, PlusCircle, ArrowLeft } from 'lucide-react';
+import Swal from 'sweetalert2';
 
 const VendorProducts = () => {
     const { user } = useContext(AuthContext);
@@ -34,13 +35,22 @@ const VendorProducts = () => {
     };
 
     const deleteHandler = async (id) => {
-        if (window.confirm('Are you certain you want to root out this crop?')) {
+        const result = await Swal.fire({
+            title: 'Are you certain you want to root out this crop?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#4CAF50',
+            cancelButtonColor: '#D91C2A',
+            confirmButtonText: 'Yes, root it out!'
+        });
+        if (result.isConfirmed) {
             try {
                 const config = { headers: { Authorization: `Bearer ${user.token}` } };
                 await axios.delete(`/api/products/${id}`, config);
                 fetchProducts();
+                Swal.fire({ title: 'Deleted!', text: 'Crop has been rooted out.', icon: 'success', confirmButtonColor: '#4CAF50' });
             } catch (err) {
-                alert(err.response?.data?.message || err.message);
+                Swal.fire({ title: 'Error', text: err.response?.data?.message || err.message, icon: 'error', confirmButtonColor: '#4CAF50' });
             }
         }
     };
@@ -53,7 +63,7 @@ const VendorProducts = () => {
             // Let's just use the admin edit layout since it's just a form.
             navigate(`/admin/product/${data._id}/edit`);
         } catch (err) {
-            alert(err.response?.data?.message || err.message);
+            Swal.fire({ title: 'Error', text: err.response?.data?.message || err.message, icon: 'error', confirmButtonColor: '#4CAF50' });
         }
     };
 

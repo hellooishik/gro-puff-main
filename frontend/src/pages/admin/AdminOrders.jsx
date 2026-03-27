@@ -2,6 +2,7 @@ import { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import axios from '../../api/axios';
 import AuthContext from '../../context/AuthContext';
+import Swal from 'sweetalert2';
 
 const AdminOrders = () => {
     const { user } = useContext(AuthContext);
@@ -30,8 +31,9 @@ const AdminOrders = () => {
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
             await axios.put(`/api/orders/${id}/status`, { status: newStatus }, config);
             fetchOrders(); // Refresh table
+            Swal.fire('Success', 'Status updated successfully', 'success');
         } catch (err) {
-            alert('Failed to update status');
+            Swal.fire('Error', 'Failed to update status', 'error');
         }
     };
 

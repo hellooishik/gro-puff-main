@@ -4,6 +4,7 @@ import axios from '../api/axios';
 import { Minus, Plus, ShoppingBag, ArrowLeft } from 'lucide-react';
 import CartContext from '../context/CartContext';
 import AuthContext from '../context/AuthContext';
+import Swal from 'sweetalert2';
 
 const ProductDetails = () => {
     const { id } = useParams();
@@ -54,7 +55,7 @@ const ProductDetails = () => {
 
     const addToCartHandler = () => {
         if (!user) {
-            alert('Please sign in before adding items to the cart.');
+            Swal.fire({ title: 'Authentication Required', text: 'Please sign in before adding items to the cart.', icon: 'warning', confirmButtonColor: '#4CAF50' });
             navigate('/login');
             return;
         }
@@ -65,7 +66,7 @@ const ProductDetails = () => {
         e.preventDefault();
         e.stopPropagation();
         if (!user) {
-            alert('Please sign in before adding items to the cart.');
+            Swal.fire({ title: 'Authentication Required', text: 'Please sign in before adding items to the cart.', icon: 'warning', confirmButtonColor: '#4CAF50' });
             navigate('/login');
             return;
         }

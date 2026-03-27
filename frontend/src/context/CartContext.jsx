@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect, useContext } from 'react';
 import axios from '../api/axios';
 import AuthContext from './AuthContext';
+import Swal from 'sweetalert2';
 
 const CartContext = createContext();
 
@@ -35,7 +36,7 @@ export const CartProvider = ({ children }) => {
 
     const addToCart = async (product, qty) => {
         if (!user) {
-            alert('Please login to add to cart');
+            Swal.fire({ title: 'Authentication Required', text: 'Please login to add to cart', icon: 'warning', confirmButtonColor: '#0D4E9A' });
             return;
         }
 
@@ -81,9 +82,9 @@ export const CartProvider = ({ children }) => {
             setCartItems(previousCartItems); // Revert on failure
             if (error.response && (error.response.status === 401 || error.response.status === 403)) {
                 logout();
-                alert('Session expired. Please login again.');
+                Swal.fire({ title: 'Session Expired', text: 'Please login again.', icon: 'warning', confirmButtonColor: '#0D4E9A' });
             } else {
-                alert('Failed to add to cart. Please try again.');
+                Swal.fire({ title: 'Error', text: 'Failed to add to cart. Please try again.', icon: 'error', confirmButtonColor: '#0D4E9A' });
             }
         }
     };

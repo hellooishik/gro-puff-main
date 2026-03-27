@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from '../api/axios';
 import AuthContext from '../context/AuthContext';
 import { Package, Calendar, MapPin, Truck, CheckCircle, Clock, CreditCard, Heart } from 'lucide-react';
+import Swal from 'sweetalert2';
 import DeliveryTracker from '../components/DeliveryTracker';
 
 const OrderDetails = () => {
@@ -65,16 +66,24 @@ const OrderDetails = () => {
     }, [id, user, navigate]);
 
     const cancelOrderHandler = async () => {
-        if (!window.confirm('Are you sure you want to cancel this order?')) return;
+        const result = await Swal.fire({
+            title: 'Are you sure you want to cancel this order?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, cancel it!'
+        });
+        if (!result.isConfirmed) return;
         setCancelling(true);
         try {
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
             const { data } = await axios.put(`/api/orders/${id}/cancel`, {}, config);
             setOrder(data);
             setCancelling(false);
-            alert('Order has been cancelled successfully.');
+            Swal.fire('Cancelled!', 'Order has been cancelled successfully.', 'success');
         } catch (err) {
-            alert(err.response?.data?.message || 'Error cancelling order');
+            Swal.fire('Error', err.response?.data?.message || 'Error cancelling order', 'error');
             setCancelling(false);
         }
     };
@@ -290,7 +299,7 @@ const OrderDetails = () => {
                         </a>
                         {['Shipped', 'Processing'].includes(order.status) && (
                             <button 
-                                onClick={() => alert('Delivery Partner messaging is not yet integrated.')}
+                                onClick={() => Swal.fire('Notice', 'Delivery Partner messaging is not yet integrated.', 'info')}
                                 className="bg-gray-800 text-white hover:bg-gray-900 px-5 py-2 rounded-full font-bold text-sm transition-colors shadow-sm"
                             >
                                 Contact Delivery Partner

@@ -1,6 +1,7 @@
 import { useState, useEffect, useContext } from 'react';
 import axios from '../../api/axios';
 import AuthContext from '../../context/AuthContext';
+import Swal from 'sweetalert2';
 
 const AdminUsers = () => {
     const { user } = useContext(AuthContext);
@@ -42,8 +43,9 @@ const AdminUsers = () => {
             await axios.put(`/api/auth/${editingUser._id}`, formData, config);
             setEditingUser(null);
             fetchUsers();
+            Swal.fire('Success', 'User updated successfully', 'success');
         } catch (err) {
-            alert('Update failed');
+            Swal.fire('Error', 'Update failed', 'error');
         }
     };
 

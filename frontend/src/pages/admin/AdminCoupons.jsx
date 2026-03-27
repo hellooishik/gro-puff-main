@@ -1,6 +1,7 @@
 import { useState, useEffect, useContext } from 'react';
 import axios from '../../api/axios';
 import AuthContext from '../../context/AuthContext';
+import Swal from 'sweetalert2';
 
 const AdminCoupons = () => {
     const [coupons, setCoupons] = useState([]);
@@ -42,8 +43,9 @@ const AdminCoupons = () => {
             setIsActive(true);
             setEditId(null);
             fetchCoupons();
+            Swal.fire('Success', editId ? 'Coupon updated' : 'Coupon created', 'success');
         } catch (error) {
-            alert(error.response?.data?.message || 'Error saving coupon');
+            Swal.fire('Error', error.response?.data?.message || 'Error saving coupon', 'error');
         } finally {
             setLoading(false);
         }
@@ -57,13 +59,22 @@ const AdminCoupons = () => {
     };
 
     const deleteHandler = async (id) => {
-        if (window.confirm('Are you sure?')) {
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+        });
+        if (result.isConfirmed) {
             try {
                 const config = { headers: { Authorization: `Bearer ${user.token}` } };
                 await axios.delete(`/api/coupons/${id}`, config);
                 fetchCoupons();
+                Swal.fire('Deleted!', 'Coupon has been deleted.', 'success');
             } catch (error) {
-                alert(error.response?.data?.message || 'Error deleting coupon');
+                Swal.fire('Error', error.response?.data?.message || 'Error deleting coupon', 'error');
             }
         }
     };

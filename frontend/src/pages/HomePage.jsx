@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import CartContext from '../context/CartContext';
 import AuthContext from '../context/AuthContext';
+import Swal from 'sweetalert2';
 
 function getDistanceFromLatLonInMiles(lat1, lon1, lat2, lon2) {
     if (!lat1 || !lon1 || !lat2 || !lon2) return 999;
@@ -30,7 +31,7 @@ const HomePage = () => {
     const handleAddToCart = (e, product) => {
         e.preventDefault();
         if (!user) {
-            alert('Please sign in before adding items to the cart.');
+            Swal.fire({ title: 'Authentication Required', text: 'Please sign in before adding items to the cart.', icon: 'warning', confirmButtonColor: '#0D4E9A' });
             navigate('/login');
             return;
         }
