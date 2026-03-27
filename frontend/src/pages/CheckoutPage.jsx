@@ -340,32 +340,11 @@ const CheckoutPage = () => {
                                 </div>
 
                                 {/* Bank Details Dropdown */}
-                                <div className={`mt-4 overflow-hidden transition-all duration-300 ${paymentMethod === 'Online Pay' ? 'max-h-60 opacity-100' : 'max-h-0 opacity-0'}`}>
-                                    <div className="p-6 bg-[#00ADEF]/10 border border-[#00ADEF]/20 rounded-2xl mt-2 relative">
-                                        <div className="absolute top-0 right-0 w-20 h-20 bg-[#00ADEF] opacity-[0.03] rounded-bl-full"></div>
-                                        <h4 className="text-[#00ADEF] font-black uppercase tracking-widest text-xs mb-3">Recipient Details</h4>
-                                        <div className="space-y-2 text-sm text-blue-950 font-medium">
-                                            <div className="flex justify-between border-b border-blue-100 pb-2">
-                                                <span className="text-blue-600/70">Account Name</span>
-                                                <strong className="font-black">XNETWORK ONLINE LTD</strong>
-                                            </div>
-                                            <div className="flex justify-between border-b border-blue-100 pb-2">
-                                                <span className="text-blue-600/70">Account Number</span>
-                                                <strong className="font-black font-mono text-base tracking-wider">68169984</strong>
-                                            </div>
-                                            <div className="flex justify-between pb-1">
-                                                <span className="text-blue-600/70">Sort Code</span>
-                                                <strong className="font-black font-mono text-base tracking-wider">04-00-05</strong>
-                                            </div>
-                                        </div>
-                                        <p className="text-xs text-blue-600 font-bold mt-4 flex items-center gap-1">
-                                            <CheckCircle2 size={12} /> Please ensure details are correct before sending.
-                                        </p>
-                                    </div>
-
+                                <div className={`mt-4 overflow-hidden transition-all duration-500 ease-in-out ${paymentMethod === 'Online Pay' ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                                    
                                     {/* Mock Card Input */}
-                                    <div className="p-6 bg-white border border-gray-200 shadow-sm rounded-2xl mt-4 relative overflow-hidden">
-                                        <h4 className="text-gray-800 font-bold text-sm mb-4">Enter Card Details for Verification</h4>
+                                    <div className="p-6 bg-white border border-[#00ADEF]/30 shadow-sm rounded-2xl mt-2 relative overflow-hidden">
+                                        <h4 className="text-[#00ADEF] font-black uppercase tracking-widest text-xs mb-4">Enter Card Details</h4>
                                         <div className="space-y-4">
                                             <div>
                                                 <label className="block text-gray-500 font-bold mb-1 uppercase tracking-wide text-[10px]">Card Number</label>
@@ -408,10 +387,30 @@ const CheckoutPage = () => {
                                                 </div>
                                             </div>
                                         </div>
-                                        <p className="text-[10px] text-gray-400 mt-4 leading-tight">
-                                            By providing your card details, you authorize XNETWORK ONLINE LTD to verify your payment. After successful authorization, please complete the wire transfer to the account provided above.
+                                    </div>
+
+                                    <div className="p-6 bg-[#00ADEF]/10 border border-[#00ADEF]/20 rounded-2xl mt-4 relative">
+                                        <div className="absolute top-0 right-0 w-20 h-20 bg-[#00ADEF] opacity-[0.03] rounded-bl-full"></div>
+                                        <h4 className="text-[#00ADEF] font-black uppercase tracking-widest text-xs mb-3">Recipient Details</h4>
+                                        <div className="space-y-2 text-sm text-blue-950 font-medium tracking-wide">
+                                            <div className="flex justify-between border-b border-blue-100 pb-2">
+                                                <span className="text-blue-600/70">Account Name</span>
+                                                <strong className="font-black">XNETWORK ONLINE LTD</strong>
+                                            </div>
+                                            <div className="flex justify-between border-b border-blue-100 pb-2">
+                                                <span className="text-blue-600/70">Account Number</span>
+                                                <strong className="font-black font-mono text-base tracking-wider">68169984</strong>
+                                            </div>
+                                            <div className="flex justify-between pb-1">
+                                                <span className="text-blue-600/70">Sort Code</span>
+                                                <strong className="font-black font-mono text-base tracking-wider">04-00-05</strong>
+                                            </div>
+                                        </div>
+                                        <p className="text-[11px] text-blue-800 font-bold mt-4 flex items-center gap-1 leading-tight">
+                                            <CheckCircle2 size={16} className="text-blue-500 shrink-0" /> After successful payment, this money will go to the above Recipient Details. Please ensure details are correct before sending.
                                         </p>
                                     </div>
+
                                 </div>
                             </div>
                             
