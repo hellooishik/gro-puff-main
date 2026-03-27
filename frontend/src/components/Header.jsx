@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import AuthContext from '../context/AuthContext';
 import CartContext from '../context/CartContext';
 import { ShoppingBag, LogOut } from 'lucide-react';
