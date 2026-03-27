@@ -3,6 +3,7 @@ import { useContext, useState } from 'react';
 import AuthContext from '../context/AuthContext';
 import CartContext from '../context/CartContext';
 import { ShoppingBag, LogOut } from 'lucide-react';
+import axios from '../api/axios';
 
 const Header = () => {
     const auth = useContext(AuthContext);
@@ -11,10 +12,25 @@ const Header = () => {
     const { cartItems } = cart || { cartItems: [] };
 
     const [keyword, setKeyword] = useState('');
+    const [offers, setOffers] = useState([]);
     const navigate = useNavigate();
 
     const totalQty = cartItems ? cartItems.reduce((acc, item) => acc + item.qty, 0) : 0;
     const totalPrice = cartItems ? cartItems.reduce((acc, item) => acc + item.qty * item.price, 0).toFixed(2) : '0.00';
+
+    useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                const { data } = await axios.get('/api/settings');
+                if (data.promotionalOffers && data.promotionalOffers.length > 0) {
+                    setOffers(data.promotionalOffers);
+                }
+            } catch (error) {
+                console.error("Failed to load offers:", error);
+            }
+        };
+        fetchSettings();
+    }, []);
 
     const handleSearch = (e) => {
         e.preventDefault();
@@ -26,7 +42,18 @@ const Header = () => {
     };
 
     return (
-        <header className="bg-gradient-to-b from-[#87CEEB] to-[#E0F6FF] sticky top-0 z-50 shadow-[0_4px_0_#4CAF50] border-b-[8px] border-[#2E8B57] relative overflow-hidden">
+        <header className="bg-gradient-to-b from-[#87CEEB] to-[#E0F6FF] sticky top-0 z-50 shadow-[0_4px_0_#4CAF50] border-b-[8px] border-[#2E8B57] relative flex flex-col">
+            {/* Dynamic Offers Announcement Bar */}
+            {offers.length > 0 && (
+                <div className="bg-[#D91C2A] text-white py-2 text-sm md:text-base font-black uppercase tracking-widest text-center overflow-hidden whitespace-nowrap z-50 shadow-[0_3px_0_#850E18]">
+                    <div className="inline-block animate-[marquee_20s_linear_infinite]">
+                        {offers.map((offer, index) => (
+                            <span key={index} className="mx-10 whitespace-nowrap">★ {offer} ★</span>
+                        ))}
+                    </div>
+                </div>
+            )}
+            <div className="relative overflow-hidden w-full">
             {/* Decorative Countryside Elements */}
             <div className="absolute top-2 left-8 text-white text-5xl opacity-90 pointer-events-none animate-pulse">☁️</div>
             <div className="absolute top-4 right-1/4 text-white text-4xl opacity-80 pointer-events-none">☁️</div>
@@ -106,6 +133,7 @@ const Header = () => {
                         )}
                     </Link>
                 </nav>
+            </div>
             </div>
         </header>
     );

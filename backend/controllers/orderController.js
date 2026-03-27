@@ -225,6 +225,46 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
     }
 });
 
+// @desc    Cancel order by customer
+// @route   PUT /api/orders/:id/cancel
+// @access  Private
+const cancelOrder = asyncHandler(async (req, res) => {
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+        res.status(404);
+        throw new Error('Order not found');
+    }
+
+    // Only allow actual owner to cancel
+    if (order.user.toString() !== req.user._id.toString()) {
+        res.status(401);
+        throw new Error('Not authorized to cancel this order');
+    }
+
+    if (order.status !== 'Pending') {
+        res.status(400);
+        throw new Error('Only pending orders can be cancelled');
+    }
+
+    order.status = 'Cancelled';
+    const updatedOrder = await order.save();
+
+    // Restore stock and decrement numOrders
+    for (const item of updatedOrder.orderItems) {
+        const product = await Product.findById(item.product);
+        if (product) {
+            product.countInStock += item.qty;
+            if (!item.isFreeItem) {
+                product.numOrders = Math.max(0, (product.numOrders || 0) - item.qty);
+            }
+            await product.save();
+        }
+    }
+
+    res.json(updatedOrder);
+});
+
 // @desc    Get vendor sales growth analytics
 // @route   GET /api/orders/vendor-sales
 // @access  Private/AdminOrVendor
@@ -304,4 +344,5 @@ module.exports = {
     getOrders,
     updateOrderStatus,
     getVendorSales,
+    cancelOrder,
 };

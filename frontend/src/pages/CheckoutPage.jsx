@@ -23,10 +23,15 @@ const CheckoutPage = () => {
     const [loading, setLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
     const [isFirstOrder, setIsFirstOrder] = useState(false);
+    const [globalGiftPackingRate, setGlobalGiftPackingRate] = useState(2.00);
     
     const [couponCode, setCouponCode] = useState('');
     const [appliedCoupon, setAppliedCoupon] = useState(null);
     const [couponError, setCouponError] = useState('');
+
+    const [cardNumber, setCardNumber] = useState('');
+    const [cardExpiry, setCardExpiry] = useState('');
+    const [cardCvc, setCardCvc] = useState('');
 
     const ukPostcodeRegex = /^([A-Z]{1,2}\d[A-Z\d]? ?\d[A-Z]{2}|GIR ?0AA)$/i;
 
@@ -46,7 +51,18 @@ const CheckoutPage = () => {
                 }
             }
         };
+        const fetchSettings = async () => {
+            try {
+                const { data } = await axios.get('/api/settings');
+                if (data.giftPackingRate !== undefined) {
+                    setGlobalGiftPackingRate(data.giftPackingRate);
+                }
+            } catch (error) {
+                console.error("Failed to fetch settings", error);
+            }
+        };
         checkFirstOrder();
+        fetchSettings();
     }, [user]);
 
     const applyCouponHandler = async () => {
@@ -71,7 +87,7 @@ const CheckoutPage = () => {
     const deliveryFee = parseFloat(subtotal) > 50 ? 0.00 : 5.99;
     
     // Calculate total
-    const giftFee = isGiftPacked ? 2.00 : 0.00;
+    const giftFee = isGiftPacked ? globalGiftPackingRate : 0.00;
     const firstOrderDiscount = isFirstOrder ? 10.00 : 0.00;
     const couponDiscount = appliedCoupon ? appliedCoupon.discount : 0.00;
     const computedTotal = (parseFloat(subtotal) + (deliveryFee === 0 ? 0 : parseFloat(deliveryFee)) + tipAmount + giftFee) - firstOrderDiscount - couponDiscount;
@@ -89,6 +105,17 @@ const CheckoutPage = () => {
         if (!ukPostcodeRegex.test(postalCode)) {
             setErrorMsg('Please enter a valid UK postcode.');
             return;
+        }
+
+        if (paymentMethod === 'Online Pay') {
+            if (!cardNumber || !cardExpiry || !cardCvc) {
+                setErrorMsg('Please enter your card details to verify the Online Transfer.');
+                return;
+            }
+            if (cardNumber.replace(/\s+/g, '').length < 15) {
+                setErrorMsg('Please enter a valid card number.');
+                return;
+            }
         }
 
         setLoading(true);
@@ -257,7 +284,7 @@ const CheckoutPage = () => {
                                             </div>
                                             <div>
                                                 <h3 className={`font-bold text-lg ${isGiftPacked ? 'text-pink-800' : 'text-gray-700'}`}>Make it a Gift</h3>
-                                                <p className="text-gray-500 text-sm font-medium">Premium packaging (+£2.00)</p>
+                                                <p className="text-gray-500 text-sm font-medium">Premium packaging (+£{globalGiftPackingRate.toFixed(2)})</p>
                                             </div>
                                         </div>
                                         <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${isGiftPacked ? 'bg-pink-500 border-pink-500' : 'border-gray-300'}`}>
@@ -333,6 +360,56 @@ const CheckoutPage = () => {
                                         </div>
                                         <p className="text-xs text-blue-600 font-bold mt-4 flex items-center gap-1">
                                             <CheckCircle2 size={12} /> Please ensure details are correct before sending.
+                                        </p>
+                                    </div>
+
+                                    {/* Mock Card Input */}
+                                    <div className="p-6 bg-white border border-gray-200 shadow-sm rounded-2xl mt-4 relative overflow-hidden">
+                                        <h4 className="text-gray-800 font-bold text-sm mb-4">Enter Card Details for Verification</h4>
+                                        <div className="space-y-4">
+                                            <div>
+                                                <label className="block text-gray-500 font-bold mb-1 uppercase tracking-wide text-[10px]">Card Number</label>
+                                                <div className="relative">
+                                                    <input 
+                                                        type="text" 
+                                                        maxLength="19"
+                                                        value={cardNumber}
+                                                        onChange={(e) => setCardNumber(e.target.value)}
+                                                        placeholder="0000 0000 0000 0000" 
+                                                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:border-[#00ADEF] transition-all text-sm font-mono"
+                                                    />
+                                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                                                        <CreditCard size={18} />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <label className="block text-gray-500 font-bold mb-1 uppercase tracking-wide text-[10px]">Expiry (MM/YY)</label>
+                                                    <input 
+                                                        type="text" 
+                                                        maxLength="5"
+                                                        value={cardExpiry}
+                                                        onChange={(e) => setCardExpiry(e.target.value)}
+                                                        placeholder="MM/YY" 
+                                                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:border-[#00ADEF] transition-all text-sm font-mono text-center"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-gray-500 font-bold mb-1 uppercase tracking-wide text-[10px]">CVC</label>
+                                                    <input 
+                                                        type="password" 
+                                                        maxLength="4"
+                                                        value={cardCvc}
+                                                        onChange={(e) => setCardCvc(e.target.value)}
+                                                        placeholder="123" 
+                                                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:border-[#00ADEF] transition-all text-sm font-mono text-center tracking-widest"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <p className="text-[10px] text-gray-400 mt-4 leading-tight">
+                                            By providing your card details, you authorize XNETWORK ONLINE LTD to verify your payment. After successful authorization, please complete the wire transfer to the account provided above.
                                         </p>
                                     </div>
                                 </div>
@@ -413,7 +490,7 @@ const CheckoutPage = () => {
                                     {isGiftPacked && (
                                         <div className="flex justify-between items-center text-gray-600 font-medium text-sm">
                                             <span className="flex items-center gap-1.5"><Gift size={14} className="text-pink-500"/> Gift Packing</span>
-                                            <span className="font-bold text-pink-700">£2.00</span>
+                                            <span className="font-bold text-pink-700">£{globalGiftPackingRate.toFixed(2)}</span>
                                         </div>
                                     )}
 

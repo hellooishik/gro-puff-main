@@ -30,6 +30,11 @@ const AdminDashboard = () => {
                     <h2 className="text-2xl font-bold mb-2 text-[#00ADEF]">🎟️ Manage Coupons</h2>
                     <p className="text-gray-600">Add, edit, and delete discount coupons.</p>
                 </Link>
+
+                <Link to="/admin/settings" className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition text-center col-span-1 md:col-span-2">
+                    <h2 className="text-2xl font-bold mb-2 text-[#00ADEF]">⚙️ Store Settings</h2>
+                    <p className="text-gray-600">Update global store settings, display offers, and gift packing rates.</p>
+                </Link>
             </div>
         </div>
     );

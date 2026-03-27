@@ -50,7 +50,7 @@ export const CartProvider = ({ children }) => {
                 config
             );
             setCartItems(data);
-            alert('Item added to bag!');
+            // alert('Item added to bag!'); // Removing disruptive alert on quantity change
         } catch (error) {
             console.error(error);
             if (error.response && (error.response.status === 401 || error.response.status === 403)) {

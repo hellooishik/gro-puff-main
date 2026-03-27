@@ -3,17 +3,33 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Trash2, Plus, Minus, Gift } from 'lucide-react';
 import CartContext from '../context/CartContext';
 import AuthContext from '../context/AuthContext';
+import axios from '../api/axios';
 
 const CartPage = () => {
     const { cartItems, addToCart, removeFromCart, clearCart } = useContext(CartContext);
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
     const [isGiftPacked, setIsGiftPacked] = useState(false);
+    const [globalGiftPackingRate, setGlobalGiftPackingRate] = useState(2.00);
+
+    useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                const { data } = await axios.get('/api/settings');
+                if (data.giftPackingRate !== undefined) {
+                    setGlobalGiftPackingRate(data.giftPackingRate);
+                }
+            } catch (error) {
+                console.error("Failed to fetch settings", error);
+            }
+        };
+        fetchSettings();
+    }, []);
 
     const totalItems = cartItems.reduce((acc, item) => acc + item.qty, 0);
     const subtotal = cartItems.reduce((acc, item) => acc + item.qty * item.price, 0).toFixed(2);
     const deliveryFee = subtotal > 50 ? 0.00 : 5.99;
-    const giftFee = isGiftPacked ? 2.00 : 0.00;
+    const giftFee = isGiftPacked ? globalGiftPackingRate : 0.00;
     const total = (parseFloat(subtotal) + (deliveryFee === 'Free' ? 0 : parseFloat(deliveryFee)) + giftFee).toFixed(2);
 
     const checkoutHandler = () => {
@@ -56,20 +72,24 @@ const CartPage = () => {
                             </div>
 
                             <div className="flex items-center space-x-6">
-                                <div className="flex items-center border rounded-full px-2 py-1">
-                                    <button
-                                        onClick={() => item.qty === 1 ? removeFromCart(item.product) : addToCart({ _id: item.product }, item.qty - 1)}
-                                        className="p-1 hover:text-blue-600"
-                                    >
-                                        <Minus size={16} />
-                                    </button>
-                                    <span className="mx-3 font-medium">{item.qty}</span>
-                                    <button
-                                        onClick={() => addToCart({ _id: item.product }, item.qty + 1)}
-                                        className="p-1 hover:text-blue-600"
-                                    >
-                                        <Plus size={16} />
-                                    </button>
+                                <div className="flex items-center space-x-4">
+                                    <div className="flex items-center bg-gray-50 border border-gray-200 rounded-full px-1 py-1 shadow-sm">
+                                        <button
+                                            onClick={() => item.qty <= 1 ? removeFromCart(item.product) : addToCart({ _id: item.product }, item.qty - 1)}
+                                            className="p-1.5 rounded-full hover:bg-white hover:text-red-500 hover:shadow-sm transition-all text-gray-500"
+                                            title="Decrease Quantity"
+                                        >
+                                            <Minus size={16} strokeWidth={2.5} />
+                                        </button>
+                                        <span className="w-8 text-center font-bold text-gray-800">{item.qty}</span>
+                                        <button
+                                            onClick={() => addToCart({ _id: item.product }, item.qty + 1)}
+                                            className="p-1.5 rounded-full hover:bg-white hover:text-[#00ADEF] hover:shadow-sm transition-all text-gray-500"
+                                            title="Increase Quantity"
+                                        >
+                                            <Plus size={16} strokeWidth={2.5} />
+                                        </button>
+                                    </div>
                                 </div>
                                 <button
                                     onClick={() => removeFromCart(item.product)}
@@ -98,7 +118,7 @@ const CartPage = () => {
                         {isGiftPacked && (
                             <div className="flex justify-between mb-3 text-green-600 font-medium">
                                 <span>Gift Packing</span>
-                                <span>£2.00</span>
+                                <span>£{globalGiftPackingRate.toFixed(2)}</span>
                             </div>
                         )}
                         <div className="flex justify-between mb-6 text-gray-600">
@@ -118,7 +138,7 @@ const CartPage = () => {
                                 </div>
                             </div>
                             <div className="flex items-center gap-3">
-                                <span className="font-semibold text-gray-700">+£2.00</span>
+                                <span className="font-semibold text-gray-700">+£{globalGiftPackingRate.toFixed(2)}</span>
                                 <input type="checkbox" checked={isGiftPacked} readOnly className="w-5 h-5 text-pink-500 rounded focus:ring-pink-500" />
                             </div>
                         </div>

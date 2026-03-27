@@ -13,6 +13,7 @@ const OrderDetails = () => {
     const [order, setOrder] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [cancelling, setCancelling] = useState(false);
     const [timeLeft, setTimeLeft] = useState(600); // 10 minutes
 
     useEffect(() => {
@@ -62,6 +63,21 @@ const OrderDetails = () => {
 
         fetchOrder();
     }, [id, user, navigate]);
+
+    const cancelOrderHandler = async () => {
+        if (!window.confirm('Are you sure you want to cancel this order?')) return;
+        setCancelling(true);
+        try {
+            const config = { headers: { Authorization: `Bearer ${user.token}` } };
+            const { data } = await axios.put(`/api/orders/${id}/cancel`, {}, config);
+            setOrder(data);
+            setCancelling(false);
+            alert('Order has been cancelled successfully.');
+        } catch (err) {
+            alert(err.response?.data?.message || 'Error cancelling order');
+            setCancelling(false);
+        }
+    };
 
     if (loading) {
         return (
@@ -116,9 +132,18 @@ const OrderDetails = () => {
                         <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)} mb-2`}>
                             {order.status}
                         </span>
-                        <div className="text-gray-600 font-medium">
+                        <div className="text-gray-600 font-medium pb-2">
                             Total: <span className="text-xl font-bold text-gray-900 ml-1">£{(order.totalPrice || 0).toFixed(2)}</span>
                         </div>
+                        {order.status === 'Pending' && order.user?._id === user?._id && (
+                            <button
+                                onClick={cancelOrderHandler}
+                                disabled={cancelling}
+                                className="mt-2 bg-red-100 text-red-600 hover:bg-red-200 px-4 py-2 rounded-full font-bold text-sm transition-colors border border-red-200"
+                            >
+                                {cancelling ? 'Cancelling...' : 'Cancel Order'}
+                            </button>
+                        )}
                     </div>
                 </div>
 
@@ -242,6 +267,35 @@ const OrderDetails = () => {
                                 </div>
                             </div>
                         ))}
+                    </div>
+                </div>
+
+                {/* Support Section */}
+                <div className="p-6 bg-gray-50 border-t border-gray-100 flex flex-col sm:flex-row gap-4 justify-between items-center">
+                    <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-[#00ADEF]/10 rounded-full flex items-center justify-center text-[#00ADEF]">
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-gray-800">Need Help?</h3>
+                            <p className="text-xs text-gray-500">We're here for you 24/7</p>
+                        </div>
+                    </div>
+                    <div className="flex flex-wrap gap-3">
+                        <a 
+                            href="tel:+919831248081" 
+                            className="bg-white border-2 border-[#00ADEF] text-[#00ADEF] hover:bg-[#00ADEF] hover:text-white px-5 py-2 rounded-full font-bold text-sm transition-colors shadow-sm"
+                        >
+                            Call Customer Care
+                        </a>
+                        {['Shipped', 'Processing'].includes(order.status) && (
+                            <button 
+                                onClick={() => alert('Delivery Partner messaging is not yet integrated.')}
+                                className="bg-gray-800 text-white hover:bg-gray-900 px-5 py-2 rounded-full font-bold text-sm transition-colors shadow-sm"
+                            >
+                                Contact Delivery Partner
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>
