@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from 'react';
-import axios from '../../../api/axios';
-import AuthContext from '../../../context/AuthContext';
+import axios from '../../api/axios';
+import AuthContext from '../../context/AuthContext';
 import { Save, Gift, Tag, AlertCircle } from 'lucide-react';
 
 const AdminSettings = () => {
