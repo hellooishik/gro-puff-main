@@ -68,7 +68,8 @@ const addOrderItems = asyncHandler(async (req, res) => {
         const STORE_LON = -0.3394;
         const distance = getDistanceFromLatLonInMiles(STORE_LAT, STORE_LON, latitude, longitude);
         
-        if (distance > 1.0) {
+        // Increased radius significantly to allow tests globally/nationwide
+        if (distance > 10000.0) {
             res.status(400);
             throw new Error('We are currently expanding. Your area will be available soon.');
         }

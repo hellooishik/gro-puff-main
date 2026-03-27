@@ -179,12 +179,11 @@ const CheckoutPage = () => {
                     </div>
                 )}
 
-                <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
-                    
-                    {/* Left Column: Form */}
-                    <div className="lg:w-2/3 space-y-8">
+                <form id="checkout-form" onSubmit={submitHandler}>
+                    <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
                         
-                        <form id="checkout-form" onSubmit={submitHandler} className="space-y-8">
+                        {/* Left Column: Form Fields */}
+                        <div className="lg:w-2/3 space-y-8">
                             
                             {/* Shipping Details */}
                             <div className="bg-white p-8 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 relative overflow-hidden">
@@ -418,15 +417,15 @@ const CheckoutPage = () => {
                                 <strong>Cancellation Policy:</strong> Once an order is placed, cancellation may result in a fee. If unexpected delays lead to order cancellation on our end, a complete refund will be provided automatically.
                             </div>
 
-                        </form>
-                    </div>
+                            </div>
+                        </div>
 
-                    {/* Right Column: Order Summary */}
-                    <div className="lg:w-1/3">
-                        <div className="bg-white rounded-[2rem] shadow-[0_20px_50px_rgb(0,0,0,0.08)] border border-gray-100 sticky top-24 overflow-hidden flex flex-col">
-                            
-                            <div className="bg-gradient-to-r from-gray-900 to-gray-800 p-6 text-white pt-8">
-                                <h2 className="text-2xl font-black tracking-wide text-center uppercase">Order Summary</h2>
+                        {/* Right Column: Order Summary */}
+                        <div className="lg:w-1/3">
+                            <div className="bg-white rounded-[2rem] shadow-[0_20px_50px_rgb(0,0,0,0.08)] border border-gray-100 sticky top-24 overflow-hidden flex flex-col">
+                                
+                                <div className="bg-gradient-to-r from-gray-900 to-gray-800 p-6 text-white pt-8">
+                                    <h2 className="text-2xl font-black tracking-wide text-center uppercase">Order Summary</h2>
                             </div>
 
                             <div className="p-6 md:p-8 flex-grow space-y-6 bg-white shrink-0">
@@ -560,8 +559,7 @@ const CheckoutPage = () => {
                             </div>
                         </div>
                     </div>
-
-                </div>
+                </form>
             </div>
         </div>
     );
