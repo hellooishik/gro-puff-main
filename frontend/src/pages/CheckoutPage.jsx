@@ -141,12 +141,11 @@ const CheckoutPage = () => {
                 isGiftPacked
             };
 
-            await axios.post('/api/orders', orderPayload, config);
+            const { data } = await axios.post('/api/orders', orderPayload, config);
 
             clearCart();
             setLoading(false);
-            alert('Order placed successfully!');
-            navigate('/');
+            navigate(`/order/${data._id}`);
         } catch (error) {
             console.error('Error details:', error);
             if (error.response?.data?.message) {
@@ -343,10 +342,10 @@ const CheckoutPage = () => {
                                     
                                     {/* Mock Card Input */}
                                     <div className="p-6 bg-white border border-[#00ADEF]/30 shadow-sm rounded-2xl mt-2 relative overflow-hidden">
-                                        <h4 className="text-[#00ADEF] font-black uppercase tracking-widest text-xs mb-4">Enter Card Details</h4>
-                                        <div className="space-y-4">
+                                        <h4 className="text-[#00ADEF] font-black uppercase tracking-widest text-sm mb-5">Enter Card Details</h4>
+                                        <div className="space-y-5">
                                             <div>
-                                                <label className="block text-gray-500 font-bold mb-1 uppercase tracking-wide text-[10px]">Card Number</label>
+                                                <label className="block text-gray-600 font-bold mb-1.5 uppercase tracking-wide text-xs">Card Number</label>
                                                 <div className="relative">
                                                     <input 
                                                         type="text" 
@@ -361,34 +360,34 @@ const CheckoutPage = () => {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className="grid grid-cols-2 gap-4">
+                                            <div className="grid grid-cols-2 gap-5 mt-2">
                                                 <div>
-                                                    <label className="block text-gray-500 font-bold mb-1 uppercase tracking-wide text-[10px]">Expiry (MM/YY)</label>
+                                                    <label className="block text-gray-600 font-bold mb-1.5 uppercase tracking-wide text-xs">Expiry (MM/YY)</label>
                                                     <input 
                                                         type="text" 
                                                         maxLength="5"
                                                         value={cardExpiry}
                                                         onChange={(e) => setCardExpiry(e.target.value)}
                                                         placeholder="MM/YY" 
-                                                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:border-[#00ADEF] transition-all text-sm font-mono text-center"
+                                                        className="w-full p-3.5 bg-gray-50 border-2 border-transparent rounded-xl focus:bg-white focus:outline-none focus:border-[#00ADEF] focus:ring-4 focus:ring-[#00ADEF]/10 transition-all text-sm font-mono text-center font-bold"
                                                     />
                                                 </div>
                                                 <div>
-                                                    <label className="block text-gray-500 font-bold mb-1 uppercase tracking-wide text-[10px]">CVC</label>
+                                                    <label className="block text-gray-600 font-bold mb-1.5 uppercase tracking-wide text-xs">CVC</label>
                                                     <input 
                                                         type="password" 
                                                         maxLength="4"
                                                         value={cardCvc}
                                                         onChange={(e) => setCardCvc(e.target.value)}
                                                         placeholder="123" 
-                                                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:border-[#00ADEF] transition-all text-sm font-mono text-center tracking-widest"
+                                                        className="w-full p-3.5 bg-gray-50 border-2 border-transparent rounded-xl focus:bg-white focus:outline-none focus:border-[#00ADEF] focus:ring-4 focus:ring-[#00ADEF]/10 transition-all text-sm font-mono text-center tracking-widest font-bold"
                                                     />
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div className="p-6 bg-[#00ADEF]/10 border border-[#00ADEF]/20 rounded-2xl mt-4 relative">
+                                    <div className="p-6 bg-[#00ADEF]/5 border-2 border-[#00ADEF]/20 rounded-2xl mt-5 relative shadow-sm">
                                         <div className="absolute top-0 right-0 w-20 h-20 bg-[#00ADEF] opacity-[0.03] rounded-bl-full"></div>
                                         <h4 className="text-[#00ADEF] font-black uppercase tracking-widest text-xs mb-3">Recipient Details</h4>
                                         <div className="space-y-2 text-sm text-blue-950 font-medium tracking-wide">

@@ -38,6 +38,32 @@ export const CartProvider = ({ children }) => {
             alert('Please login to add to cart');
             return;
         }
+
+        // Optimistic UI implementation
+        const previousCartItems = [...cartItems];
+        const productId = product._id || product.product || product;
+        
+        let found = false;
+        const newCartItems = previousCartItems.map(item => {
+            if (item.product === productId) {
+                found = true;
+                return { ...item, qty };
+            }
+            return item;
+        });
+
+        // If not found, it means it's a new item (we might not have full product details locally, but we do our best)
+        if (!found) {
+             newCartItems.push({
+                 product: productId,
+                 name: product.name || 'Loading...',
+                 price: product.price || 0,
+                 image: product.image || '',
+                 qty: qty
+             });
+        }
+        setCartItems(newCartItems);
+
         try {
             const config = {
                 headers: {
@@ -46,13 +72,13 @@ export const CartProvider = ({ children }) => {
             };
             const { data } = await axios.post(
                 '/api/cart/add',
-                { productId: product._id, qty },
+                { productId: product._id || product.product || product, qty },
                 config
             );
-            setCartItems(data);
-            // alert('Item added to bag!'); // Removing disruptive alert on quantity change
+            setCartItems(data); // Sync with true server state
         } catch (error) {
             console.error(error);
+            setCartItems(previousCartItems); // Revert on failure
             if (error.response && (error.response.status === 401 || error.response.status === 403)) {
                 logout();
                 alert('Session expired. Please login again.');
@@ -63,6 +89,9 @@ export const CartProvider = ({ children }) => {
     };
 
     const removeFromCart = async (id) => {
+        const previousCartItems = [...cartItems];
+        setCartItems(previousCartItems.filter(item => item.product !== id));
+
         try {
             const config = {
                 headers: {
@@ -77,6 +106,7 @@ export const CartProvider = ({ children }) => {
             setCartItems(data);
         } catch (error) {
             console.error(error);
+            setCartItems(previousCartItems);
             if (error.response && (error.response.status === 401 || error.response.status === 403)) {
                 logout();
             }

@@ -153,29 +153,50 @@ const HomePage = () => {
                     </div>
                 )}
 
-                {/* Grid of Badges */}
-                <div className="flex flex-col md:flex-row items-center justify-center gap-12 mb-16 px-4">
-                    {/* £10 OFF Badge */}
-                    <div className="bg-[#00883A] text-[#FFD100] p-6 text-center transform rotate-[-5deg] border-4 border-[#005a26] shadow-2xl max-w-sm w-full relative z-10 py-8" style={{ clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)', borderRadius: '1rem' }}>
-                        <div className="text-6xl font-black tracking-tighter drop-shadow-md pb-1 text-white" style={{ textShadow: '2px 2px 0 #005a26' }}>£10 <span className="text-3xl text-[#FFD100]">OFF</span></div>
-                        <div className="text-white font-bold text-lg uppercase tracking-tighter bg-black/20 py-1 rounded">Your First Order!</div>
-                    </div>
+                {/* Unified Premium Promo Banner */}
+                <div className="max-w-6xl mx-auto mb-16 relative z-20 px-4">
+                    <div className="bg-white rounded-[2rem] p-8 md:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.15)] border-4 border-[#0D4E9A] relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8">
+                        {/* Background Decor */}
+                        <div className="absolute -top-24 -left-24 w-64 h-64 bg-[#FFD100] rounded-full mix-blend-multiply filter blur-3xl opacity-50 pointer-events-none"></div>
+                        <div className="absolute -bottom-24 -right-24 w-80 h-80 bg-[#00ADEF] rounded-full mix-blend-multiply filter blur-3xl opacity-30 pointer-events-none"></div>
+                        
+                        {/* Left Content - Speed Guarantee */}
+                        <div className="flex-1 text-left relative z-10 w-full">
+                            <div className="inline-flex items-center gap-2 bg-black text-[#FFD100] font-black text-xs md:text-sm py-1.5 px-4 rounded-full uppercase tracking-widest mb-4 shadow-md">
+                                <span className="animate-pulse">⏱️</span> Delivered In
+                            </div>
+                            <h2 className="text-5xl md:text-7xl font-black text-gray-900 leading-none tracking-tighter mb-2" style={{ textShadow: '2px 2px 0px #FFD100' }}>
+                                20 MINUTES
+                            </h2>
+                            <div className="bg-[#D91C2A] text-white text-2xl md:text-3xl font-black py-2 px-6 inline-block uppercase mt-1 shadow-[4px_4px_0_#850E18] rounded-xl transform -rotate-2">
+                                OR IT'S FREE!
+                            </div>
+                        </div>
 
-                    {/* Spend £20 Get Free Milk Badge */}
-                    <div className="bg-white text-[#0D4E9A] p-6 border-4 border-[#0D4E9A] shadow-2xl transform rotate-[3deg] max-w-sm w-full relative z-10 py-6">
-                        <div className="text-2xl font-black uppercase tracking-tight mb-1">Spend £20</div>
-                        <div className="text-[#0D4E9A] text-4xl font-black uppercase tracking-tighter" style={{ textShadow: '1px 1px 0 #FFD100' }}>Get Free Milk!</div>
-                    </div>
-                </div>
-
-                {/* Delivered in 20 Mins Ribbon */}
-                <div className="relative inline-block mb-12 mx-auto transform hover:scale-105 transition duration-300 z-20">
-                    <div className="bg-black border-4 border-[#FFD100] text-[#FFD100] font-black text-xs md:text-lg py-1 px-4 uppercase tracking-widest inline-block absolute -top-4 shadow-sm z-30 left-1/2 -translate-x-1/2">
-                        ⏱️ DELIVERED IN
-                    </div>
-                    <div className="bg-[#FFD100] text-black font-black text-4xl md:text-6xl border-4 border-black py-6 px-12 shadow-[8px_8px_0px_#000] flex flex-col items-center">
-                        <div style={{ textShadow: '2px 2px 0 #fff' }}>20 MINUTES</div>
-                        <span className="bg-[#D91C2A] text-white text-xl md:text-3xl px-4 py-1 uppercase mt-2 shadow-[4px_4px_0_#850E18] transform rotate-[-2deg]">OR IT'S FREE!</span>
+                        {/* Right Content - Offers Grid */}
+                        <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 gap-4 relative z-10">
+                            {/* Free Milk Offer */}
+                            <div className="bg-gradient-to-br from-[#0D4E9A] to-[#0051AC] p-6 rounded-3xl border-2 border-white/20 shadow-xl text-white transform hover:-translate-y-1 transition duration-300">
+                                <div className="text-white/80 font-bold uppercase tracking-widest text-xs mb-1">Spend £20</div>
+                                <div className="text-2xl font-black leading-tight text-[#FFD100]">
+                                    Get Free<br/>Fresh Milk!
+                                </div>
+                                <div className="mt-4 w-10 h-10 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm">
+                                    🥛
+                                </div>
+                            </div>
+                            
+                            {/* £10 OFF Offer */}
+                            <div className="bg-gradient-to-br from-[#00883A] to-[#006A2D] p-6 rounded-3xl border-2 border-white/20 shadow-xl text-white transform hover:-translate-y-1 transition duration-300">
+                                <div className="text-white/80 font-bold uppercase tracking-widest text-xs mb-1">New Customers</div>
+                                <div className="text-3xl font-black leading-tight text-white flex items-end gap-1">
+                                    £10 <span className="text-lg text-[#FFD100] pb-1">OFF</span>
+                                </div>
+                                <div className="mt-2 text-sm font-bold bg-black/20 px-3 py-1 rounded inline-block">
+                                    Your First Order
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
