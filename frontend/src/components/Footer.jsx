@@ -132,7 +132,7 @@ const Footer = () => {
                 </div>
 
                 <div className="border-t-[4px] border-[#3B6E1A] pt-6 text-center font-black text-lg text-[#005a26] uppercase tracking-wide">
-                    <p>&copy; {new Date().getFullYear()} Winkin Village. Freshly Picked. All rights reserved.</p>
+                    <p>@2026 Winkin Store . Powered by XNetwork</p>
                 </div>
             </div>
         </footer>

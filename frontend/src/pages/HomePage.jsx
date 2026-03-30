@@ -31,7 +31,7 @@ const HomePage = () => {
     const handleAddToCart = (e, product) => {
         e.preventDefault();
         if (!user) {
-            Swal.fire({ title: 'Authentication Required', text: 'Please sign in before adding items to the cart.', icon: 'warning', confirmButtonColor: '#0D4E9A' });
+            Swal.fire({ title: 'Authentication Required', text: 'Please sign in before adding items to the cart.', icon: 'warning', confirmButtonColor: '#3B6E1A' });
             navigate('/login');
             return;
         }
@@ -114,12 +114,12 @@ const HomePage = () => {
                 {/* Brand Logo Simulation */}
                 <div className="mb-8 transform rotate-[-2deg] drop-shadow-2xl">
                     <div className="relative inline-block font-black text-6xl md:text-8xl tracking-tighter">
-                        <span className="absolute inset-0 text-[#0051AC] select-none scale-[1.03]" style={{ WebkitTextStroke: '20px #0051AC' }}>Winkin</span>
+                        <span className="absolute inset-0 text-[#2E8B57] select-none scale-[1.03]" style={{ WebkitTextStroke: '20px #2E8B57' }}>Winkin</span>
                         <span className="relative text-white">Wink<span className="text-[#FFD100]">in</span></span>
                     </div>
                 </div>
 
-                <div className="bg-[#0051AC] text-white font-bold text-sm md:text-2xl py-2 px-6 rounded-full mx-auto inline-block border-2 border-white shadow-xl relative -top-6">
+                <div className="bg-[#2E8B57] text-white font-bold text-sm md:text-2xl py-2 px-6 rounded-full mx-auto inline-block border-2 border-white shadow-xl relative -top-6">
                     Your Local Groceries, Delivered Fast!
                 </div>
 
@@ -156,10 +156,10 @@ const HomePage = () => {
 
                 {/* Unified Premium Promo Banner */}
                 <div className="max-w-6xl mx-auto mb-16 relative z-20 px-4">
-                    <div className="bg-white rounded-[2rem] p-8 md:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.15)] border-4 border-[#0D4E9A] relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8">
+                    <div className="bg-white rounded-[2rem] p-8 md:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.15)] border-4 border-[#3B6E1A] relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8">
                         {/* Background Decor */}
                         <div className="absolute -top-24 -left-24 w-64 h-64 bg-[#FFD100] rounded-full mix-blend-multiply filter blur-3xl opacity-50 pointer-events-none"></div>
-                        <div className="absolute -bottom-24 -right-24 w-80 h-80 bg-[#00ADEF] rounded-full mix-blend-multiply filter blur-3xl opacity-30 pointer-events-none"></div>
+                        <div className="absolute -bottom-24 -right-24 w-80 h-80 bg-[#5C9E31] rounded-full mix-blend-multiply filter blur-3xl opacity-30 pointer-events-none"></div>
                         
                         {/* Left Content - Speed Guarantee */}
                         <div className="flex-1 text-left relative z-10 w-full">
@@ -177,7 +177,7 @@ const HomePage = () => {
                         {/* Right Content - Offers Grid */}
                         <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 gap-4 relative z-10">
                             {/* Free Milk Offer */}
-                            <div className="bg-gradient-to-br from-[#0D4E9A] to-[#0051AC] p-6 rounded-3xl border-2 border-white/20 shadow-xl text-white transform hover:-translate-y-1 transition duration-300">
+                            <div className="bg-gradient-to-br from-[#3B6E1A] to-[#2E8B57] p-6 rounded-3xl border-2 border-white/20 shadow-xl text-white transform hover:-translate-y-1 transition duration-300">
                                 <div className="text-white/80 font-bold uppercase tracking-widest text-xs mb-1">Spend £20</div>
                                 <div className="text-2xl font-black leading-tight text-[#FFD100]">
                                     Get Free<br/>Fresh Milk!
@@ -202,8 +202,8 @@ const HomePage = () => {
                 </div>
 
                 {/* Postal Code Checking Form */}
-                <div className="max-w-xl mx-auto bg-white p-6 md:p-10 rounded-3xl shadow-[0_20px_0_#2b82b1] border-[6px] border-[#0D4E9A] mb-16 relative z-30">
-                    <h3 className="text-2xl md:text-3xl font-black text-[#0D4E9A] mb-6 uppercase text-center flex items-center justify-center gap-2">
+                <div className="max-w-xl mx-auto bg-white p-6 md:p-10 rounded-3xl shadow-[0_20px_0_#2E8B57] border-[6px] border-[#3B6E1A] mb-16 relative z-30">
+                    <h3 className="text-2xl md:text-3xl font-black text-[#3B6E1A] mb-6 uppercase text-center flex items-center justify-center gap-2">
                         Enter your destination and start shopping
                     </h3>
                     <form onSubmit={handleCheckDelivery} className="flex flex-col gap-4">
@@ -230,8 +230,8 @@ const HomePage = () => {
                 </div>
 
                 {/* Categories Grid */}
-                <div className="mb-16 mt-12 bg-white p-6 md:p-10 rounded-3xl shadow-[0_20px_0_#2b82b1] border-[6px] border-[#0D4E9A] relative z-20">
-                    <h2 className="text-3xl md:text-5xl font-black text-[#0D4E9A] mb-8 uppercase text-center tracking-tighter" style={{ textShadow: '2px 2px 0 #FFD100' }}>
+                <div className="mb-16 mt-12 bg-white p-6 md:p-10 rounded-3xl shadow-[0_20px_0_#2E8B57] border-[6px] border-[#3B6E1A] relative z-20">
+                    <h2 className="text-3xl md:text-5xl font-black text-[#3B6E1A] mb-8 uppercase text-center tracking-tighter" style={{ textShadow: '2px 2px 0 #FFD100' }}>
                         Shop By Category
                     </h2>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
@@ -258,13 +258,13 @@ const HomePage = () => {
                 {/* Top Sellers Grid */}
                 {Array.isArray(products) && products.length > 0 && (
                     <div className="mb-16 relative z-20">
-                        <h2 className="text-3xl md:text-5xl font-black text-[#0D4E9A] mb-10 uppercase text-center tracking-tighter inline-block relative border-4 border-black bg-white px-8 py-4 shadow-[8px_8px_0_#000] rotate-[1deg]">
+                        <h2 className="text-3xl md:text-5xl font-black text-[#3B6E1A] mb-10 uppercase text-center tracking-tighter inline-block relative border-4 border-black bg-white px-8 py-4 shadow-[8px_8px_0_#000] rotate-[1deg]">
                             Most Ordered <span className="text-black">🏆</span>
                         </h2>
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
                             {products.slice(0, 4).map((product) => (
-                                <div key={`top-${product._id}`} className="bg-white rounded-2xl overflow-hidden border-[4px] border-[#0D4E9A] shadow-[6px_6px_0_#0D4E9A] flex flex-col group hover:-translate-y-2 transition-transform duration-300">
-                                    <Link to={`/product/${product._id}`} className="block relative aspect-square p-6 bg-gray-50 border-b-[4px] border-[#0D4E9A]">
+                                <div key={`top-${product._id}`} className="bg-white rounded-2xl overflow-hidden border-[4px] border-[#3B6E1A] shadow-[6px_6px_0_#3B6E1A] flex flex-col group hover:-translate-y-2 transition-transform duration-300">
+                                    <Link to={`/product/${product._id}`} className="block relative aspect-square p-6 bg-gray-50 border-b-[4px] border-[#3B6E1A]">
                                         <div className="absolute top-2 left-2 bg-[#D91C2A] text-white font-black px-3 py-1 text-sm border-2 border-black rotate-[-5deg] z-10 shadow-sm">
                                             BEST SELLER
                                         </div>
@@ -282,7 +282,7 @@ const HomePage = () => {
                                             <p className="text-xs text-gray-500 font-bold uppercase">{product.brand}</p>
                                         </div>
                                         <div className="mt-4 flex justify-between items-center">
-                                            <span className="font-black text-2xl md:text-3xl text-[#0D4E9A]">£{product.price.toFixed(2)}</span>
+                                            <span className="font-black text-2xl md:text-3xl text-[#3B6E1A]">£{product.price.toFixed(2)}</span>
                                             <button onClick={(e) => handleAddToCart(e, product)} className="bg-[#D91C2A] text-white w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center font-black text-2xl md:text-3xl border-[3px] border-black shadow-[0_4px_0_#000] hover:translate-y-1 hover:shadow-[0_2px_0_#000] active:translate-y-2 active:shadow-none transition">
                                                 +
                                             </button>
@@ -321,7 +321,7 @@ const HomePage = () => {
                                             <p className="text-xs text-gray-500 font-bold uppercase">{product.brand}</p>
                                         </div>
                                         <div className="mt-4 flex justify-between items-center">
-                                            <span className="font-black text-2xl md:text-3xl text-[#0D4E9A]">£{product.price.toFixed(2)}</span>
+                                            <span className="font-black text-2xl md:text-3xl text-[#3B6E1A]">£{product.price.toFixed(2)}</span>
                                             <button onClick={(e) => handleAddToCart(e, product)} className="bg-[#D91C2A] text-white w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center font-black text-2xl md:text-3xl border-[3px] border-black shadow-[0_4px_0_#000] hover:translate-y-1 hover:shadow-[0_2px_0_#000] active:translate-y-2 active:shadow-none transition">
                                                 +
                                             </button>
@@ -341,12 +341,12 @@ const HomePage = () => {
                             if (catProducts.length === 0) return null;
                             
                             return (
-                                <div key={cat} className="bg-white p-6 md:p-10 rounded-3xl border-[6px] border-[#0D4E9A] shadow-[8px_8px_0_#2b82b1] relative">
+                                <div key={cat} className="bg-white p-6 md:p-10 rounded-3xl border-[6px] border-[#3B6E1A] shadow-[8px_8px_0_#2E8B57] relative">
                                     <div className="flex justify-between items-end mb-8 border-b-4 border-dashed border-gray-200 pb-4">
                                         <h2 className="text-4xl font-black text-[#D91C2A] uppercase tracking-tighter" style={{ textShadow: '2px 2px 0 #FFD100' }}>
                                             {cat} Aisle
                                         </h2>
-                                        <Link to={`/search?category=${cat}`} className="text-[#0D4E9A] font-bold text-xl hover:underline uppercase tracking-wide">
+                                        <Link to={`/search?category=${cat}`} className="text-[#3B6E1A] font-bold text-xl hover:underline uppercase tracking-wide">
                                             View All &rarr;
                                         </Link>
                                     </div>
@@ -364,7 +364,7 @@ const HomePage = () => {
                                                         <p className="text-xs text-gray-500 font-bold uppercase">{product.brand}</p>
                                                     </div>
                                                     <div className="mt-3 flex justify-between items-center">
-                                                        <span className="font-black text-2xl text-[#0D4E9A]">£{product.price.toFixed(2)}</span>
+                                                        <span className="font-black text-2xl text-[#3B6E1A]">£{product.price.toFixed(2)}</span>
                                                         <button onClick={(e) => handleAddToCart(e, product)} className="bg-[#D91C2A] text-white w-10 h-10 rounded-full flex items-center justify-center font-black text-2xl border-[3px] border-black shadow-[0_3px_0_#000] hover:translate-y-1 hover:shadow-none transition">
                                                             +
                                                         </button>

@@ -292,7 +292,7 @@ const OrderDetails = () => {
                     </div>
                     <div className="flex flex-wrap gap-3">
                         <a 
-                            href="tel:+919831248081" 
+                            href="tel:07587764215" 
                             className="bg-white border-2 border-[#00ADEF] text-[#00ADEF] hover:bg-[#00ADEF] hover:text-white px-5 py-2 rounded-full font-bold text-sm transition-colors shadow-sm"
                         >
                             Call Customer Care
