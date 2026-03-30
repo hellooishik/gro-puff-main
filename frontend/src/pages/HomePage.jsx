@@ -156,13 +156,13 @@ const HomePage = () => {
 
                 {/* Unified Premium Promo Banner */}
                 <div className="max-w-6xl mx-auto mb-16 relative z-20 px-4">
-                    <div className="bg-white rounded-[2rem] p-8 md:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.15)] border-4 border-[#3B6E1A] relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8">
+                    <div className="bg-white rounded-[2rem] p-8 md:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.15)] border-4 border-[#3B6E1A] relative overflow-hidden flex flex-col items-center justify-center text-center gap-8">
                         {/* Background Decor */}
                         <div className="absolute -top-24 -left-24 w-64 h-64 bg-[#FFD100] rounded-full mix-blend-multiply filter blur-3xl opacity-50 pointer-events-none"></div>
                         <div className="absolute -bottom-24 -right-24 w-80 h-80 bg-[#5C9E31] rounded-full mix-blend-multiply filter blur-3xl opacity-30 pointer-events-none"></div>
                         
-                        {/* Left Content - Speed Guarantee */}
-                        <div className="flex-1 text-left relative z-10 w-full">
+                        {/* Promoted Content - Speed Guarantee */}
+                        <div className="w-full relative z-10">
                             <div className="inline-flex items-center gap-2 bg-black text-[#FFD100] font-black text-xs md:text-sm py-1.5 px-4 rounded-full uppercase tracking-widest mb-4 shadow-md">
                                 <span className="animate-pulse">⏱️</span> Delivered In
                             </div>
@@ -174,30 +174,7 @@ const HomePage = () => {
                             </div>
                         </div>
 
-                        {/* Right Content - Offers Grid */}
-                        <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-2 gap-4 relative z-10">
-                            {/* Free Milk Offer */}
-                            <div className="bg-gradient-to-br from-[#3B6E1A] to-[#2E8B57] p-6 rounded-3xl border-2 border-white/20 shadow-xl text-white transform hover:-translate-y-1 transition duration-300">
-                                <div className="text-white/80 font-bold uppercase tracking-widest text-xs mb-1">Spend £20</div>
-                                <div className="text-2xl font-black leading-tight text-[#FFD100]">
-                                    Get Free<br/>Fresh Milk!
-                                </div>
-                                <div className="mt-4 w-10 h-10 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm">
-                                    🥛
-                                </div>
-                            </div>
-                            
-                            {/* £10 OFF Offer */}
-                            <div className="bg-gradient-to-br from-[#00883A] to-[#006A2D] p-6 rounded-3xl border-2 border-white/20 shadow-xl text-white transform hover:-translate-y-1 transition duration-300">
-                                <div className="text-white/80 font-bold uppercase tracking-widest text-xs mb-1">New Customers</div>
-                                <div className="text-3xl font-black leading-tight text-white flex items-end gap-1">
-                                    £10 <span className="text-lg text-[#FFD100] pb-1">OFF</span>
-                                </div>
-                                <div className="mt-2 text-sm font-bold bg-black/20 px-3 py-1 rounded inline-block">
-                                    Your First Order
-                                </div>
-                            </div>
-                        </div>
+
                     </div>
                 </div>
 
