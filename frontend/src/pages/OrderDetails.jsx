@@ -278,7 +278,7 @@ const OrderDetails = () => {
                                 <div className="flex items-center w-full sm:w-auto">
                                     <div className="w-20 h-20 rounded-xl bg-gray-50 border border-gray-100 overflow-hidden flex-shrink-0">
                                         <img 
-                                            src={item.image.startsWith('http') ? item.image : `http://localhost:5000${item.image}`} 
+                                            src={item.image.startsWith('http') || item.image.startsWith('data:image') ? item.image : `http://localhost:5000${item.image}`} 
                                             alt={item.name} 
                                             className="w-full h-full object-cover"
                                         />

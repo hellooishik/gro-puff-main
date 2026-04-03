@@ -101,7 +101,7 @@ const ProductDetails = () => {
                             {product.category}
                         </div>
                         <img
-                            src={product.image?.startsWith('http') ? product.image : `http://localhost:5000${product.image}`}
+                            src={product.image?.startsWith('http') || product.image?.startsWith('data:image') ? product.image : `http://localhost:5000${product.image}`}
                             alt={product.name}
                             className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
                         />
@@ -189,7 +189,7 @@ const ProductDetails = () => {
 
                                     <div className="h-32 md:h-40 w-full mb-4 bg-gray-50 rounded-2xl flex items-center justify-center p-2 group-hover:bg-[#E0F6FF] transition-colors border-2 border-gray-100 overflow-hidden isolate relative">
                                         <img 
-                                            src={rec.image?.startsWith('http') ? rec.image : `http://localhost:5000${rec.image}`} 
+                                            src={rec.image?.startsWith('http') || rec.image?.startsWith('data:image') ? rec.image : `http://localhost:5000${rec.image}`} 
                                             alt={rec.name} 
                                             className="max-h-full max-w-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-300 z-10"
                                         />

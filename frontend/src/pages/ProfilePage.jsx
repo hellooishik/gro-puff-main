@@ -287,7 +287,7 @@ const ProfilePage = () => {
                                                     {order.orderItems.slice(0, 4).map((item, idx) => (
                                                         <div key={idx} className="w-16 h-16 rounded-full border-4 border-[#2E8B57] bg-white overflow-hidden relative shadow-md group-hover:scale-110 transition-transform" style={{ zIndex: 10 - idx }} title={item.name}>
                                                             <img
-                                                                src={item.image.startsWith('http') ? item.image : `http://localhost:5000${item.image}`}
+                                                                src={item.image.startsWith('http') || item.image.startsWith('data:image') ? item.image : `http://localhost:5000${item.image}`}
                                                                 alt={item.name}
                                                                 className="w-full h-full object-contain p-2"
                                                             />
