@@ -17,7 +17,8 @@ const SearchPage = () => {
             setLoading(true);
             try {
                 const { data } = await axios.get(`/api/products${location.search}`);
-                setProducts(data);
+                const actualProducts = data.filter(p => p.name !== 'Sample name');
+                setProducts(actualProducts);
             } catch (error) {
                 console.error('Error fetching products:', error);
             }
@@ -76,6 +77,9 @@ const SearchPage = () => {
                                         </div>
                                         <span className="font-bold text-gray-900">£{product.price}</span>
                                     </div>
+                                    {product.countInStock <= 0 && (
+                                        <div className="mt-2 text-xs font-bold text-red-500 uppercase">Out of Stock</div>
+                                    )}
                                 </div>
                             </div>
                         ))}

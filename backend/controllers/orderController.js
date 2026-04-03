@@ -79,7 +79,22 @@ const addOrderItems = asyncHandler(async (req, res) => {
         throw new Error(error.message || 'Error validating area. Please enter a valid UK postcode.');
     }
 
-    // 2. Offer: Free Milk if itemsPrice >= 20
+    // 2. Verify Stock Availability
+    for (const item of orderItems) {
+        if (!item.isFreeItem) {
+            const product = await Product.findById(item.product);
+            if (!product) {
+                res.status(404);
+                throw new Error(`Product not found: ${item.name}`);
+            }
+            if (product.countInStock < item.qty) {
+                res.status(400);
+                throw new Error(`${product.name} is out of stock (Available: ${product.countInStock}). Please remove it from your cart.`);
+            }
+        }
+    }
+
+    // 3. Offer: Free Milk if itemsPrice >= 20
     if (Number(itemsPrice) >= 20) {
         const milkProduct = await Product.findOne({ name: { $regex: /milk/i } });
         if (milkProduct && !orderItems.find(x => x.isFreeItem || x.product.toString() === milkProduct._id.toString() && x.price === 0)) {

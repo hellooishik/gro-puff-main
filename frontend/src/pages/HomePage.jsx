@@ -44,14 +44,18 @@ const HomePage = () => {
             try {
                 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
                 const { data } = await axios.get(`${API_URL}/api/products`);
+                let loadedProducts = [];
                 if (Array.isArray(data)) {
-                    setProducts(data); // fetch all for categorization
+                    loadedProducts = data;
                 } else if (data && Array.isArray(data.products)) {
-                    setProducts(data.products);
+                    loadedProducts = data.products;
                 } else {
                     console.error("API did not return an array:", data);
-                    setProducts([]);
                 }
+
+                // Filter out incomplete admin placeholders and strictly show uploaded, in-stock products
+                loadedProducts = loadedProducts.filter(p => p.name !== 'Sample name' && p.countInStock > 0);
+                setProducts(loadedProducts);
 
                 // Fetch active coupons
                 try {
@@ -224,7 +228,7 @@ const HomePage = () => {
                     </h2>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
                         {categories.map((c, idx) => (
-                            <Link to={`/search?category=${c.name}`} key={c._id || c.name} className="group cursor-pointer block transform hover:scale-105 transition-transform duration-200">
+                            <Link to={`/search?category=${encodeURIComponent(c.name)}`} key={c._id || c.name} className="group cursor-pointer block transform hover:scale-105 transition-transform duration-200">
                                 <div className={`h-32 md:h-48 rounded-2xl p-4 md:p-6 text-center border-[4px] border-black flex flex-col items-center justify-center shadow-[4px_4px_0_#000] overflow-hidden relative ${idx % 2 === 0 ? 'bg-[#FFD100]' : 'bg-[#60B3E6]'}`}>
                                     <div className="w-12 h-12 md:w-20 md:h-20 bg-white rounded-full flex items-center justify-center text-3xl md:text-4xl mb-3 border-4 border-black shadow-inner overflow-hidden relative z-10">
                                         {c.image 
@@ -331,7 +335,7 @@ const HomePage = () => {
                                         <h2 className="text-4xl font-black text-[#D91C2A] uppercase tracking-tighter" style={{ textShadow: '2px 2px 0 #FFD100' }}>
                                             {cat} Aisle
                                         </h2>
-                                        <Link to={`/search?category=${cat}`} className="text-[#3B6E1A] font-bold text-xl hover:underline uppercase tracking-wide">
+                                        <Link to={`/search?category=${encodeURIComponent(cat)}`} className="text-[#3B6E1A] font-bold text-xl hover:underline uppercase tracking-wide">
                                             View All &rarr;
                                         </Link>
                                     </div>

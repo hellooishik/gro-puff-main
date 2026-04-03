@@ -41,9 +41,9 @@ const ProductDetails = () => {
             const fetchRecommendations = async () => {
                 try {
                     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-                    const { data } = await axios.get(`${API_URL}/api/products?category=${product.category}`);
+                    const { data } = await axios.get(`${API_URL}/api/products?category=${encodeURIComponent(product.category)}`);
                     // Filter out the current product and grab up to 4 recommendations
-                    const filtered = data.filter((p) => p._id !== product._id).slice(0, 4);
+                    const filtered = data.filter((p) => p._id !== product._id && p.name !== 'Sample name').slice(0, 4);
                     setRecommendations(filtered);
                 } catch (error) {
                     console.error('Recommendations failed:', error);
