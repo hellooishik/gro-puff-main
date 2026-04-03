@@ -3,6 +3,7 @@ const Order = require('../models/orderModel');
 const https = require('https');
 const Product = require('../models/productModel');
 const sendEmail = require('../utils/sendEmail');
+const Cart = require('../models/cartModel');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 // Helper for Haversine
@@ -178,6 +179,13 @@ const addOrderItems = asyncHandler(async (req, res) => {
             }
             await product.save();
         }
+    }
+
+    // Clear the user's cart in the database
+    const userCart = await Cart.findOne({ user: req.user._id });
+    if (userCart) {
+        userCart.cartItems = [];
+        await userCart.save();
     }
 
     res.status(201).json(createdOrder);
