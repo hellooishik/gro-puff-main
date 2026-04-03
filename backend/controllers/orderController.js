@@ -69,7 +69,7 @@ const addOrderItems = asyncHandler(async (req, res) => {
         const distance = getDistanceFromLatLonInMiles(STORE_LAT, STORE_LON, latitude, longitude);
         
         // Increased radius significantly to allow tests globally/nationwide
-        if (distance > 10000.0) {
+        if (distance > 1.0) {
             res.status(400);
             throw new Error('We are currently expanding. Your area will be available soon.');
         }
@@ -338,6 +338,23 @@ const getVendorSales = asyncHandler(async (req, res) => {
     res.json(salesData);
 });
 
+// @desc    Update order to paid
+// @route   PUT /api/orders/:id/pay
+// @access  Private
+const updateOrderToPaid = asyncHandler(async (req, res) => {
+    const order = await Order.findById(req.params.id);
+
+    if (order) {
+        order.isPaid = true;
+        order.paidAt = Date.now();
+        const updatedOrder = await order.save();
+        res.json(updatedOrder);
+    } else {
+        res.status(404);
+        throw new Error('Order not found');
+    }
+});
+
 module.exports = {
     addOrderItems,
     getOrderById,
@@ -346,4 +363,5 @@ module.exports = {
     updateOrderStatus,
     getVendorSales,
     cancelOrder,
+    updateOrderToPaid,
 };

@@ -65,6 +65,24 @@ const OrderDetails = () => {
         fetchOrder();
     }, [id, user, navigate]);
 
+    useEffect(() => {
+        const queryParams = new URLSearchParams(window.location.search);
+        if (queryParams.get('success') === 'true' && order && !order.isPaid) {
+            const markAsPaid = async () => {
+                try {
+                    const config = { headers: { Authorization: `Bearer ${user.token}` } };
+                    const { data } = await axios.put(`/api/orders/${id}/pay`, {}, config);
+                    setOrder(data);
+                    Swal.fire('Success', 'Payment Successful!', 'success');
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                } catch (err) {
+                    console.error('Error verifying payment', err);
+                }
+            };
+            markAsPaid();
+        }
+    }, [order, id, user]);
+
     const cancelOrderHandler = async () => {
         const result = await Swal.fire({
             title: 'Are you sure you want to cancel this order?',
@@ -138,9 +156,16 @@ const OrderDetails = () => {
                         </p>
                     </div>
                     <div className="flex flex-col items-end">
-                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)} mb-2`}>
-                            {order.status}
-                        </span>
+                        <div className="flex gap-2">
+                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)} mb-2`}>
+                                {order.status}
+                            </span>
+                            {order.paymentMethod === 'Online Pay' && (
+                                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${order.isPaid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} mb-2`}>
+                                    {order.isPaid ? 'Paid' : 'Unpaid'}
+                                </span>
+                            )}
+                        </div>
                         <div className="text-gray-600 font-medium pb-2">
                             Total: <span className="text-xl font-bold text-gray-900 ml-1">£{(order.totalPrice || 0).toFixed(2)}</span>
                         </div>

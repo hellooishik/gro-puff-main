@@ -107,16 +107,7 @@ const CheckoutPage = () => {
             return;
         }
 
-        if (paymentMethod === 'Online Pay') {
-            if (!cardNumber || !cardExpiry || !cardCvc) {
-                setErrorMsg('Please enter your card details to verify the Online Transfer.');
-                return;
-            }
-            if (cardNumber.replace(/\s+/g, '').length < 15) {
-                setErrorMsg('Please enter a valid card number.');
-                return;
-            }
-        }
+
 
         setLoading(true);
 
@@ -145,6 +136,23 @@ const CheckoutPage = () => {
 
             clearCart();
             setLoading(false);
+
+            if (paymentMethod === 'Online Pay') {
+                try {
+                    const sessionRes = await axios.post('/create-checkout-session', {
+                        amount: Math.round(computedTotal * 100),
+                        orderId: data._id
+                    });
+                    if (sessionRes.data.url) {
+                        window.location.href = sessionRes.data.url;
+                        return;
+                    }
+                } catch (stripeErr) {
+                    console.error('Stripe redirect failed:', stripeErr);
+                    // Fallback to normal order detail if stripe fails
+                }
+            }
+
             navigate(`/order/${data._id}`);
         } catch (error) {
             console.error('Error details:', error);
@@ -331,85 +339,13 @@ const CheckoutPage = () => {
                                             </div>
                                         </div>
                                         <div>
-                                            <h3 className={`font-black tracking-wide ${paymentMethod === 'Online Pay' ? 'text-blue-900' : 'text-gray-800'}`}>Online Transfer</h3>
-                                            <p className="text-gray-500 text-xs font-medium mt-1">Direct wire to our bank</p>
+                                            <h3 className={`font-black tracking-wide ${paymentMethod === 'Online Pay' ? 'text-blue-900' : 'text-gray-800'}`}>Stripe Checkout</h3>
+                                            <p className="text-gray-500 text-xs font-medium mt-1">Pay securely with card</p>
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* Bank Details Dropdown */}
-                                <div className={`mt-4 overflow-hidden transition-all duration-500 ease-in-out ${paymentMethod === 'Online Pay' ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'}`}>
-                                    
-                                    {/* Mock Card Input */}
-                                    <div className="p-6 bg-white border border-[#00ADEF]/30 shadow-sm rounded-2xl mt-2 relative overflow-hidden">
-                                        <h4 className="text-[#00ADEF] font-black uppercase tracking-widest text-sm mb-5">Enter Card Details</h4>
-                                        <div className="space-y-5">
-                                            <div>
-                                                <label className="block text-gray-600 font-bold mb-1.5 uppercase tracking-wide text-xs">Card Number</label>
-                                                <div className="relative">
-                                                    <input 
-                                                        type="text" 
-                                                        maxLength="19"
-                                                        value={cardNumber}
-                                                        onChange={(e) => setCardNumber(e.target.value)}
-                                                        placeholder="0000 0000 0000 0000" 
-                                                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:border-[#00ADEF] transition-all text-sm font-mono"
-                                                    />
-                                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
-                                                        <CreditCard size={18} />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="grid grid-cols-2 gap-5 mt-2">
-                                                <div>
-                                                    <label className="block text-gray-600 font-bold mb-1.5 uppercase tracking-wide text-xs">Expiry (MM/YY)</label>
-                                                    <input 
-                                                        type="text" 
-                                                        maxLength="5"
-                                                        value={cardExpiry}
-                                                        onChange={(e) => setCardExpiry(e.target.value)}
-                                                        placeholder="MM/YY" 
-                                                        className="w-full p-3.5 bg-gray-50 border-2 border-transparent rounded-xl focus:bg-white focus:outline-none focus:border-[#00ADEF] focus:ring-4 focus:ring-[#00ADEF]/10 transition-all text-sm font-mono text-center font-bold"
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <label className="block text-gray-600 font-bold mb-1.5 uppercase tracking-wide text-xs">CVC</label>
-                                                    <input 
-                                                        type="password" 
-                                                        maxLength="4"
-                                                        value={cardCvc}
-                                                        onChange={(e) => setCardCvc(e.target.value)}
-                                                        placeholder="123" 
-                                                        className="w-full p-3.5 bg-gray-50 border-2 border-transparent rounded-xl focus:bg-white focus:outline-none focus:border-[#00ADEF] focus:ring-4 focus:ring-[#00ADEF]/10 transition-all text-sm font-mono text-center tracking-widest font-bold"
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
 
-                                    <div className="p-6 bg-[#00ADEF]/5 border-2 border-[#00ADEF]/20 rounded-2xl mt-5 relative shadow-sm">
-                                        <div className="absolute top-0 right-0 w-20 h-20 bg-[#00ADEF] opacity-[0.03] rounded-bl-full"></div>
-                                        <h4 className="text-[#00ADEF] font-black uppercase tracking-widest text-xs mb-3">Recipient Details</h4>
-                                        <div className="space-y-2 text-sm text-blue-950 font-medium tracking-wide">
-                                            <div className="flex justify-between border-b border-blue-100 pb-2">
-                                                <span className="text-blue-600/70">Account Name</span>
-                                                <strong className="font-black">XNETWORK ONLINE LTD</strong>
-                                            </div>
-                                            <div className="flex justify-between border-b border-blue-100 pb-2">
-                                                <span className="text-blue-600/70">Account Number</span>
-                                                <strong className="font-black font-mono text-base tracking-wider">68169984</strong>
-                                            </div>
-                                            <div className="flex justify-between pb-1">
-                                                <span className="text-blue-600/70">Sort Code</span>
-                                                <strong className="font-black font-mono text-base tracking-wider">04-00-05</strong>
-                                            </div>
-                                        </div>
-                                        <p className="text-[11px] text-blue-800 font-bold mt-4 flex items-center gap-1 leading-tight">
-                                            <CheckCircle2 size={16} className="text-blue-500 shrink-0" /> After successful payment, this money will go to the above Recipient Details. Please ensure details are correct before sending.
-                                        </p>
-                                    </div>
-
-                                </div>
                             </div>
                             
                             <div className="bg-gray-100 p-6 rounded-2xl text-xs text-gray-500 font-medium text-center border border-gray-200">

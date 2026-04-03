@@ -21,7 +21,7 @@ app.get('/', (req, res) => {
 });
 
 app.post('/create-checkout-session', async (req, res) => {
-    const { amount } = req.body; // amount in cents
+    const { amount, orderId } = req.body; // amount in cents
 
     try {
         // Validate amount
@@ -30,20 +30,14 @@ app.post('/create-checkout-session', async (req, res) => {
         }
 
         // Check if FRONTEND_URL is set
-        if (!process.env.FRONTEND_URL) {
-            return res.status(500).json({ error: 'FRONTEND_URL not configured' });
-        }
-
-        const frontendUrl = process.env.FRONTEND_URL.endsWith('/') 
-            ? process.env.FRONTEND_URL.slice(0, -1) 
-            : process.env.FRONTEND_URL;
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
 
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
             line_items: [
                 {
                     price_data: {
-                        currency: 'usd',
+                        currency: 'gbp',
                         product_data: {
                             name: 'Total Order',
                         },
@@ -53,11 +47,11 @@ app.post('/create-checkout-session', async (req, res) => {
                 },
             ],
             mode: 'payment',
-            success_url: `${frontendUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
-            cancel_url: `${frontendUrl}/cancel`,
+            success_url: `${frontendUrl}/order/${orderId}?success=true`,
+            cancel_url: `${frontendUrl}/checkout?canceled=true`,
         });
 
-        res.json({ id: session.id });
+        res.json({ id: session.id, url: session.url });
     } catch (error) {
         console.error('Stripe error:', error);
         res.status(500).json({ error: error.message });

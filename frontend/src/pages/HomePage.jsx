@@ -23,6 +23,7 @@ const HomePage = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [products, setProducts] = useState([]);
+    const [categories, setCategories] = useState([]);
     const [coupons, setCoupons] = useState([]);
     const navigate = useNavigate();
     const { addToCart } = useContext(CartContext);
@@ -58,6 +59,16 @@ const HomePage = () => {
                     setCoupons(couponRes.data.filter(c => c.isActive));
                 } catch (err) {
                     console.error("Failed to fetch coupons:", err);
+                }
+
+                // Fetch categories
+                try {
+                    const catRes = await axios.get(`${API_URL}/api/categories`);
+                    if (Array.isArray(catRes.data)) {
+                        setCategories(catRes.data);
+                    }
+                } catch (err) {
+                    console.error("Failed to fetch categories:", err);
                 }
             } catch (error) {
                 console.error("Failed to fetch products:", error);
@@ -212,20 +223,16 @@ const HomePage = () => {
                         Shop By Category
                     </h2>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-                        {['Snacks', 'Drinks', 'Alcohol', 'Grocery', 'Cleaning', 'Ice Cream', 'Bakery', 'Beauty'].map((cat, idx) => (
-                            <Link to={`/search?category=${cat}`} key={cat} className="group cursor-pointer block transform hover:scale-105 transition-transform duration-200">
-                                <div className={`h-32 md:h-48 rounded-2xl p-4 md:p-6 text-center border-[4px] border-black flex flex-col items-center justify-center shadow-[4px_4px_0_#000] ${idx % 2 === 0 ? 'bg-[#FFD100]' : 'bg-[#60B3E6]'}`}>
-                                    <div className="w-12 h-12 md:w-20 md:h-20 bg-white rounded-full flex items-center justify-center text-3xl md:text-4xl mb-3 border-4 border-black shadow-inner">
-                                        {cat === 'Snacks' && '🍿'}
-                                        {cat === 'Drinks' && '🥤'}
-                                        {cat === 'Alcohol' && '🍺'}
-                                        {cat === 'Grocery' && '🥑'}
-                                        {cat === 'Cleaning' && '🧼'}
-                                        {cat === 'Ice Cream' && '🍦'}
-                                        {cat === 'Bakery' && '🥐'}
-                                        {cat === 'Beauty' && '💄'}
+                        {categories.map((c, idx) => (
+                            <Link to={`/search?category=${c.name}`} key={c._id || c.name} className="group cursor-pointer block transform hover:scale-105 transition-transform duration-200">
+                                <div className={`h-32 md:h-48 rounded-2xl p-4 md:p-6 text-center border-[4px] border-black flex flex-col items-center justify-center shadow-[4px_4px_0_#000] overflow-hidden relative ${idx % 2 === 0 ? 'bg-[#FFD100]' : 'bg-[#60B3E6]'}`}>
+                                    <div className="w-12 h-12 md:w-20 md:h-20 bg-white rounded-full flex items-center justify-center text-3xl md:text-4xl mb-3 border-4 border-black shadow-inner overflow-hidden relative z-10">
+                                        {c.image 
+                                            ? <img src={c.image} alt={c.name} className="w-full h-full object-cover" />
+                                            : '🛒'
+                                        }
                                     </div>
-                                    <h3 className="text-lg md:text-2xl font-black text-black tracking-tight uppercase leading-tight">{cat}</h3>
+                                    <h3 className="text-lg md:text-2xl font-black text-black tracking-tight uppercase leading-tight relative z-10">{c.name}</h3>
                                 </div>
                             </Link>
                         ))}
@@ -311,9 +318,10 @@ const HomePage = () => {
                 )}
 
                 {/* Category-Wise Product Breakdown */}
-                {Array.isArray(products) && products.length > 0 && (
+                {Array.isArray(products) && products.length > 0 && categories.length > 0 && (
                     <div className="space-y-16 relative z-20 mb-20 max-w-7xl mx-auto">
-                        {['Snacks', 'Drinks', 'Alcohol', 'Grocery', 'Cleaning', 'Ice Cream', 'Bakery', 'Beauty'].map(cat => {
+                        {categories.map(c => {
+                            const cat = c.name;
                             const catProducts = products.filter(p => p.category === cat);
                             if (catProducts.length === 0) return null;
                             
