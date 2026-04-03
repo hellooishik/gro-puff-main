@@ -148,22 +148,24 @@ const addOrderItems = asyncHandler(async (req, res) => {
 
     const createdOrder = await order.save();
 
-    // Send order confirmation email
-    try {
-        const orderUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/profile`; // Or specific order page when ready
-        const message = `
-            <h2>Thank you for your order, ${req.user.name}!</h2>
-            <p>Your order <strong>#${createdOrder._id}</strong> has been successfully placed.</p>
-            <p><strong>Total Amount:</strong> £${createdOrder.totalPrice.toFixed(2)}</p>
-            <p>We will notify you once it ships. You can view your order details <a href="£{orderUrl}">here</a>.</p>
-        `;
-        await sendEmail({
-            email: req.user.email,
-            subject: `Order Confirmation - #${createdOrder._id}`,
-            html: message,
-        });
-    } catch (error) {
-        console.error('Email could not be sent:', error);
+    // Send order confirmation email immediately ONLY for COD or free orders
+    if (createdOrder.paymentMethod === 'COD' || createdOrder.totalPrice === 0) {
+        try {
+            const orderUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/profile`; // Or specific order page when ready
+            const message = `
+                <h2>Thank you for your order, ${req.user.name}!</h2>
+                <p>Your order <strong>#${createdOrder._id}</strong> has been successfully placed.</p>
+                <p><strong>Total Amount:</strong> £${createdOrder.totalPrice.toFixed(2)}</p>
+                <p>We will notify you once it ships. You can view your order details <a href="£{orderUrl}">here</a>.</p>
+            `;
+            await sendEmail({
+                email: req.user.email,
+                subject: `Order Confirmation - #${createdOrder._id}`,
+                html: message,
+            });
+        } catch (error) {
+            console.error('Email could not be sent:', error);
+        }
     }
 
     // Decrement stock and increment numOrders
@@ -364,6 +366,26 @@ const updateOrderToPaid = asyncHandler(async (req, res) => {
         order.isPaid = true;
         order.paidAt = Date.now();
         const updatedOrder = await order.save();
+        
+        // Send payment confirmation email
+        try {
+            const populatedOrder = await Order.findById(updatedOrder._id).populate('user', 'name email');
+            const orderUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/profile`;
+            const message = `
+                <h2>Payment Successful, ${populatedOrder.user.name}!</h2>
+                <p>Your order <strong>#${populatedOrder._id}</strong> has been successfully paid and confirmed.</p>
+                <p><strong>Total Amount:</strong> £${populatedOrder.totalPrice.toFixed(2)}</p>
+                <p>We will notify you once it ships. You can view your order details <a href="£{orderUrl}">here</a>.</p>
+            `;
+            await sendEmail({
+                email: populatedOrder.user.email,
+                subject: `Payment Confirmed - Order #${populatedOrder._id}`,
+                html: message,
+            });
+        } catch (error) {
+            console.error('Payment confirmation email failed:', error);
+        }
+
         res.json(updatedOrder);
     } else {
         res.status(404);

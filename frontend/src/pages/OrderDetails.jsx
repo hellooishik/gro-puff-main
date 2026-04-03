@@ -15,6 +15,7 @@ const OrderDetails = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [cancelling, setCancelling] = useState(false);
+    const [retryingPayment, setRetryingPayment] = useState(false);
     const [timeLeft, setTimeLeft] = useState(600); // 10 minutes
 
     useEffect(() => {
@@ -106,6 +107,23 @@ const OrderDetails = () => {
         }
     };
 
+    const handleRetryPayment = async () => {
+        setRetryingPayment(true);
+        try {
+            const config = { headers: { Authorization: `Bearer ${user.token}` } };
+            const { data } = await axios.post('/api/orders/create-checkout-session', {
+                amount: Math.round(order.totalPrice * 100),
+                orderId: order._id
+            }, config);
+            if (data.url) {
+                window.location.href = data.url;
+            }
+        } catch (err) {
+            Swal.fire('Error', 'Failed to initialize payment', 'error');
+            setRetryingPayment(false);
+        }
+    };
+
     if (loading) {
         return (
             <div className="flex justify-center items-center h-64">
@@ -181,7 +199,20 @@ const OrderDetails = () => {
                     </div>
                 </div>
 
-                {order.status === 'Pending' && (
+                {order.status === 'Pending' && order.paymentMethod === 'Online Pay' && !order.isPaid ? (
+                    <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 p-8 text-center text-white border-b-4 border-yellow-700">
+                        <CreditCard className="mx-auto mb-3" size={40} fill="white" />
+                        <h2 className="text-2xl md:text-3xl font-black mb-2 uppercase tracking-wide">Awaiting Payment</h2>
+                        <p className="text-yellow-100 font-medium text-lg mb-6">Your order is reserved. Please complete your payment to confirm it.</p>
+                        <button 
+                            onClick={handleRetryPayment}
+                            disabled={retryingPayment}
+                            className="bg-black text-white px-8 py-3 rounded-full font-black text-lg hover:bg-gray-900 transition shadow-[0_4px_0_#444] active:translate-y-1 active:shadow-none inline-flex items-center gap-2 disabled:opacity-50"
+                        >
+                            {retryingPayment ? 'Proceeding to Stripe...' : 'Pay with Stripe Now'}
+                        </button>
+                    </div>
+                ) : order.status === 'Pending' && (
                     <div className="bg-gradient-to-r from-[#D91C2A] to-[#B01421] p-8 text-center text-white border-b-4 border-[#850E18]">
                         <Heart className="mx-auto mb-3" size={40} fill="white" />
                         <h2 className="text-2xl md:text-3xl font-black mb-2 uppercase tracking-wide">Thank you for your order!</h2>
