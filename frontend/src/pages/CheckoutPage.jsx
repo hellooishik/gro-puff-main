@@ -138,18 +138,27 @@ const CheckoutPage = () => {
             setLoading(false);
 
             if (paymentMethod === 'Online Pay') {
-                try {
-                    const sessionRes = await axios.post('/create-checkout-session', {
-                        amount: Math.round(computedTotal * 100),
-                        orderId: data._id
-                    });
-                    if (sessionRes.data.url) {
-                        window.location.href = sessionRes.data.url;
-                        return;
+                if (computedTotal > 0) {
+                    try {
+                        const sessionRes = await axios.post('/api/orders/create-checkout-session', {
+                            amount: Math.round(computedTotal * 100),
+                            orderId: data._id
+                        }, config);
+                        
+                        if (sessionRes.data.url) {
+                            window.location.href = sessionRes.data.url;
+                            return;
+                        }
+                    } catch (stripeErr) {
+                        console.error('Stripe redirect failed:', stripeErr);
+                        setErrorMsg('Payment gateway failed: ' + (stripeErr.response?.data?.message || stripeErr.message) + '. Please try another method.');
+                        setLoading(false);
+                        return; // Halt if stripe fails, so the user doesn't assume it was paid
                     }
-                } catch (stripeErr) {
-                    console.error('Stripe redirect failed:', stripeErr);
-                    // Fallback to normal order detail if stripe fails
+                } else {
+                    // Total is free because of discounts, bypass stripe and mark pending
+                    navigate(`/order/${data._id}?success=true`);
+                    return;
                 }
             }
 

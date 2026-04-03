@@ -20,43 +20,7 @@ app.get('/', (req, res) => {
     res.send('API is running...');
 });
 
-app.post('/create-checkout-session', async (req, res) => {
-    const { amount, orderId } = req.body; // amount in cents
 
-    try {
-        // Validate amount
-        if (!amount || amount <= 0) {
-            return res.status(400).json({ error: 'Invalid amount' });
-        }
-
-        // Check if FRONTEND_URL is set
-        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-
-        const session = await stripe.checkout.sessions.create({
-            payment_method_types: ['card'],
-            line_items: [
-                {
-                    price_data: {
-                        currency: 'gbp',
-                        product_data: {
-                            name: 'Total Order',
-                        },
-                        unit_amount: amount,
-                    },
-                    quantity: 1,
-                },
-            ],
-            mode: 'payment',
-            success_url: `${frontendUrl}/order/${orderId}?success=true`,
-            cancel_url: `${frontendUrl}/checkout?canceled=true`,
-        });
-
-        res.json({ id: session.id, url: session.url });
-    } catch (error) {
-        console.error('Stripe error:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
 
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/products', require('./routes/productRoutes'));

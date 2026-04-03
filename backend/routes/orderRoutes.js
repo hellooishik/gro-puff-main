@@ -8,7 +8,8 @@ const {
     getOrders,
     getVendorSales,
     cancelOrder,
-    updateOrderToPaid
+    updateOrderToPaid,
+    createCheckoutSession
 } = require('../controllers/orderController');
 const { protect, admin, adminOrVendor } = require('../middleware/authMiddleware');
 
@@ -19,5 +20,6 @@ router.route('/:id').get(protect, getOrderById);
 router.route('/:id/status').put(protect, admin, updateOrderStatus);
 router.route('/:id/cancel').put(protect, cancelOrder);
 router.route('/:id/pay').put(protect, updateOrderToPaid);
+router.route('/create-checkout-session').post(protect, createCheckoutSession);
 
 module.exports = router;

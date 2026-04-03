@@ -3,6 +3,7 @@ const Order = require('../models/orderModel');
 const https = require('https');
 const Product = require('../models/productModel');
 const sendEmail = require('../utils/sendEmail');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 // Helper for Haversine
 function getDistanceFromLatLonInMiles(lat1, lon1, lat2, lon2) {
@@ -370,6 +371,48 @@ const updateOrderToPaid = asyncHandler(async (req, res) => {
     }
 });
 
+// @desc    Create Stripe checkout session
+// @route   POST /api/orders/create-checkout-session
+// @access  Private
+const createCheckoutSession = asyncHandler(async (req, res) => {
+    const { amount, orderId } = req.body; // amount in cents
+
+    // Validate amount
+    if (!amount || amount <= 0) {
+        res.status(400);
+        throw new Error('Invalid amount for Stripe checkout. Order must have a positive total.');
+    }
+
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+
+    try {
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            line_items: [
+                {
+                    price_data: {
+                        currency: 'gbp',
+                        product_data: {
+                            name: 'Total Order',
+                        },
+                        unit_amount: amount,
+                    },
+                    quantity: 1,
+                },
+            ],
+            mode: 'payment',
+            success_url: `${frontendUrl}/order/${orderId}?success=true`,
+            cancel_url: `${frontendUrl}/checkout?canceled=true`,
+        });
+
+        res.json({ id: session.id, url: session.url });
+    } catch (error) {
+        console.error('Stripe error:', error);
+        res.status(500);
+        throw new Error('Failed to create Stripe session');
+    }
+});
+
 module.exports = {
     addOrderItems,
     getOrderById,
@@ -379,4 +422,5 @@ module.exports = {
     getVendorSales,
     cancelOrder,
     updateOrderToPaid,
+    createCheckoutSession,
 };
