@@ -142,9 +142,6 @@ const CheckoutPage = () => {
 
             const { data } = await axios.post('/api/orders', orderPayload, config);
 
-            clearCart();
-            setLoading(false);
-
             if (paymentMethod === 'Online Pay') {
                 if (computedTotal > 0) {
                     try {
@@ -155,6 +152,8 @@ const CheckoutPage = () => {
                         
                         if (sessionRes.data.url) {
                             setSuccessState({ type: 'stripe', url: sessionRes.data.url });
+                            clearCart();
+                            setLoading(false);
                             return;
                         }
                     } catch (stripeErr) {
@@ -164,11 +163,15 @@ const CheckoutPage = () => {
                     }
                 } else {
                     setSuccessState({ type: 'cod', url: `/order/${data._id}?success=true` });
+                    clearCart();
+                    setLoading(false);
                     return;
                 }
             }
 
             setSuccessState({ type: 'cod', url: `/order/${data._id}` });
+            clearCart();
+            setLoading(false);
         } catch (error) {
             console.error('Error details:', error);
             setErrorMsg(error.response?.data?.message || 'An error occurred. Please try again.');
