@@ -1,11 +1,13 @@
 import { useState, useEffect, useContext } from 'react';
 import axios from '../../api/axios';
 import AuthContext from '../../context/AuthContext';
-import { Save, Gift, Tag, AlertCircle } from 'lucide-react';
+import { Save, Gift, Tag, AlertCircle, Truck } from 'lucide-react';
 
 const AdminSettings = () => {
     const { user } = useContext(AuthContext);
     const [giftPackingRate, setGiftPackingRate] = useState('');
+    const [deliveryRate, setDeliveryRate] = useState('');
+    const [freeDeliveryThreshold, setFreeDeliveryThreshold] = useState('');
     const [promotionalOffers, setPromotionalOffers] = useState('');
     const [loading, setLoading] = useState(true);
     const [updating, setUpdating] = useState(false);
@@ -16,7 +18,9 @@ const AdminSettings = () => {
         const fetchSettings = async () => {
             try {
                 const { data } = await axios.get('/api/settings');
-                setGiftPackingRate(data.giftPackingRate || 0);
+                setGiftPackingRate(data.giftPackingRate !== undefined ? data.giftPackingRate : 0);
+                setDeliveryRate(data.deliveryRate !== undefined ? data.deliveryRate : 5.99);
+                setFreeDeliveryThreshold(data.freeDeliveryThreshold !== undefined ? data.freeDeliveryThreshold : 50.00);
                 setPromotionalOffers(data.promotionalOffers ? data.promotionalOffers.join('\n') : '');
                 setLoading(false);
             } catch (err) {
@@ -36,6 +40,8 @@ const AdminSettings = () => {
             const offersArray = promotionalOffers.split('\n').filter(o => o.trim() !== '');
             await axios.put('/api/settings', {
                 giftPackingRate: Number(giftPackingRate),
+                deliveryRate: Number(deliveryRate),
+                freeDeliveryThreshold: Number(freeDeliveryThreshold),
                 promotionalOffers: offersArray
             }, config);
             
@@ -71,6 +77,42 @@ const AdminSettings = () => {
                         required
                     />
                     <p className="text-sm text-gray-500 mt-2">This rate will be applied to orders when customers select the Gift Packing option at checkout.</p>
+                </div>
+
+                <hr className="border-gray-100" />
+
+                <div>
+                    <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-gray-800">
+                        <Truck className="text-blue-500" /> Delivery Settings
+                    </h2>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label className="block text-gray-700 font-medium mb-2">Base Delivery Rate (£)</label>
+                            <input
+                                type="number"
+                                step="0.01"
+                                value={deliveryRate}
+                                onChange={(e) => setDeliveryRate(e.target.value)}
+                                className="w-full p-4 border border-gray-200 rounded-xl focus:outline-none focus:border-[#00ADEF] transition-all"
+                                required
+                            />
+                            <p className="text-sm text-gray-500 mt-2">The standard cost of delivery.</p>
+                        </div>
+                        
+                        <div>
+                            <label className="block text-gray-700 font-medium mb-2">Free Delivery Threshold (£)</label>
+                            <input
+                                type="number"
+                                step="0.01"
+                                value={freeDeliveryThreshold}
+                                onChange={(e) => setFreeDeliveryThreshold(e.target.value)}
+                                className="w-full p-4 border border-gray-200 rounded-xl focus:outline-none focus:border-[#00ADEF] transition-all"
+                                required
+                            />
+                            <p className="text-sm text-gray-500 mt-2">Cart value required to waive delivery fee.</p>
+                        </div>
+                    </div>
                 </div>
 
                 <hr className="border-gray-100" />

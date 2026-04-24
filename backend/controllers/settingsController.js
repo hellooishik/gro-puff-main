@@ -9,6 +9,8 @@ const getSettings = asyncHandler(async (req, res) => {
     if (!settings) {
         settings = await Settings.create({
             giftPackingRate: 2.00,
+            deliveryRate: 5.99,
+            freeDeliveryThreshold: 50.00,
             promotionalOffers: ['£10 OFF Your First Order!', 'Spend £20 Get Free Milk!']
         });
     }
@@ -19,7 +21,7 @@ const getSettings = asyncHandler(async (req, res) => {
 // @route   PUT /api/settings
 // @access  Private/Admin
 const updateSettings = asyncHandler(async (req, res) => {
-    const { giftPackingRate, promotionalOffers } = req.body;
+    const { giftPackingRate, promotionalOffers, deliveryRate, freeDeliveryThreshold } = req.body;
 
     let settings = await Settings.findOne({});
 
@@ -28,6 +30,8 @@ const updateSettings = asyncHandler(async (req, res) => {
     }
 
     settings.giftPackingRate = giftPackingRate !== undefined ? giftPackingRate : settings.giftPackingRate;
+    settings.deliveryRate = deliveryRate !== undefined ? deliveryRate : settings.deliveryRate;
+    settings.freeDeliveryThreshold = freeDeliveryThreshold !== undefined ? freeDeliveryThreshold : settings.freeDeliveryThreshold;
     settings.promotionalOffers = promotionalOffers !== undefined ? promotionalOffers : settings.promotionalOffers;
 
     const updatedSettings = await settings.save();

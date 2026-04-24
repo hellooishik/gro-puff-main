@@ -7,6 +7,16 @@ const settingsSchema = mongoose.Schema(
             required: true,
             default: 2.00,
         },
+        deliveryRate: {
+            type: Number,
+            required: true,
+            default: 5.99,
+        },
+        freeDeliveryThreshold: {
+            type: Number,
+            required: true,
+            default: 50.00,
+        },
         promotionalOffers: {
             type: [String],
             required: true,

@@ -11,6 +11,8 @@ const CartPage = () => {
     const navigate = useNavigate();
     const [isGiftPacked, setIsGiftPacked] = useState(false);
     const [globalGiftPackingRate, setGlobalGiftPackingRate] = useState(2.00);
+    const [globalDeliveryRate, setGlobalDeliveryRate] = useState(5.99);
+    const [globalFreeDeliveryThreshold, setGlobalFreeDeliveryThreshold] = useState(50.00);
 
     useEffect(() => {
         const fetchSettings = async () => {
@@ -18,6 +20,12 @@ const CartPage = () => {
                 const { data } = await axios.get('/api/settings');
                 if (data.giftPackingRate !== undefined) {
                     setGlobalGiftPackingRate(data.giftPackingRate);
+                }
+                if (data.deliveryRate !== undefined) {
+                    setGlobalDeliveryRate(data.deliveryRate);
+                }
+                if (data.freeDeliveryThreshold !== undefined) {
+                    setGlobalFreeDeliveryThreshold(data.freeDeliveryThreshold);
                 }
             } catch (error) {
                 console.error("Failed to fetch settings", error);
@@ -28,7 +36,7 @@ const CartPage = () => {
 
     const totalItems = cartItems.reduce((acc, item) => acc + item.qty, 0);
     const subtotal = cartItems.reduce((acc, item) => acc + item.qty * item.price, 0).toFixed(2);
-    const deliveryFee = subtotal > 50 ? 0.00 : 5.99;
+    const deliveryFee = subtotal > globalFreeDeliveryThreshold ? 0.00 : globalDeliveryRate;
     const giftFee = isGiftPacked ? globalGiftPackingRate : 0.00;
     const total = (parseFloat(subtotal) + (deliveryFee === 'Free' ? 0 : parseFloat(deliveryFee)) + giftFee).toFixed(2);
 
@@ -135,7 +143,7 @@ const CartPage = () => {
                                         <span>Delivery Fee</span>
                                         {deliveryFee === 0 
                                             ? <span className="font-black text-green-600 bg-green-100 px-2 py-0.5 rounded uppercase tracking-wider text-xs">Free</span>
-                                            : <span className="font-bold text-gray-800 text-base">£{deliveryFee}</span>
+                                            : <span className="font-bold text-gray-800 text-base">£{deliveryFee.toFixed(2)}</span>
                                         }
                                     </div>
                                     {isGiftPacked && (
@@ -186,7 +194,7 @@ const CartPage = () => {
                                 
                                 {deliveryFee !== 0 && (
                                     <p className="text-center text-xs text-green-400 font-bold mt-5 flex items-center justify-center gap-1.5 bg-green-500/10 py-2 rounded-lg border border-green-500/20">
-                                        Add £{(50 - subtotal).toFixed(2)} more for FREE delivery
+                                        Add £{(globalFreeDeliveryThreshold - subtotal).toFixed(2)} more for FREE delivery
                                     </p>
                                 )}
                                 {deliveryFee === 0 && (

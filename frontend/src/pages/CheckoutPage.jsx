@@ -24,6 +24,8 @@ const CheckoutPage = () => {
     const [errorMsg, setErrorMsg] = useState('');
     const [isFirstOrder, setIsFirstOrder] = useState(false);
     const [globalGiftPackingRate, setGlobalGiftPackingRate] = useState(2.00);
+    const [globalDeliveryRate, setGlobalDeliveryRate] = useState(5.99);
+    const [globalFreeDeliveryThreshold, setGlobalFreeDeliveryThreshold] = useState(50.00);
     
     const [couponCode, setCouponCode] = useState('');
     const [appliedCoupon, setAppliedCoupon] = useState(null);
@@ -57,6 +59,12 @@ const CheckoutPage = () => {
                 if (data.giftPackingRate !== undefined) {
                     setGlobalGiftPackingRate(data.giftPackingRate);
                 }
+                if (data.deliveryRate !== undefined) {
+                    setGlobalDeliveryRate(data.deliveryRate);
+                }
+                if (data.freeDeliveryThreshold !== undefined) {
+                    setGlobalFreeDeliveryThreshold(data.freeDeliveryThreshold);
+                }
             } catch (error) {
                 console.error("Failed to fetch settings", error);
             }
@@ -84,7 +92,7 @@ const CheckoutPage = () => {
     }, [user, cartItems, navigate]);
 
     const subtotal = cartItems.reduce((acc, item) => acc + item.qty * item.price, 0).toFixed(2);
-    const deliveryFee = parseFloat(subtotal) > 50 ? 0.00 : 5.99;
+    const deliveryFee = parseFloat(subtotal) > globalFreeDeliveryThreshold ? 0.00 : globalDeliveryRate;
     
     // Calculate total
     const giftFee = isGiftPacked ? globalGiftPackingRate : 0.00;
@@ -425,7 +433,7 @@ const CheckoutPage = () => {
                                         <span>Delivery</span>
                                         {deliveryFee === 0 
                                             ? <span className="font-black text-green-600 bg-green-100 px-2 py-0.5 rounded uppercase tracking-wider text-xs">Free</span>
-                                            : <span className="font-bold text-gray-800">£{deliveryFee}</span>
+                                            : <span className="font-bold text-gray-800">£{deliveryFee.toFixed(2)}</span>
                                         }
                                     </div>
                                     
