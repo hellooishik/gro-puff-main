@@ -160,11 +160,11 @@ const addOrderItems = asyncHandler(async (req, res) => {
                 <p><strong>Total Amount:</strong> £${createdOrder.totalPrice.toFixed(2)}</p>
                 <p>We will notify you once it ships. You can view your order details <a href="£{orderUrl}">here</a>.</p>
             `;
-            await sendEmail({
+            sendEmail({
                 email: req.user.email,
                 subject: `Order Confirmation - #${createdOrder._id}`,
                 html: message,
-            });
+            }).catch(console.error);
         } catch (error) {
             console.error('Email could not be sent:', error);
         }
@@ -246,6 +246,28 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
         }
 
         const updatedOrder = await order.save();
+
+        if (updatedOrder.status === 'Delivered') {
+            try {
+                const populatedOrder = await Order.findById(updatedOrder._id).populate('user', 'name email');
+                const frontendUrl = process.env.FRONTEND_URL || req.headers.origin || 'http://localhost:5173';
+                const orderUrl = `${frontendUrl}/order/${populatedOrder._id}`;
+                const message = `
+                    <h2>Your Order has been Delivered, ${populatedOrder.user.name}! 🎉</h2>
+                    <p>Your order <strong>#${populatedOrder._id}</strong> has successfully arrived at your destination.</p>
+                    <p><strong>Total Amount:</strong> £${populatedOrder.totalPrice.toFixed(2)}</p>
+                    <p>Thank you for shopping with Winkin. You can view your order details <a href="${orderUrl}">here</a>.</p>
+                `;
+                sendEmail({
+                    email: populatedOrder.user.email,
+                    subject: `Order Delivered - #${populatedOrder._id}`,
+                    html: message,
+                }).catch(console.error);
+            } catch (error) {
+                console.error('Delivery confirmation email failed:', error);
+            }
+        }
+
         res.json(updatedOrder);
     } else {
         res.status(404);
@@ -387,11 +409,11 @@ const updateOrderToPaid = asyncHandler(async (req, res) => {
                 <p><strong>Total Amount:</strong> £${populatedOrder.totalPrice.toFixed(2)}</p>
                 <p>We will notify you once it ships. You can view your order details <a href="£{orderUrl}">here</a>.</p>
             `;
-            await sendEmail({
+            sendEmail({
                 email: populatedOrder.user.email,
                 subject: `Payment Confirmed - Order #${populatedOrder._id}`,
                 html: message,
-            });
+            }).catch(console.error);
         } catch (error) {
             console.error('Payment confirmation email failed:', error);
         }

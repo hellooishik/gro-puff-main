@@ -16,14 +16,14 @@ const OrderDetails = () => {
     const [error, setError] = useState(null);
     const [cancelling, setCancelling] = useState(false);
     const [retryingPayment, setRetryingPayment] = useState(false);
-    const [timeLeft, setTimeLeft] = useState(600); // 10 minutes
+    const [timeLeft, setTimeLeft] = useState(1200); // 20 minutes
 
     useEffect(() => {
         if (order && order.status === 'Pending') {
             const orderTime = new Date(order.createdAt).getTime();
             const now = new Date().getTime();
             const diffSecs = Math.floor((now - orderTime) / 1000);
-            const remaining = 600 - diffSecs;
+            const remaining = 1200 - diffSecs;
             setTimeLeft(remaining > 0 ? remaining : 0);
 
             if (remaining > 0) {
