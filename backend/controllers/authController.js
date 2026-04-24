@@ -48,6 +48,7 @@ const registerUser = asyncHandler(async (req, res) => {
             username: user.username,
             phone: user.phone,
             role: user.role,
+            avatar: user.avatar,
             token: generateToken(user._id),
         });
     } else {
@@ -73,6 +74,7 @@ const loginUser = asyncHandler(async (req, res) => {
             username: user.username,
             phone: user.phone,
             role: user.role,
+            avatar: user.avatar,
             token: generateToken(user._id),
         });
     } else {
@@ -92,6 +94,7 @@ const getMe = asyncHandler(async (req, res) => {
         username: req.user.username,
         phone: req.user.phone,
         role: req.user.role,
+        avatar: req.user.avatar,
     });
 });
 
@@ -102,10 +105,14 @@ const updateUserProfile = asyncHandler(async (req, res) => {
     const user = await User.findById(req.user._id);
 
     if (user) {
-        user.name = req.body.name || user.name;
-        user.email = req.body.email || user.email;
-        user.username = req.body.username || user.username;
-        user.phone = req.body.phone || user.phone;
+        user.name = req.body.name !== undefined ? req.body.name : user.name;
+        user.email = req.body.email !== undefined ? req.body.email : user.email;
+        user.username = req.body.username !== undefined ? req.body.username : user.username;
+        user.phone = req.body.phone !== undefined ? req.body.phone : user.phone;
+
+        if (req.body.avatar !== undefined) {
+            user.avatar = req.body.avatar;
+        }
 
         if (req.body.password) {
             user.password = req.body.password;
@@ -120,6 +127,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
             username: updatedUser.username,
             phone: updatedUser.phone,
             role: updatedUser.role,
+            avatar: updatedUser.avatar,
             token: generateToken(updatedUser._id),
         });
     } else {
@@ -157,11 +165,15 @@ const updateUser = asyncHandler(async (req, res) => {
     const user = await User.findById(req.params.id);
 
     if (user) {
-        user.name = req.body.name || user.name;
-        user.email = req.body.email || user.email;
-        user.username = req.body.username || user.username;
-        user.phone = req.body.phone || user.phone;
+        user.name = req.body.name !== undefined ? req.body.name : user.name;
+        user.email = req.body.email !== undefined ? req.body.email : user.email;
+        user.username = req.body.username !== undefined ? req.body.username : user.username;
+        user.phone = req.body.phone !== undefined ? req.body.phone : user.phone;
         user.role = req.body.role || user.role;
+
+        if (req.body.avatar !== undefined) {
+            user.avatar = req.body.avatar;
+        }
 
         const updatedUser = await user.save();
 
@@ -172,6 +184,7 @@ const updateUser = asyncHandler(async (req, res) => {
             username: updatedUser.username,
             phone: updatedUser.phone,
             role: updatedUser.role,
+            avatar: updatedUser.avatar,
         });
     } else {
         res.status(404);

@@ -2,7 +2,7 @@ import { useState, useEffect, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from '../api/axios';
 import AuthContext from '../context/AuthContext';
-import { Package, Calendar, MapPin, CheckCircle, Clock, Truck } from 'lucide-react';
+import { Package, Calendar, MapPin, CheckCircle, Clock, Truck, Camera } from 'lucide-react';
 
 const ProfilePage = () => {
     const { user, updateProfile } = useContext(AuthContext);
@@ -17,6 +17,7 @@ const ProfilePage = () => {
     const [email, setEmail] = useState('');
     const [username, setUsername] = useState('');
     const [phone, setPhone] = useState('');
+    const [avatar, setAvatar] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [profileMessage, setProfileMessage] = useState(null);
@@ -49,6 +50,7 @@ const ProfilePage = () => {
             setEmail(user.email || '');
             setUsername(user.username || '');
             setPhone(user.phone || '');
+            setAvatar(user.avatar || '');
             fetchMyOrders();
         }
     }, [user, navigate]);
@@ -67,6 +69,7 @@ const ProfilePage = () => {
                     email,
                     username,
                     phone,
+                    avatar,
                     password: password || undefined
                 });
                 setUpdateSuccess(true);
@@ -76,6 +79,22 @@ const ProfilePage = () => {
             } catch (err) {
                 setProfileMessage(typeof err === 'string' ? err : err.message || 'Update failed');
             }
+        }
+    };
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            // Check file size (max 2MB to fit in MongoDB easily)
+            if (file.size > 2 * 1024 * 1024) {
+                setProfileMessage('Image must be less than 2MB');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setAvatar(reader.result);
+            };
+            reader.readAsDataURL(file);
         }
     };
 
@@ -136,10 +155,20 @@ const ProfilePage = () => {
                             <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-3/4 h-8 bg-[#850E18] rounded-t-2xl" style={{ clipPath: 'polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%)' }}></div>
 
                             <div className="flex items-center space-x-4 mb-8 mt-2">
-                                <div className="bg-[#FFD100] border-4 border-black w-20 h-20 rounded-full flex items-center justify-center shadow-[4px_4px_0_#000] transform rotate-[-5deg]">
-                                    <span className="text-4xl font-black text-black">
-                                        {user?.name?.charAt(0)?.toUpperCase() || '🚜'}
-                                    </span>
+                                <div className="relative group">
+                                    <div className="bg-[#FFD100] border-4 border-black w-20 h-20 rounded-full flex items-center justify-center shadow-[4px_4px_0_#000] transform rotate-[-5deg] overflow-hidden bg-white">
+                                        {avatar ? (
+                                            <img src={avatar} alt="Avatar" className="w-full h-full object-cover transform rotate-[5deg] scale-125" />
+                                        ) : (
+                                            <span className="text-4xl font-black text-black">
+                                                {name?.charAt(0)?.toUpperCase() || user?.name?.charAt(0)?.toUpperCase() || '🚜'}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <label className="absolute -bottom-1 -right-1 bg-white text-black p-1.5 rounded-full border-2 border-black cursor-pointer shadow-sm hover:scale-110 transition-transform">
+                                        <Camera size={16} strokeWidth={3} />
+                                        <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} />
+                                    </label>
                                 </div>
                                 <div>
                                     <h2 className="text-2xl font-black uppercase tracking-wide" style={{ textShadow: '2px 2px 0 #000' }}>{user?.name || 'Farmer'}</h2>

@@ -96,6 +96,11 @@ const Header = () => {
                                 <span className="text-[#2E8B57] font-black uppercase text-[10px] tracking-wider block">Howdy,</span>
                                 <span className="font-black text-gray-900 text-sm">{user.name}</span>
                             </div>
+                            {user.avatar && (
+                                <div className="w-10 h-10 rounded-full border-2 border-black overflow-hidden bg-white shadow-sm flex-shrink-0">
+                                    <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                                </div>
+                            )}
                             {user.role === 'admin' && (
                                 <Link to="/admin/dashboard" className="text-white bg-[#2E8B57] text-xs font-black uppercase px-3 py-1.5 rounded-md border-2 border-black hover:bg-[#1e5c39] transition shadow-[0_2px_0_#000]">
                                     Admin
