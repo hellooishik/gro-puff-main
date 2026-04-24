@@ -152,7 +152,8 @@ const addOrderItems = asyncHandler(async (req, res) => {
     // Send order confirmation email immediately ONLY for COD or free orders
     if (createdOrder.paymentMethod === 'COD' || createdOrder.totalPrice === 0) {
         try {
-            const orderUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/profile`; // Or specific order page when ready
+            const frontendUrl = process.env.FRONTEND_URL || req.headers.origin || 'http://localhost:5173';
+            const orderUrl = `${frontendUrl}/profile`; // Or specific order page when ready
             const message = `
                 <h2>Thank you for your order, ${req.user.name}!</h2>
                 <p>Your order <strong>#${createdOrder._id}</strong> has been successfully placed.</p>
@@ -378,7 +379,8 @@ const updateOrderToPaid = asyncHandler(async (req, res) => {
         // Send payment confirmation email
         try {
             const populatedOrder = await Order.findById(updatedOrder._id).populate('user', 'name email');
-            const orderUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/profile`;
+            const frontendUrl = process.env.FRONTEND_URL || req.headers.origin || 'http://localhost:5173';
+            const orderUrl = `${frontendUrl}/profile`;
             const message = `
                 <h2>Payment Successful, ${populatedOrder.user.name}!</h2>
                 <p>Your order <strong>#${populatedOrder._id}</strong> has been successfully paid and confirmed.</p>
@@ -413,7 +415,7 @@ const createCheckoutSession = asyncHandler(async (req, res) => {
         throw new Error('Invalid amount for Stripe checkout. Order must have a positive total.');
     }
 
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const frontendUrl = process.env.FRONTEND_URL || req.headers.origin || 'http://localhost:5173';
 
     try {
         const session = await stripe.checkout.sessions.create({
