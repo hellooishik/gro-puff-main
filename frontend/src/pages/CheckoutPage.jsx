@@ -11,10 +11,11 @@ const CheckoutPage = () => {
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
 
-    const [address, setAddress] = useState('');
-    const [city, setCity] = useState('');
-    const [postalCode, setPostalCode] = useState('');
-    const [country, setCountry] = useState('United Kingdom');
+    const savedAddress = JSON.parse(localStorage.getItem('savedAddress')) || {};
+    const [address, setAddress] = useState(savedAddress.address || '');
+    const [city, setCity] = useState(savedAddress.city || '');
+    const [postalCode, setPostalCode] = useState(savedAddress.postalCode || '');
+    const [country, setCountry] = useState(savedAddress.country || 'United Kingdom');
     const [paymentMethod, setPaymentMethod] = useState('COD');
     const [deliveryInstruction, setDeliveryInstruction] = useState('None');
     const [tipAmount, setTipAmount] = useState(0);
@@ -143,6 +144,8 @@ const CheckoutPage = () => {
             };
 
             const { data } = await axios.post('/api/orders', orderPayload, config);
+
+            localStorage.setItem('savedAddress', JSON.stringify({ address, city, postalCode, country }));
 
             if (paymentMethod === 'Online Pay') {
                 if (computedTotal > 0) {

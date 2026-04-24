@@ -221,23 +221,29 @@ const HomePage = () => {
                     )}
                 </div>
 
-                {/* Categories Grid */}
-                <div className="mb-16 mt-12 bg-white p-6 md:p-10 rounded-3xl shadow-[0_20px_0_#2E8B57] border-[6px] border-[#3B6E1A] relative z-20">
-                    <h2 className="text-3xl md:text-5xl font-black text-[#3B6E1A] mb-8 uppercase text-center tracking-tighter" style={{ textShadow: '2px 2px 0 #FFD100' }}>
+                <div className="mb-12 mt-10 bg-white p-6 md:p-8 rounded-[2rem] shadow-sm border border-gray-100 relative z-20">
+                    <h2 className="text-2xl md:text-3xl font-black text-gray-900 mb-6 uppercase tracking-tight flex items-center gap-3">
                         Shop By Category
+                        <span className="bg-gray-100 text-gray-400 text-xs px-2 py-1 rounded-full font-bold tracking-widest hidden md:inline-block">SWIPE &rarr;</span>
                     </h2>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+                    <div 
+                        className="flex overflow-x-auto snap-x snap-mandatory gap-4 md:gap-8 pb-4"
+                        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                    >
+                        {/* Hide scrollbar trick for webkit */}
+                        <style>{`.flex::-webkit-scrollbar { display: none; }`}</style>
+                        
                         {categories.map((c, idx) => (
-                            <Link to={`/search?category=${encodeURIComponent(c.name)}`} key={c._id || c.name} className="group cursor-pointer block transform hover:scale-105 transition-transform duration-200">
-                                <div className={`h-32 md:h-48 rounded-2xl p-4 md:p-6 text-center border-[4px] border-black flex flex-col items-center justify-center shadow-[4px_4px_0_#000] overflow-hidden relative ${idx % 2 === 0 ? 'bg-[#FFD100]' : 'bg-[#60B3E6]'}`}>
-                                    <div className="w-12 h-12 md:w-20 md:h-20 bg-white rounded-full flex items-center justify-center text-3xl md:text-4xl mb-3 border-4 border-black shadow-inner overflow-hidden relative z-10">
+                            <Link to={`/search?category=${encodeURIComponent(c.name)}`} key={c._id || c.name} className="snap-start shrink-0 group flex flex-col items-center gap-3 w-24 md:w-32">
+                                <div className={`w-24 h-24 md:w-28 md:h-28 rounded-full border-[3px] border-black p-1.5 flex items-center justify-center shadow-[4px_4px_0_#000] group-hover:-translate-y-1 transition-all relative overflow-hidden ${idx % 2 === 0 ? 'bg-[#FFD100]' : 'bg-[#60B3E6]'}`}>
+                                    <div className="w-full h-full rounded-full overflow-hidden bg-white flex items-center justify-center text-3xl border-2 border-black">
                                         {c.image 
-                                            ? <img src={c.image} alt={c.name} className="w-full h-full object-cover" />
+                                            ? <img src={c.image} alt={c.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
                                             : '🛒'
                                         }
                                     </div>
-                                    <h3 className="text-lg md:text-2xl font-black text-black tracking-tight uppercase leading-tight relative z-10">{c.name}</h3>
                                 </div>
+                                <h3 className="text-[11px] md:text-sm font-black text-gray-800 text-center leading-tight uppercase tracking-wide group-hover:text-[#D91C2A] transition-colors line-clamp-2">{c.name}</h3>
                             </Link>
                         ))}
                     </div>
@@ -249,10 +255,10 @@ const HomePage = () => {
                         <h2 className="text-3xl md:text-5xl font-black text-[#3B6E1A] mb-10 uppercase text-center tracking-tighter inline-block relative border-4 border-black bg-white px-8 py-4 shadow-[8px_8px_0_#000] rotate-[1deg]">
                             Most Ordered <span className="text-black">🏆</span>
                         </h2>
-                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
-                            {products.slice(0, 4).map((product) => (
-                                <div key={`top-${product._id}`} className="bg-white rounded-2xl overflow-hidden border-[4px] border-[#3B6E1A] shadow-[6px_6px_0_#3B6E1A] flex flex-col group hover:-translate-y-2 transition-transform duration-300">
-                                    <Link to={`/product/${product._id}`} className="block relative aspect-square p-6 bg-gray-50 border-b-[4px] border-[#3B6E1A]">
+                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-5">
+                            {products.slice(0, 6).map((product) => (
+                                <div key={`top-${product._id}`} className="bg-white rounded-2xl overflow-hidden border-2 border-gray-100 shadow-sm flex flex-col group hover:-translate-y-1 hover:shadow-md hover:border-[#3B6E1A]/30 transition-all duration-300">
+                                    <Link to={`/product/${product._id}`} className="block relative aspect-square p-3 bg-white border-b border-gray-50">
                                         <div className="absolute top-2 left-2 bg-[#D91C2A] text-white font-black px-3 py-1 text-sm border-2 border-black rotate-[-5deg] z-10 shadow-sm">
                                             BEST SELLER
                                         </div>
@@ -262,16 +268,16 @@ const HomePage = () => {
                                             className="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition duration-300 ease-out drop-shadow-md relative z-0"
                                         />
                                     </Link>
-                                    <div className="p-4 md:p-5 flex flex-col flex-grow text-left">
+                                    <div className="p-3 md:p-4 flex flex-col flex-grow text-left">
                                         <div className="flex-grow">
-                                            <h3 className="font-bold text-gray-900 md:text-lg leading-tight mb-1 line-clamp-2">
+                                            <h3 className="font-bold text-gray-800 text-sm md:text-base leading-tight mb-1 line-clamp-2">
                                                 <Link to={`/product/${product._id}`}>{product.name}</Link>
                                             </h3>
-                                            <p className="text-xs text-gray-500 font-bold uppercase">{product.brand}</p>
+                                            <p className="text-[10px] md:text-xs text-gray-400 font-bold uppercase tracking-wider">{product.brand}</p>
                                         </div>
-                                        <div className="mt-4 flex justify-between items-center">
-                                            <span className="font-black text-2xl md:text-3xl text-[#3B6E1A]">£{product.price.toFixed(2)}</span>
-                                            <button onClick={(e) => handleAddToCart(e, product)} className="bg-[#D91C2A] text-white w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center font-black text-2xl md:text-3xl border-[3px] border-black shadow-[0_4px_0_#000] hover:translate-y-1 hover:shadow-[0_2px_0_#000] active:translate-y-2 active:shadow-none transition">
+                                        <div className="mt-3 flex justify-between items-center">
+                                            <span className="font-black text-lg md:text-xl text-[#3B6E1A]">£{product.price.toFixed(2)}</span>
+                                            <button onClick={(e) => handleAddToCart(e, product)} className="bg-[#D91C2A] text-white w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center font-black text-xl border-2 border-transparent hover:scale-105 active:scale-95 transition-all shadow-sm">
                                                 +
                                             </button>
                                         </div>
@@ -288,10 +294,10 @@ const HomePage = () => {
                         <h2 className="text-3xl md:text-5xl font-black text-[#D91C2A] mb-10 uppercase text-center tracking-tighter inline-block relative border-4 border-black bg-[#FFD100] px-8 py-4 shadow-[8px_8px_0_#000] rotate-[-2deg]">
                             Trending Near You <span className="text-black">🔥</span>
                         </h2>
-                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
-                            {products.slice(4, 12).map((product) => (
-                                <div key={`trend-${product._id}`} className="bg-white rounded-2xl overflow-hidden border-[4px] border-black shadow-[6px_6px_0_#000] flex flex-col group hover:-translate-y-2 transition-transform duration-300">
-                                    <Link to={`/product/${product._id}`} className="block relative aspect-square p-6 bg-gray-50 border-b-[4px] border-black">
+                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-5">
+                            {products.slice(6, 18).map((product) => (
+                                <div key={`trend-${product._id}`} className="bg-white rounded-2xl overflow-hidden border-2 border-gray-100 shadow-sm flex flex-col group hover:-translate-y-1 hover:shadow-md hover:border-[#D91C2A]/30 transition-all duration-300">
+                                    <Link to={`/product/${product._id}`} className="block relative aspect-square p-3 bg-white border-b border-gray-50">
                                         <div className="absolute top-2 left-2 bg-[#FFD100] text-black font-black px-3 py-1 text-sm border-2 border-black rotate-[3deg] z-10 shadow-sm">
                                             HOT
                                         </div>
@@ -301,16 +307,16 @@ const HomePage = () => {
                                             className="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition duration-300 ease-out drop-shadow-md"
                                         />
                                     </Link>
-                                    <div className="p-4 md:p-5 flex flex-col flex-grow text-left">
+                                    <div className="p-3 md:p-4 flex flex-col flex-grow text-left">
                                         <div className="flex-grow">
-                                            <h3 className="font-bold text-gray-900 md:text-lg leading-tight mb-1 line-clamp-2">
+                                            <h3 className="font-bold text-gray-800 text-sm md:text-base leading-tight mb-1 line-clamp-2">
                                                 <Link to={`/product/${product._id}`}>{product.name}</Link>
                                             </h3>
-                                            <p className="text-xs text-gray-500 font-bold uppercase">{product.brand}</p>
+                                            <p className="text-[10px] md:text-xs text-gray-400 font-bold uppercase tracking-wider">{product.brand}</p>
                                         </div>
-                                        <div className="mt-4 flex justify-between items-center">
-                                            <span className="font-black text-2xl md:text-3xl text-[#3B6E1A]">£{product.price.toFixed(2)}</span>
-                                            <button onClick={(e) => handleAddToCart(e, product)} className="bg-[#D91C2A] text-white w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center font-black text-2xl md:text-3xl border-[3px] border-black shadow-[0_4px_0_#000] hover:translate-y-1 hover:shadow-[0_2px_0_#000] active:translate-y-2 active:shadow-none transition">
+                                        <div className="mt-3 flex justify-between items-center">
+                                            <span className="font-black text-lg md:text-xl text-[#3B6E1A]">£{product.price.toFixed(2)}</span>
+                                            <button onClick={(e) => handleAddToCart(e, product)} className="bg-[#D91C2A] text-white w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center font-black text-xl border-2 border-transparent hover:scale-105 active:scale-95 transition-all shadow-sm">
                                                 +
                                             </button>
                                         </div>
@@ -339,22 +345,22 @@ const HomePage = () => {
                                             View All &rarr;
                                         </Link>
                                     </div>
-                                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                                        {catProducts.slice(0, 4).map(product => (
-                                            <div key={product._id} className="bg-white rounded-2xl overflow-hidden border-[4px] border-black shadow-[4px_4px_0_#000] flex flex-col group hover:-translate-y-1 transition-transform duration-300">
-                                                <Link to={`/product/${product._id}`} className="block relative aspect-square p-4 bg-gray-50 border-b-[4px] border-black">
+                                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-5">
+                                        {catProducts.slice(0, 6).map(product => (
+                                            <div key={product._id} className="bg-white rounded-2xl overflow-hidden border-2 border-gray-100 shadow-sm flex flex-col group hover:-translate-y-1 hover:shadow-md hover:border-[#3B6E1A]/30 transition-all duration-300">
+                                                <Link to={`/product/${product._id}`} className="block relative aspect-square p-3 bg-white border-b border-gray-50">
                                                     <img src={product.image} alt={product.name} className="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition duration-300" />
                                                 </Link>
-                                                <div className="p-4 flex flex-col flex-grow text-left">
+                                                <div className="p-3 md:p-4 flex flex-col flex-grow text-left">
                                                     <div className="flex-grow">
-                                                        <h3 className="font-bold text-gray-900 leading-tight mb-1 line-clamp-2">
+                                                        <h3 className="font-bold text-gray-800 text-sm md:text-base leading-tight mb-1 line-clamp-2">
                                                             <Link to={`/product/${product._id}`}>{product.name}</Link>
                                                         </h3>
-                                                        <p className="text-xs text-gray-500 font-bold uppercase">{product.brand}</p>
+                                                        <p className="text-[10px] md:text-xs text-gray-400 font-bold uppercase tracking-wider">{product.brand}</p>
                                                     </div>
                                                     <div className="mt-3 flex justify-between items-center">
-                                                        <span className="font-black text-2xl text-[#3B6E1A]">£{product.price.toFixed(2)}</span>
-                                                        <button onClick={(e) => handleAddToCart(e, product)} className="bg-[#D91C2A] text-white w-10 h-10 rounded-full flex items-center justify-center font-black text-2xl border-[3px] border-black shadow-[0_3px_0_#000] hover:translate-y-1 hover:shadow-none transition">
+                                                        <span className="font-black text-lg md:text-xl text-[#3B6E1A]">£{product.price.toFixed(2)}</span>
+                                                        <button onClick={(e) => handleAddToCart(e, product)} className="bg-[#D91C2A] text-white w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center font-black text-xl border-2 border-transparent hover:scale-105 active:scale-95 transition-all shadow-sm">
                                                             +
                                                         </button>
                                                     </div>
