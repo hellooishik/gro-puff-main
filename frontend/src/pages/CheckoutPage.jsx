@@ -32,6 +32,7 @@ const CheckoutPage = () => {
     const [couponError, setCouponError] = useState('');
 
     const [successState, setSuccessState] = useState(null);
+    const [isOrderSubmitted, setIsOrderSubmitted] = useState(false);
 
     const ukPostcodeRegex = /^([A-Z]{1,2}\d[A-Z\d]? ?\d[A-Z]{2}|GIR ?0AA)$/i;
 
@@ -67,8 +68,8 @@ const CheckoutPage = () => {
 
     useEffect(() => {
         if (!user) navigate('/login');
-        if (cartItems.length === 0 && !successState) navigate('/cart');
-    }, [user, cartItems, navigate, successState]);
+        if (cartItems.length === 0 && !successState && !isOrderSubmitted) navigate('/cart');
+    }, [user, cartItems, navigate, successState, isOrderSubmitted]);
 
     useEffect(() => {
         if (successState) {
@@ -119,6 +120,7 @@ const CheckoutPage = () => {
         }
 
         setLoading(true);
+        setIsOrderSubmitted(true);
 
         try {
             const config = { headers: { Authorization: `Bearer ${user.token}` } };
@@ -176,6 +178,7 @@ const CheckoutPage = () => {
             console.error('Error details:', error);
             setErrorMsg(error.response?.data?.message || 'An error occurred. Please try again.');
             setLoading(false);
+            setIsOrderSubmitted(false);
         }
     };
 
