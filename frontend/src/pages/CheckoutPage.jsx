@@ -217,7 +217,7 @@ const CheckoutPage = () => {
                             <p className="text-gray-500 font-medium text-lg mb-8 leading-relaxed">
                                 {successState.type === 'stripe' 
                                     ? "Thank you! We're transferring you securely to Stripe to complete your payment..."
-                                    : "Thank you! Your awesome order has been placed and is being processed."}
+                                    : "Thank you! Your awesome order has been placed. An SMS confirmation is on its way!"}
                             </p>
                             
                             <motion.div 

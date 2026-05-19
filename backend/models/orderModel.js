@@ -91,6 +91,11 @@ const orderSchema = mongoose.Schema(
             default: 'Pending',
             enum: ['Pending', 'Packed', 'Out for Delivery', 'Delivered', 'Cancelled'],
         },
+        smsNotifications: {
+            received: { sent: { type: Boolean, default: false }, timestamp: { type: Date } },
+            shipped: { sent: { type: Boolean, default: false }, timestamp: { type: Date } },
+            delivered: { sent: { type: Boolean, default: false }, timestamp: { type: Date } }
+        },
     },
     {
         timestamps: true,

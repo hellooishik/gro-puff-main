@@ -9,7 +9,8 @@ const {
     getVendorSales,
     cancelOrder,
     updateOrderToPaid,
-    createCheckoutSession
+    createCheckoutSession,
+    resendSmsNotification
 } = require('../controllers/orderController');
 const { protect, admin, adminOrVendor } = require('../middleware/authMiddleware');
 
@@ -21,5 +22,6 @@ router.route('/:id/status').put(protect, admin, updateOrderStatus);
 router.route('/:id/cancel').put(protect, cancelOrder);
 router.route('/:id/pay').put(protect, updateOrderToPaid);
 router.route('/create-checkout-session').post(protect, createCheckoutSession);
+router.route('/:id/resend-sms').post(protect, admin, resendSmsNotification);
 
 module.exports = router;

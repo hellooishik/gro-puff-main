@@ -5,6 +5,7 @@ const Product = require('../models/productModel');
 const sendEmail = require('../utils/sendEmail');
 const Cart = require('../models/cartModel');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const { sendSMS } = require('../utils/sendSMS');
 
 // Helper for Haversine
 function getDistanceFromLatLonInMiles(lat1, lon1, lat2, lon2) {
@@ -149,6 +150,27 @@ const addOrderItems = asyncHandler(async (req, res) => {
 
     const createdOrder = await order.save();
 
+    // Queue SMS for customer and admin
+    try {
+        const customerPhone = req.user.phone;
+        const adminPhone = process.env.ADMIN_PHONE_NUMBER;
+        
+        if (customerPhone) {
+            const customerMsg = `Hi ${req.user.name}, your order #${createdOrder._id} has been received successfully and is now being processed. Thank you for shopping with Winkin.`;
+            sendSMS(customerPhone, customerMsg);
+        }
+        
+        if (adminPhone) {
+            const adminMsg = `New order received: Order #${createdOrder._id} by ${req.user.name}`;
+            sendSMS(adminPhone, adminMsg);
+        }
+        
+        createdOrder.smsNotifications.received = { sent: true, timestamp: Date.now() };
+        await createdOrder.save();
+    } catch(err) { 
+        console.error('SMS trigger error:', err); 
+    }
+
     // Send order confirmation email immediately ONLY for COD or free orders
     if (createdOrder.paymentMethod === 'COD' || createdOrder.totalPrice === 0) {
         try {
@@ -247,6 +269,31 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
 
         const updatedOrder = await order.save();
 
+        try {
+            const populatedOrder = await Order.findById(updatedOrder._id).populate('user', 'name phone email');
+            const customerPhone = populatedOrder.user.phone;
+            
+            if (customerPhone) {
+                if (updatedOrder.status === 'Out for Delivery' || updatedOrder.status === 'Packed') {
+                    if (!populatedOrder.smsNotifications.shipped.sent) {
+                        const msg = `Hi ${populatedOrder.user.name}, your order #${populatedOrder._id} has been shipped and is on its way.`;
+                        sendSMS(customerPhone, msg);
+                        populatedOrder.smsNotifications.shipped = { sent: true, timestamp: Date.now() };
+                        await populatedOrder.save();
+                    }
+                } else if (updatedOrder.status === 'Delivered') {
+                    if (!populatedOrder.smsNotifications.delivered.sent) {
+                        const msg = `Hi ${populatedOrder.user.name}, your order #${populatedOrder._id} has been delivered successfully. Thank you for shopping with Winkin.`;
+                        sendSMS(customerPhone, msg);
+                        populatedOrder.smsNotifications.delivered = { sent: true, timestamp: Date.now() };
+                        await populatedOrder.save();
+                    }
+                }
+            }
+        } catch(err) { 
+            console.error('SMS trigger error:', err); 
+        }
+
         if (updatedOrder.status === 'Delivered') {
             try {
                 const populatedOrder = await Order.findById(updatedOrder._id).populate('user', 'name email');
@@ -299,6 +346,18 @@ const cancelOrder = asyncHandler(async (req, res) => {
 
     order.status = 'Cancelled';
     const updatedOrder = await order.save();
+
+    try {
+        const templateData = {
+            customer_name: req.user.name,
+            order_id: updatedOrder._id
+        };
+        if (req.user.phone) {
+            queueSms('order_cancelled', req.user.phone, templateData, updatedOrder._id);
+        }
+    } catch(err) { 
+        console.error('SMS trigger error:', err); 
+    }
 
     // Restore stock and decrement numOrders
     for (const item of updatedOrder.orderItems) {
@@ -467,6 +526,46 @@ const createCheckoutSession = asyncHandler(async (req, res) => {
     }
 });
 
+// @desc    Resend SMS manually
+// @route   POST /api/orders/:id/resend-sms
+// @access  Private/Admin
+const resendSmsNotification = asyncHandler(async (req, res) => {
+    const { type } = req.body;
+    const order = await Order.findById(req.params.id).populate('user', 'name phone email');
+    
+    if (!order) {
+        res.status(404);
+        throw new Error('Order not found');
+    }
+
+    let message = '';
+    const adminPhone = process.env.ADMIN_PHONE_NUMBER;
+
+    if (type === 'received') {
+        message = `Hi ${order.user.name}, your order #${order._id} has been received successfully and is now being processed. Thank you for shopping with Winkin.`;
+        if (order.user.phone) await sendSMS(order.user.phone, message);
+        if (adminPhone) await sendSMS(adminPhone, `New order received: Order #${order._id} by ${order.user.name}`);
+        if (!order.smsNotifications) order.smsNotifications = {};
+        order.smsNotifications.received = { sent: true, timestamp: Date.now() };
+    } else if (type === 'shipped') {
+        message = `Hi ${order.user.name}, your order #${order._id} has been shipped and is on its way.`;
+        if (order.user.phone) await sendSMS(order.user.phone, message);
+        if (!order.smsNotifications) order.smsNotifications = {};
+        order.smsNotifications.shipped = { sent: true, timestamp: Date.now() };
+    } else if (type === 'delivered') {
+        message = `Hi ${order.user.name}, your order #${order._id} has been delivered successfully. Thank you for shopping with Winkin.`;
+        if (order.user.phone) await sendSMS(order.user.phone, message);
+        if (!order.smsNotifications) order.smsNotifications = {};
+        order.smsNotifications.delivered = { sent: true, timestamp: Date.now() };
+    } else {
+        res.status(400);
+        throw new Error('Invalid SMS type');
+    }
+
+    await order.save();
+    res.json({ message: `SMS type '${type}' resent successfully`, order });
+});
+
 module.exports = {
     addOrderItems,
     getOrderById,
@@ -477,4 +576,5 @@ module.exports = {
     cancelOrder,
     updateOrderToPaid,
     createCheckoutSession,
+    resendSmsNotification
 };

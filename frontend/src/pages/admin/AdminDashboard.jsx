@@ -78,9 +78,14 @@ const AdminDashboard = () => {
                     <p className="text-gray-600">Add, edit, and delete discount coupons.</p>
                 </Link>
 
-                <Link to="/admin/settings" className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition text-center col-span-1 md:col-span-2">
+                <Link to="/admin/settings" className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition text-center">
                     <h2 className="text-2xl font-bold mb-2 text-[#00ADEF]">⚙️ Store Settings</h2>
                     <p className="text-gray-600">Update global store settings, display offers, and gift packing rates.</p>
+                </Link>
+
+                <Link to="/admin/sms-settings" className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition text-center">
+                    <h2 className="text-2xl font-bold mb-2 text-[#00ADEF]">💬 SMS Settings</h2>
+                    <p className="text-gray-600">Configure SMS gateway, edit templates, and view delivery logs.</p>
                 </Link>
             </div>
         </div>

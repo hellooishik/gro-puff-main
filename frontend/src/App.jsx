@@ -15,6 +15,7 @@ import AdminUsers from './pages/admin/AdminUsers';
 import AdminCategories from './pages/admin/AdminCategories';
 import AdminCoupons from './pages/admin/AdminCoupons';
 import AdminSettings from './pages/admin/AdminSettings';
+import AdminSMSSettings from './pages/admin/AdminSMSSettings';
 import AdminRoute from './components/AdminRoute';
 import VendorDashboard from './pages/vendor/VendorDashboard';
 import VendorProducts from './pages/vendor/VendorProducts';
@@ -56,6 +57,7 @@ function App() {
                   <Route path="/admin/categories" element={<AdminCategories />} />
                   <Route path="/admin/coupons" element={<AdminCoupons />} />
                   <Route path="/admin/settings" element={<AdminSettings />} />
+                  <Route path="/admin/sms-settings" element={<AdminSMSSettings />} />
                 </Route>
               </Routes>
             </main>

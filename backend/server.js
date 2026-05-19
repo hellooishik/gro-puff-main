@@ -8,6 +8,8 @@ dotenv.config();
 
 connectDB();
 
+const { startSmsWorker } = require('./utils/smsWorker');
+
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const app = express();
@@ -29,6 +31,7 @@ app.use('/api/cart', require('./routes/cartRoutes'));
 app.use('/api/categories', require('./routes/categoryRoutes'));
 app.use('/api/coupons', require('./routes/couponRoutes'));
 app.use('/api/settings', require('./routes/settingsRoutes'));
+app.use('/api/sms', require('./routes/smsRoutes'));
 
 app.use(errorHandler);
 
@@ -39,5 +42,8 @@ module.exports = app;
 
 // Only listen if the file is run directly (not imported)
 if (require.main === module) {
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+        startSmsWorker(); // Start SMS queue worker
+    });
 }
